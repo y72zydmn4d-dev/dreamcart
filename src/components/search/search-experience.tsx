@@ -3,6 +3,7 @@
 import type { Route } from "next";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useMemo, useState, useTransition } from "react";
+import { useCatalog } from "@/components/catalog/catalog-context";
 import { attributeLabel, formatAttribute } from "@/components/product/attribute-format";
 import { ProductCard } from "@/components/product/product-card";
 import { FixtureNotice } from "@/components/prototype/fixture-notice";
@@ -10,27 +11,23 @@ import { Button } from "@/components/ui/button";
 import { CloseIcon, FilterIcon } from "@/components/ui/icons";
 import { Sheet } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
-import { t } from "@/platform/i18n";
+import type { Category } from "@/modules/catalog";
 import {
-  CATEGORIES,
-  PROTOTYPE_PRODUCTS,
-  type AttributeKey,
-  type Category,
-} from "@/prototype/catalog";
-import {
-  EMPTY_STATE,
+  EMPTY_DISCOVERY,
+  EMPTY_FILTERS,
   SORT_KEYS,
   activeFilterCount,
-  categoryCounts,
-  parseSearchState,
-  runSearch,
-  serializeSearchState,
-  type SearchState,
+  discover,
+  parseDiscoveryState,
+  pruneFor,
+  serializeDiscoveryState,
+  type DiscoveryState,
   type SortKey,
-} from "@/prototype/search";
+} from "@/modules/discovery";
+import { t, type DictionaryKey } from "@/platform/i18n";
 import { FilterPanel } from "./filter-panel";
-import { ResultsSkeleton } from "./results-skeleton";
 import { SearchBox } from "./search-box";
+import { EmptyResults } from "./search-states";
 
 const SORT_LABEL_KEYS = {
   relevance: "search.sort.relevance",
@@ -40,34 +37,35 @@ const SORT_LABEL_KEYS = {
 } as const satisfies Record<SortKey, string>;
 
 /**
- * Search results driven entirely by the URL, so every state is shareable and the back button works.
- * `?demo=loading` and `?demo=error` render those states for design review (prototype only).
+ * Search results driven entirely by the URL, so every state is shareable and the back button works. Results come
+ * from the discovery engine over the validated catalog; nothing is ranked by anything we do not have.
  */
 export function SearchExperience() {
   const router = useRouter();
   const params = useSearchParams();
+  const { view, vocabulary, synthetic } = useCatalog();
+  const catalogVocabulary = view.catalog.vocabulary;
   const urlState = useMemo(
-    () => parseSearchState(new URLSearchParams(params.toString())),
+    () => parseDiscoveryState(new URLSearchParams(params.toString())),
     [params],
   );
   // Local state answers clicks immediately (a checkbox must never snap back while the URL updates);
   // the URL stays the source of truth and re-syncs on back/forward and link navigation.
-  const [state, setState] = useState(urlState);
+  const [state, setState] = useState<DiscoveryState>(urlState);
   const [syncedFrom, setSyncedFrom] = useState(urlState);
   if (syncedFrom !== urlState) {
     setSyncedFrom(urlState);
     setState(urlState);
   }
-  const [, startTransition] = useTransition();
-  const demo = params.get("demo");
-  const results = useMemo(() => runSearch(PROTOTYPE_PRODUCTS, state), [state]);
-  const counts = useMemo(() => categoryCounts(PROTOTYPE_PRODUCTS, state), [state]);
+  const [pending, startTransition] = useTransition();
+  const result = useMemo(() => discover(view, state, vocabulary), [view, state, vocabulary]);
   const [filtersOpen, setFiltersOpen] = useState(false);
-  const filterCount = activeFilterCount(state);
+  const filterCount = activeFilterCount(state.filters);
+  const totalAcrossCategories = Object.values(result.categoryCounts).reduce((a, b) => a + b, 0);
 
-  const update = (next: SearchState) => {
+  const update = (next: DiscoveryState) => {
     setState(next);
-    const qs = serializeSearchState(next);
+    const qs = serializeDiscoveryState(next);
     startTransition(() =>
       router.replace((qs ? `/search?${qs}` : "/search") as Route, { scroll: false }),
     );
@@ -75,28 +73,47 @@ export function SearchExperience() {
 
   const setCategory = (category: Category | null) =>
     // Category-specific filters do not carry over to another category.
-    update({ ...state, category, filters: {} });
+    update({
+      ...state,
+      filters: { ...state.filters, category, selected: pruneFor(state.filters, category) },
+    });
+
+  const clearFilters = () =>
+    update({ ...state, filters: { ...EMPTY_FILTERS, category: state.filters.category } });
 
   const chips: { label: string; remove: () => void }[] = [
-    ...Object.entries(state.filters).flatMap(([key, values]) =>
-      (values ?? []).map((value) => ({
-        label: `${attributeLabel(key as AttributeKey)}: ${formatAttribute(key as AttributeKey, value)}`,
+    ...Object.entries(state.filters.selected).flatMap(([key, values]) =>
+      values.map((value) => ({
+        label: `${attributeLabel(key)}: ${formatAttribute(key, value, catalogVocabulary)}`,
         remove: () =>
           update({
             ...state,
-            filters: { ...state.filters, [key]: (values ?? []).filter((v) => v !== value) },
+            filters: {
+              ...state.filters,
+              selected: { ...state.filters.selected, [key]: values.filter((v) => v !== value) },
+            },
           }),
       })),
     ),
-    ...(state.price
+    ...(state.filters.price
       ? [
           {
-            label: t(`search.price.${state.price}`),
-            remove: () => update({ ...state, price: null }),
+            label: t(`search.price.${state.filters.price}` as DictionaryKey),
+            remove: () => update({ ...state, filters: { ...state.filters, price: null } }),
           },
         ]
       : []),
   ];
+
+  const count = result.items.length;
+  const panel = (
+    <FilterPanel
+      facets={result.facets}
+      filters={state.filters}
+      vocabulary={catalogVocabulary}
+      onChange={(filters) => update({ ...state, filters })}
+    />
+  );
 
   return (
     <div className="py-8 sm:py-10">
@@ -115,17 +132,17 @@ export function SearchExperience() {
             )}
           </h1>
           <p className="text-muted-foreground" aria-live="polite">
-            {t("search.resultsCount", { count: results.length })}
+            {t("search.resultsCount", { count })}
           </p>
         </div>
         <SearchBox key={state.q} defaultValue={state.q} className="max-w-2xl" />
-        <FixtureNotice />
+        {synthetic ? <FixtureNotice /> : null}
 
         <nav aria-label={t("search.filters.category")} className="-mx-1 overflow-x-auto px-1">
           <ul className="flex gap-2 pb-1">
-            {[null, ...CATEGORIES].map((category) => {
-              const active = state.category === category;
-              const count = counts[category ?? "all"];
+            {[null, ...view.categories].map((category) => {
+              const active = state.filters.category === category;
+              const tabCount = category ? result.categoryCounts[category] : totalAcrossCategories;
               return (
                 <li key={category ?? "all"}>
                   <button
@@ -140,7 +157,9 @@ export function SearchExperience() {
                     )}
                   >
                     {category ? t(`categories.${category}.short`) : t("search.filters.all")}
-                    <span className={active ? "opacity-80" : "text-muted-foreground"}>{count}</span>
+                    <span className={active ? "opacity-80" : "text-muted-foreground"}>
+                      {tabCount}
+                    </span>
                   </button>
                 </li>
               );
@@ -152,10 +171,10 @@ export function SearchExperience() {
       <div className="mt-6 grid gap-8 lg:grid-cols-[15rem_1fr]">
         <aside className="hidden lg:block" aria-label={t("search.filters.title")}>
           <h2 className="mb-4 text-lg font-semibold">{t("search.filters.title")}</h2>
-          <FilterPanel state={state} onChange={update} />
+          {panel}
         </aside>
 
-        <section aria-label={t("search.resultsCount", { count: results.length })}>
+        <section aria-label={t("search.resultsCount", { count })} aria-busy={pending}>
           <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
             <Button
               variant="outline"
@@ -197,7 +216,7 @@ export function SearchExperience() {
                   type="button"
                   onClick={chip.remove}
                   aria-label={t("search.filters.remove", { label: chip.label })}
-                  className="inline-flex min-h-9 cursor-pointer items-center gap-1.5 rounded-full bg-accent-soft py-1 pr-2 pl-3 text-sm text-accent-soft-foreground"
+                  className="inline-flex min-h-11 cursor-pointer items-center gap-1.5 rounded-full bg-accent-soft py-1 pr-3 pl-4 text-sm text-accent-soft-foreground"
                 >
                   {chip.label}
                   <CloseIcon size={14} />
@@ -205,48 +224,44 @@ export function SearchExperience() {
               ))}
               <button
                 type="button"
-                onClick={() => update({ ...state, filters: {}, price: null })}
-                className="min-h-9 cursor-pointer rounded-full px-3 text-sm underline underline-offset-2"
+                onClick={clearFilters}
+                className="min-h-11 cursor-pointer rounded-full px-3 text-sm underline underline-offset-2"
               >
                 {t("search.filters.clear")}
               </button>
             </div>
           ) : null}
 
-          {demo === "loading" ? (
-            <ResultsSkeleton />
-          ) : demo === "error" ? (
-            <div
-              role="alert"
-              className="rounded-xl border border-border bg-surface p-8 text-center"
-            >
-              <h2 className="text-lg font-semibold">{t("search.error.title")}</h2>
-              <p className="mt-2 text-muted-foreground">{t("search.error.body")}</p>
-              <Button className="mt-5" onClick={() => update(state)}>
-                {t("search.error.retry")}
-              </Button>
-            </div>
-          ) : results.length === 0 ? (
-            <div className="rounded-xl border border-dashed border-border-strong bg-surface p-8 text-center">
-              <h2 className="text-lg font-semibold">{t("search.empty.title")}</h2>
-              <p className="mx-auto mt-2 max-w-md text-muted-foreground">
-                {t("search.empty.body")}
-              </p>
-              <Button variant="outline" className="mt-5" onClick={() => update(EMPTY_STATE)}>
-                {t("search.empty.reset")}
-              </Button>
-            </div>
+          {count === 0 ? (
+            <EmptyResults
+              tooBroad={result.status === "query_too_broad"}
+              onReset={() => update(EMPTY_DISCOVERY)}
+            />
           ) : (
             <ul className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
-              {results.map((r) => (
-                <li key={r.product.id}>
-                  <ProductCard
-                    product={r.product}
-                    variants={r.matchingVariants}
-                    headingLevel="h2"
-                  />
-                </li>
-              ))}
+              {result.items.map((item) => {
+                const swatchValue = item.variants.find(
+                  (v) => typeof v.variant.attributes.color === "string",
+                )?.variant.attributes.color;
+                return (
+                  <li key={item.product.product.id}>
+                    <ProductCard
+                      product={item.product}
+                      variants={item.variants}
+                      startingPrice={item.startingPrice}
+                      matchClass={item.class}
+                      reasons={item.reasons}
+                      synthetic={synthetic}
+                      color={
+                        typeof swatchValue === "string"
+                          ? catalogVocabulary.color?.[swatchValue]?.swatch
+                          : undefined
+                      }
+                      headingLevel="h2"
+                    />
+                  </li>
+                );
+              })}
             </ul>
           )}
         </section>
@@ -259,20 +274,16 @@ export function SearchExperience() {
         closeLabel={t("search.filters.close")}
         footer={
           <div className="flex gap-3">
-            <Button
-              variant="outline"
-              className="flex-1"
-              onClick={() => update({ ...state, filters: {}, price: null })}
-            >
+            <Button variant="outline" className="flex-1" onClick={clearFilters}>
               {t("search.filters.clear")}
             </Button>
             <Button className="flex-1" onClick={() => setFiltersOpen(false)}>
-              {t("search.filters.apply", { count: results.length })}
+              {t("search.filters.apply", { count })}
             </Button>
           </div>
         }
       >
-        <FilterPanel state={state} onChange={update} />
+        {panel}
       </Sheet>
     </div>
   );

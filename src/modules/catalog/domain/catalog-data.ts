@@ -37,6 +37,11 @@ const SLUG_VALUE = /^[a-z0-9]+(?:_[a-z0-9]+)*$/;
 
 export const vocabularyEntrySchema = z.strictObject({
   labelVi: z.string().min(1).max(80),
+  /** Optional display color (#rrggbb) used to tint placeholder art for a color value; never shown as a claim about the product. */
+  swatch: z
+    .string()
+    .regex(/^#[0-9a-fA-F]{6}$/)
+    .optional(),
   /** Single normalized words (lowercase ASCII, no spaces) that a search query may use for this value. */
   aliases: z.array(z.string().regex(/^[a-z0-9]+$/)).max(8),
 });

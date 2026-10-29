@@ -1,13 +1,31 @@
-import type { AttributeKey } from "@/prototype/catalog";
+import type { Vocabulary } from "@/modules/catalog";
 import { t, type DictionaryKey } from "@/platform/i18n";
 
-/** Human label for an attribute group, for example "Bộ nhớ trong". */
-export function attributeLabel(key: AttributeKey): string {
-  return t(`attributes.${key}`);
+const LABELED = new Set([
+  "screen_in",
+  "chip",
+  "ram_gb",
+  "storage_gb",
+  "color",
+  "type",
+  "brand",
+  "family",
+]);
+
+/** Human label for an attribute group, for example "Bộ nhớ trong". Unknown keys are shown as written. */
+export function attributeLabel(key: string): string {
+  return LABELED.has(key) ? t(`attributes.${key}` as DictionaryKey) : key;
 }
 
-/** Human label for an attribute value, for example 1024 → "1 TB", "graphite" → "Xám than". */
-export function formatAttribute(key: AttributeKey, value: string | number): string {
+/**
+ * Human label for an attribute value: numbers carry their unit (1024 GB → "1 TB"); coded values (chip, color,
+ * type) use the catalog's Vietnamese vocabulary and fall back to the raw value, never to a guess.
+ */
+export function formatAttribute(
+  key: string,
+  value: string | number,
+  vocabulary: Vocabulary = {},
+): string {
   switch (key) {
     case "screen_in":
       return t("units.inch", { value });
@@ -17,11 +35,7 @@ export function formatAttribute(key: AttributeKey, value: string | number): stri
       return Number(value) >= 1024 && Number(value) % 1024 === 0
         ? t("units.tb", { value: Number(value) / 1024 })
         : t("units.gb", { value });
-    case "chip":
-      return String(value).toUpperCase();
-    case "color":
-      return t(`colors.${value}` as DictionaryKey);
-    case "type":
-      return t(`audioTypes.${value}` as DictionaryKey);
+    default:
+      return vocabulary[key]?.[String(value)]?.labelVi ?? String(value);
   }
 }

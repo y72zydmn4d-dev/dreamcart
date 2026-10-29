@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
+import { CatalogScope } from "@/components/catalog/catalog-scope";
 import { PageContainer } from "@/components/layout/page-container";
 import { ResultsSkeleton } from "@/components/search/results-skeleton";
 import { SearchExperience } from "@/components/search/search-experience";
@@ -21,7 +22,9 @@ export default function SearchPage() {
           </div>
         }
       >
-        <SearchExperience />
+        <CatalogScope>
+          <SearchExperience />
+        </CatalogScope>
       </Suspense>
     </PageContainer>
   );

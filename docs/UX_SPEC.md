@@ -2,6 +2,8 @@
 
 Status: **draft for owner design approval**. Precedence: ADRs > [PRD](PRD.md) section 3 (owner-confirmed UX direction) > this document > advisory tooling. The Phase 2 prototype implements this spec on synthetic data; it is not the storefront (P6).
 
+> **Phase 6 update.** The prototype data is gone: home, search, product pages and the configurator now read the validated catalog through the discovery engine (`docs/CATALOG_READINESS.md`). Prices always carry their provenance line ("Giá tham khảo · ghi nhận {ngày}", a warning when old, "Giá mẫu" for synthetic fixtures); a configuration without a verified offer says "Chưa có giá"; the product page lists the merchants on record for the resolved variant only, each in its own currency, with its cart eligibility and an outbound-link notice. The loading, empty and error states live in `/design`. Everything else below is unchanged.
+
 ## 1. Direction
 
 Premium, minimal, unmistakably DreamCart, and never a copy of anyone else.

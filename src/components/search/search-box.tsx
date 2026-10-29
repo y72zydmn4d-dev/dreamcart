@@ -6,8 +6,8 @@ import { useId, useMemo, useState, type FormEvent, type KeyboardEvent } from "re
 import { CloseIcon, SearchIcon } from "@/components/ui/icons";
 import { cn } from "@/lib/utils";
 import { t } from "@/platform/i18n";
-import { PROTOTYPE_PRODUCTS } from "@/prototype/catalog";
-import { suggest, type Suggestion } from "@/prototype/search";
+import { useCatalog } from "@/components/catalog/catalog-context";
+import { suggest, type Suggestion } from "@/modules/discovery";
 
 interface SearchBoxProps {
   readonly defaultValue?: string;
@@ -17,7 +17,7 @@ interface SearchBoxProps {
 
 function suggestionHref(s: Suggestion): Route {
   return (
-    s.kind === "category" ? `/search?category=${s.category}` : `/product/${s.product.id}`
+    s.kind === "category" ? `/search?category=${s.category}` : `/product/${s.productId}`
   ) as Route;
 }
 
@@ -31,7 +31,8 @@ export function SearchBox({ defaultValue = "", size = "compact", className }: Se
   const [value, setValue] = useState(defaultValue);
   const [open, setOpen] = useState(false);
   const [active, setActive] = useState(-1);
-  const items = useMemo(() => suggest(PROTOTYPE_PRODUCTS, value), [value]);
+  const { view, vocabulary } = useCatalog();
+  const items = useMemo(() => suggest(view, value, vocabulary), [view, vocabulary, value]);
   const listId = `${id}-list`;
   const expanded = open && items.length > 0;
 
@@ -135,7 +136,7 @@ export function SearchBox({ defaultValue = "", size = "compact", className }: Se
       >
         {items.map((item, index) => (
           <li
-            key={item.kind === "category" ? `c-${item.category}` : `p-${item.product.id}`}
+            key={item.kind === "category" ? `c-${item.category}` : `p-${item.productId}`}
             id={`${id}-opt-${index}`}
             role="option"
             aria-selected={index === active}
@@ -152,9 +153,9 @@ export function SearchBox({ defaultValue = "", size = "compact", className }: Se
               </span>
             ) : (
               <>
-                <span className="font-medium">{item.product.name}</span>
+                <span className="font-medium">{item.title}</span>
                 <span className="text-xs text-muted-foreground">
-                  {t(`categories.${item.product.category}.short`)}
+                  {t("search.suggestProductHint")}
                 </span>
               </>
             )}

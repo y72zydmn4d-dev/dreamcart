@@ -2,12 +2,16 @@ import Link from "next/link";
 import { PageContainer } from "@/components/layout/page-container";
 import { ProductArt } from "@/components/product/product-art";
 import { ProductCard } from "@/components/product/product-card";
+import { CatalogScope } from "@/components/catalog/catalog-scope";
 import { FixtureNotice } from "@/components/prototype/fixture-notice";
 import { SearchBox } from "@/components/search/search-box";
 import { buttonVariants } from "@/components/ui/button";
 import { ArrowLeftIcon, BagIcon, PackageIcon, SearchIcon, SparkIcon } from "@/components/ui/icons";
+import type { ArtKind } from "@/components/product/art-kind";
+import type { Category } from "@/modules/catalog";
+import { buildCatalogView, type ProductView } from "@/modules/discovery";
 import { t, type DictionaryKey } from "@/platform/i18n";
-import { CATEGORIES, PROTOTYPE_PRODUCTS, type ArtKind, type Category } from "@/prototype/catalog";
+import { getStorefront } from "@/platform/catalog/server";
 
 const CATEGORY_ART: Record<Category, ArtKind> = {
   laptop: "laptop",
@@ -25,11 +29,18 @@ const HOW: readonly {
   { key: "collect", Icon: PackageIcon },
 ];
 
-export default function HomePage() {
-  const featured = PROTOTYPE_PRODUCTS.filter((p) => p.featured);
+export default async function HomePage() {
+  const { active, builtAtMs } = await getStorefront();
+  const view = buildCatalogView(active.catalog, builtAtMs);
+  const synthetic = active.mode === "synthetic";
+  // Featured products are an editorial choice recorded in the catalog; categories are the ones that have products.
+  const featured = active.catalog.featured.flatMap(
+    (id) => view.byId.get(id) ?? [],
+  ) as ProductView[];
+  const categories = view.categories;
 
   return (
-    <>
+    <CatalogScope>
       {/* Editorial hero: type-led, original brand glow, search as the primary action. */}
       <section className="relative isolate overflow-hidden">
         <div
@@ -45,7 +56,7 @@ export default function HomePage() {
           <SearchBox size="hero" className="mt-10 max-w-2xl text-left" />
           <nav aria-label={t("home.quickLinks")} className="mt-5">
             <ul className="flex flex-wrap justify-center gap-2">
-              {CATEGORIES.map((c) => (
+              {categories.map((c) => (
                 <li key={c}>
                   <Link
                     href={`/search?category=${c}`}
@@ -62,14 +73,14 @@ export default function HomePage() {
       </section>
 
       <PageContainer className="flex flex-col gap-section pb-8">
-        <FixtureNotice />
+        {synthetic ? <FixtureNotice /> : null}
 
         <section aria-labelledby="categories-heading">
           <h2 id="categories-heading" className="text-headline font-semibold">
             {t("home.categoriesHeading")}
           </h2>
           <ul className="mt-8 grid gap-5 md:grid-cols-3">
-            {CATEGORIES.map((c) => (
+            {categories.map((c) => (
               <li key={c}>
                 <Link
                   href={`/search?category=${c}`}
@@ -95,26 +106,28 @@ export default function HomePage() {
           </ul>
         </section>
 
-        <section aria-labelledby="featured-heading">
-          <div className="flex flex-wrap items-end justify-between gap-4">
-            <div>
-              <h2 id="featured-heading" className="text-headline font-semibold">
-                {t("home.featuredHeading")}
-              </h2>
-              <p className="mt-2 max-w-xl text-muted-foreground">{t("home.featuredLead")}</p>
+        {featured.length > 0 ? (
+          <section aria-labelledby="featured-heading">
+            <div className="flex flex-wrap items-end justify-between gap-4">
+              <div>
+                <h2 id="featured-heading" className="text-headline font-semibold">
+                  {t("home.featuredHeading")}
+                </h2>
+                <p className="mt-2 max-w-xl text-muted-foreground">{t("home.featuredLead")}</p>
+              </div>
+              <Link href="/search" className={buttonVariants({ variant: "outline" })}>
+                {t("home.featuredAll")}
+              </Link>
             </div>
-            <Link href="/search" className={buttonVariants({ variant: "outline" })}>
-              {t("home.featuredAll")}
-            </Link>
-          </div>
-          <ul className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-            {featured.map((p) => (
-              <li key={p.id}>
-                <ProductCard product={p} />
-              </li>
-            ))}
-          </ul>
-        </section>
+            <ul className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+              {featured.map((p) => (
+                <li key={p.product.id}>
+                  <ProductCard product={p} synthetic={synthetic} />
+                </li>
+              ))}
+            </ul>
+          </section>
+        ) : null}
 
         <section aria-labelledby="how-heading">
           <h2 id="how-heading" className="text-headline font-semibold">
@@ -154,6 +167,6 @@ export default function HomePage() {
           </Link>
         </section>
       </PageContainer>
-    </>
+    </CatalogScope>
   );
 }

@@ -13,7 +13,9 @@ import { FixtureNotice } from "@/components/prototype/fixture-notice";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { t } from "@/platform/i18n";
-import { PROTOTYPE_PRODUCTS } from "@/prototype/catalog";
+import { buildCatalogView } from "@/modules/discovery";
+import { getStorefront } from "@/platform/catalog/server";
+import { SearchStatesGallery } from "@/components/foundations/search-states-gallery";
 
 export const metadata: Metadata = { title: t("design.title") };
 
@@ -42,14 +44,15 @@ const TYPE_SCALE = [
 ] as const;
 
 /** Living reference for tokens and components (prototype; not linked from primary navigation). */
-export default function DesignPage() {
-  const sample = PROTOTYPE_PRODUCTS[0]!;
+export default async function DesignPage() {
+  const { active, builtAtMs } = await getStorefront();
+  const sample = buildCatalogView(active.catalog, builtAtMs).products[0]!;
   return (
     <PageContainer className="flex max-w-7xl flex-col gap-section py-10">
       <header className="flex flex-col gap-3">
         <h1 className="text-display font-semibold">{t("design.title")}</h1>
         <p className="max-w-2xl text-lg text-muted-foreground">{t("design.lead")}</p>
-        <FixtureNotice />
+        {active.mode === "synthetic" ? <FixtureNotice /> : null}
       </header>
 
       <section aria-labelledby="colors-heading">
@@ -102,8 +105,16 @@ export default function DesignPage() {
           <Badge tone="warning">{t("priceStates.stale", { date: "01/09/2026" })}</Badge>
         </div>
         <div className="mt-6 max-w-xs">
-          <ProductCard product={sample} />
+          <ProductCard product={sample} synthetic={active.mode === "synthetic"} />
         </div>
+      </section>
+
+      <section aria-labelledby="states-heading">
+        <h2 id="states-heading" className="text-headline font-semibold">
+          {t("design.statesHeading")}
+        </h2>
+        <p className="mt-2 max-w-2xl text-muted-foreground">{t("design.statesLead")}</p>
+        <SearchStatesGallery />
       </section>
 
       <section aria-labelledby="foundations-heading">

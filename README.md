@@ -63,7 +63,7 @@ npm run dev     # development server at http://localhost:3000
 | `npm run lint` | ESLint (Next.js rules plus the domain-purity rules) |
 | `npm run typecheck` | `next typegen` then `tsc --noEmit` (strict) |
 | `npm test` | Vitest: unit, property, architecture, and the `fixtures/` conformance suites (search, pricing, cart, configurator) |
-| `npm run test:browser` | Playwright real-browser tests (needs `npx playwright install chromium firefox webkit` once) |
+| `npm run test:browser` | Playwright real-browser tests: IndexedDB and the storefront (needs `npm run build` first and `npx playwright install chromium firefox webkit` once) |
 | `npm run catalog:check` | Validate the real and synthetic catalog data (runs automatically before `npm run build`) |
 | `npm run catalog:import -- file.csv` | Convert a curation CSV into `data/catalog/*.json` |
 | `npm run coverage` | The same tests with a V8 coverage report (`coverage/`, not committed) |

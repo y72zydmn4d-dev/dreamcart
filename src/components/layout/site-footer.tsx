@@ -16,6 +16,12 @@ export function SiteFooter() {
             {t("simulation.learnMore")}
           </Link>
           <Link
+            href="/credits"
+            className="inline-flex min-h-11 items-center rounded-sm underline underline-offset-2"
+          >
+            {t("footer.credits")}
+          </Link>
+          <Link
             href="/design"
             className="inline-flex min-h-11 items-center rounded-sm underline underline-offset-2"
           >

@@ -1,6 +1,6 @@
 import { useId, type ReactElement } from "react";
 import { cn } from "@/lib/utils";
-import type { ArtKind } from "@/prototype/catalog";
+import type { ArtKind } from "./art-kind";
 
 export type ArtView = "front" | "side" | "detail";
 

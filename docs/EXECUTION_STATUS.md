@@ -18,15 +18,15 @@ Status labels: `ENGINEERING_COMPLETE`, `VERIFIED`, `BLOCKED_EXTERNAL_DEPENDENCY`
 | 7 Persistent cart and manual import | VERIFIED (on synthetic fixtures) | #8 | `6416b97` | 618 unit tests; 13 cart/import specs per browser; CI green with Firefox retries (see Open issues) |
 | 8 Virtual checkout and orders | VERIFIED (on synthetic fixtures) | #9 | `17cacd6` | 624 unit tests; 12 checkout/orders/data specs per browser; CI green |
 | 9 Virtual shipping and My Collection | VERIFIED (on synthetic fixtures) | #10 | `743e26d` | 626 unit tests; tracking, collection and 21-step journey specs; functional MVP milestone |
-| 10 QA, security and hardening | ENGINEERING_COMPLETE (pending merge); device, screen-reader and release-risk items `PENDING_HUMAN_VALIDATION` | see below | – | report: `docs/QA_REPORT.md` |
-| 11 Pilot testing and UX polish | not started | | | human pilot is `PENDING_HUMAN_VALIDATION` |
+| 10 QA, security and hardening | ENGINEERING_COMPLETE; device, screen-reader and release-risk items `PENDING_HUMAN_VALIDATION` | #11 | `f13f39d` | report: `docs/QA_REPORT.md`; CI now ~8 min (parallel per engine) |
+| 11 Pilot testing and UX polish | ENGINEERING_COMPLETE (pending merge); the human pilot is `PENDING_HUMAN_VALIDATION` | see below | – | plan: `docs/PILOT_PLAN.md` |
 | 12 Release readiness | not started | | | production release needs explicit owner approval |
 
-## Current phase: 10
+## Current phase: 11
 
-- Branch: `claude/phase-10-qa-hardening` (from `main` at `743e26d`).
-- Delivered: the system-wide audit and report (`docs/QA_REPORT.md`), CLS fix (0.30 → 0.00), failure-injection specs (no IndexedDB, full storage, corrupted records, newer database), keyboard specs, performance budgets, source-hygiene guards, production license audit, `/privacy`, `docs/RUNBOOK.md` (build, deploy, rollback, user backup guide, incident table), the ADR-011 CSP revisit (policy unchanged, controls now tested), and CI split into parallel per-engine jobs behind the unchanged `Verify (Node 24)` check.
-- Needs people, not code: real-device and screen-reader checks, storage-eviction observation, the owner's acceptance of the residual risks listed in the QA report.
+- Branch: `claude/phase-11-pilot-polish` (from `main` at `f13f39d`).
+- Delivered: the pilot plan (`docs/PILOT_PLAN.md`: goal and G14 criteria, what a fixtures-only pilot can and cannot show, participants and a Vietnamese consent text with no personal data, device setup, an 8-task script, comprehension questions, observer sheet, severity scale and triage, report template, roles); independent polish found by reviewing screenshots of every new screen (items read in the catalog's words, imported items as written, designed illustration instead of a generic icon, Vietnamese file picker, one spelling convention); `CHANGELOG.md`; a refreshed README.
+- **The pilot has not run.** G14 (80% unaided completion, 100% understand nothing real happened) is unverified until people have used the build.
 
 ## Standing blockers (carried forward)
 
@@ -41,4 +41,4 @@ Status labels: `ENGINEERING_COMPLETE`, `VERIFIED`, `BLOCKED_EXTERNAL_DEPENDENCY`
 
 ## Next action
 
-Merge the Phase 10 pull request when CI is green, then start Phase 11 (pilot plan and independent polish; the human pilot itself is `PENDING_HUMAN_VALIDATION`) from the updated `main`.
+Merge the Phase 11 pull request when CI is green, then start Phase 12 (release readiness: Vercel preview verification, the CLAUDE.md update for the authorized Preview deployments, release checklist, final acceptance report ending in `READY_FOR_OWNER_RELEASE_APPROVAL`; production is not published) from the updated `main`.

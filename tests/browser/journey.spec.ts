@@ -126,10 +126,10 @@ test("21-step journey: discover, configure, cart, import, checkout, deliver, col
 
   await test.step("11. Remove one line", async () => {
     await page
-      .getByRole("button", { name: /^Xóa .* khỏi giỏ/ })
+      .getByRole("button", { name: /^Xoá .* khỏi giỏ/ })
       .last()
       .click();
-    await expect(page.getByTestId("cart-status")).toContainText("Đã xóa");
+    await expect(page.getByTestId("cart-status")).toContainText("Đã xoá");
     await cartCount(2);
   });
 

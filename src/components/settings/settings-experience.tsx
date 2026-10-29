@@ -3,7 +3,8 @@
 import { useEffect, useRef, useState, type ChangeEvent } from "react";
 import { saveReasonText } from "@/components/cart/messages";
 import { useLocalData } from "@/components/local-data/local-data";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import { formatDateVi } from "@/lib/format";
 import type { BackupBundle } from "@/modules/data-portability";
 import { SCENARIO_KEYS, type ScenarioKey } from "@/modules/orders";
@@ -27,6 +28,7 @@ export function SettingsExperience() {
   const [replaceOk, setReplaceOk] = useState(false);
   const [restoreMessage, setRestoreMessage] = useState("");
   const [resetOk, setResetOk] = useState(false);
+  const [fileName, setFileName] = useState("");
   const [resetMessage, setResetMessage] = useState("");
   const fileRef = useRef<HTMLInputElement>(null);
 
@@ -81,6 +83,7 @@ export function SettingsExperience() {
 
   const chooseFile = async (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
+    setFileName(file?.name ?? "");
     setRestoreMessage("");
     setReplaceOk(false);
     if (!file) {
@@ -117,6 +120,7 @@ export function SettingsExperience() {
       setParsed(null);
       setReplaceOk(false);
       if (fileRef.current) fileRef.current.value = "";
+      setFileName("");
     } else {
       setRestoreMessage(t("settings.restoreFailed", { reason: saveReasonText(result.kind) }));
     }
@@ -193,16 +197,27 @@ export function SettingsExperience() {
         <h2 id="restore-heading" className="text-title font-semibold">
           {t("settings.restoreHeading")}
         </h2>
-        <label className="flex flex-col gap-1.5">
-          <span className="font-medium">{t("settings.restoreFile")}</span>
-          <input
-            ref={fileRef}
-            type="file"
-            accept="application/json,.json"
-            onChange={chooseFile}
-            className="min-h-11 text-sm"
-          />
-        </label>
+        <div className="flex flex-wrap items-center gap-3">
+          {/* The browser's own file control is in the browser's language; this one speaks Vietnamese. */}
+          <label
+            className={cn(
+              buttonVariants({ variant: "outline" }),
+              "has-focus-visible:outline-2 has-focus-visible:outline-offset-2 has-focus-visible:outline-accent",
+            )}
+          >
+            <input
+              ref={fileRef}
+              type="file"
+              accept="application/json,.json"
+              onChange={chooseFile}
+              className="sr-only"
+            />
+            {t("settings.restoreFile")}
+          </label>
+          <span className="text-sm text-muted-foreground" aria-live="polite">
+            {fileName || t("settings.noFile")}
+          </span>
+        </div>
         {parsed && "error" in parsed ? (
           <div role="alert" className="rounded-xl bg-warning p-4 text-warning-foreground">
             <p className="font-medium">{t("settings.restoreInvalid")}</p>

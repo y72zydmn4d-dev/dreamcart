@@ -254,7 +254,7 @@ export const vi = {
   },
   configurator: {
     heading: "Cấu hình",
-    quickNav: "Chuyển nhanh tới nhóm tùy chọn",
+    quickNav: "Chuyển nhanh tới nhóm tuỳ chọn",
     notSelected: "Chưa chọn",
     onlyOption: "Lựa chọn duy nhất",
     unavailableWith: "Không có với {values}",
@@ -336,7 +336,7 @@ export const vi = {
     viewCart: "Xem giỏ hàng",
     noAddableOffer:
       "Cấu hình này chưa có nguồn nào thêm được vào giỏ. Lý do nằm ở danh sách nơi bán bên dưới.",
-    pickVariant: "Chọn đủ các nhóm tùy chọn trước khi thêm vào giỏ.",
+    pickVariant: "Chọn đủ các nhóm tuỳ chọn trước khi thêm vào giỏ.",
     errors: {
       quantity_limit: "Mỗi dòng tối đa {max} sản phẩm. Giỏ hàng chưa thay đổi.",
       invalid_quantity: "Số lượng không hợp lệ. Giỏ hàng chưa thay đổi.",
@@ -359,9 +359,9 @@ export const vi = {
       decrease: "Giảm số lượng {title}",
       increase: "Tăng số lượng {title}",
       quantity: "Số lượng {title}",
-      remove: "Xóa {title} khỏi giỏ",
-      removeShort: "Xóa",
-      removed: "Đã xóa {title} khỏi giỏ.",
+      remove: "Xoá {title} khỏi giỏ",
+      removeShort: "Xoá",
+      removed: "Đã xoá {title} khỏi giỏ.",
       quantitySet: "Số lượng {title}: {count}.",
       unitPrice: "Đơn giá {price}",
       lineTotal: "Thành tiền {price}",
@@ -374,7 +374,7 @@ export const vi = {
       accept: "Chấp nhận giá mới",
       acceptAll: "Chấp nhận tất cả giá mới",
       accepted: "Đã cập nhật giá trong giỏ hàng.",
-      unavailable: "Mục này không còn trong dữ liệu. Hãy xóa khỏi giỏ.",
+      unavailable: "Mục này không còn trong dữ liệu. Hãy xoá khỏi giỏ.",
       ineligible: "Hiện không thể thanh toán mục này: {reason}.",
     },
     group: "Nguồn: {name}",
@@ -386,8 +386,8 @@ export const vi = {
     checkout: {
       cta: "Thanh toán mô phỏng",
       blockedMixed:
-        "Thanh toán mô phỏng chỉ nhận một loại tiền tệ. Hãy xóa các mục khác loại tiền.",
-      blockedCurrency: "Thanh toán mô phỏng chỉ dùng VND. Hãy xóa các mục tiền tệ khác.",
+        "Thanh toán mô phỏng chỉ nhận một loại tiền tệ. Hãy xoá các mục khác loại tiền.",
+      blockedCurrency: "Thanh toán mô phỏng chỉ dùng VND. Hãy xoá các mục tiền tệ khác.",
       blockedIssues: "Còn {count} mục cần xử lý trước khi thanh toán.",
     },
     disclosure:
@@ -411,21 +411,21 @@ export const vi = {
     attributeName: "Tên thông số {index}",
     attributeValue: "Giá trị {index}",
     addAttribute: "Thêm thông số",
-    removeAttribute: "Xóa thông số {index}",
+    removeAttribute: "Xoá thông số {index}",
     save: "Lưu mục này",
     saving: "Đang lưu…",
     saved: "Đã lưu “{title}”. Mục này chưa được xác minh.",
     errorSummary: "Chưa lưu được. Hãy sửa các mục sau:",
-    limit: "Đã đủ {max} mục. Hãy xóa bớt trước khi nhập thêm.",
+    limit: "Đã đủ {max} mục. Hãy xoá bớt trước khi nhập thêm.",
     listTitle: "Mục bạn đã nhập",
     listEmpty: "Chưa có mục nào.",
     entered: "Nhập lúc {date}",
     noPrice: "Chưa có giá, không thể thêm vào giỏ",
     open: "Mở liên kết nguồn",
-    delete: "Xóa {title}",
-    deleteConfirm: "Xác nhận xóa {title}",
+    delete: "Xoá {title}",
+    deleteConfirm: "Xác nhận xoá {title}",
     deleteNote: "Nếu mục đang nằm trong giỏ, dòng đó sẽ được đánh dấu là không còn trong dữ liệu.",
-    deleted: "Đã xóa “{title}”.",
+    deleted: "Đã xoá “{title}”.",
     issue: {
       title_required: "Hãy nhập tên sản phẩm.",
       title_too_long: "Tên sản phẩm tối đa 200 ký tự.",
@@ -454,7 +454,7 @@ export const vi = {
     },
     failed: {
       schema_too_new:
-        "Dữ liệu trên thiết bị này được tạo bởi phiên bản DreamCart mới hơn. DreamCart không ghi đè hay xóa dữ liệu đó. Hãy tải lại trang để lấy phiên bản mới nhất.",
+        "Dữ liệu trên thiết bị này được tạo bởi phiên bản DreamCart mới hơn. DreamCart không ghi đè hay xoá dữ liệu đó. Hãy tải lại trang để lấy phiên bản mới nhất.",
       migration_failed:
         "Không nâng cấp được dữ liệu trên thiết bị này. Dữ liệu cũ vẫn còn nguyên. Hãy tải lại trang.",
       blocked:
@@ -462,7 +462,7 @@ export const vi = {
       unknown: "DreamCart không mở được bộ nhớ trên trình duyệt này.",
     },
     quarantined:
-      "{count} bản ghi bị lỗi đã được tách riêng. Chúng không bị xóa và không được hiển thị.",
+      "{count} bản ghi bị lỗi đã được tách riêng. Chúng không bị xoá và không được hiển thị.",
     lostData:
       "Trình duyệt này từng có đơn hàng hoặc mục đã nhập của DreamCart nhưng hiện đang trống, có thể do dữ liệu trang đã bị xoá. Nếu bạn có bản sao lưu, hãy khôi phục ở Cài đặt.",
     openSettings: "Mở Cài đặt",
@@ -517,7 +517,7 @@ export const vi = {
       stale_cart:
         "Giỏ hàng đã thay đổi ở một tab khác nên đơn này chưa được tạo. Hãy xem lại giỏ hàng. Chưa có đơn nào được tạo.",
       line_unresolved:
-        "Có {count} mục không còn trong dữ liệu. Hãy xóa chúng khỏi giỏ hàng. Chưa có đơn nào được tạo.",
+        "Có {count} mục không còn trong dữ liệu. Hãy xoá chúng khỏi giỏ hàng. Chưa có đơn nào được tạo.",
       line_ineligible: "Một mục không đủ điều kiện để tạo đơn: {reason}. Chưa có đơn nào được tạo.",
       cart_not_checkoutable: "Giỏ hàng chưa đủ điều kiện để tạo đơn. Chưa có đơn nào được tạo.",
       not_acknowledged: "Hãy xác nhận rằng bạn hiểu đây là mô phỏng. Chưa có đơn nào được tạo.",
@@ -590,6 +590,7 @@ export const vi = {
     exported: "Đã tạo bản sao lưu với {count} đơn.",
     restoreHeading: "Khôi phục từ bản sao lưu",
     restoreFile: "Chọn tệp sao lưu (.json)",
+    noFile: "Chưa chọn tệp",
     restoreInvalid: "Tệp không dùng được, chưa có gì thay đổi.",
     restoreErrors: {
       too_large: "Tệp quá lớn.",

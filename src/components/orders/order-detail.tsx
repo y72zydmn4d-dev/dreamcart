@@ -9,10 +9,10 @@ import { saveReasonText } from "@/components/cart/messages";
 import { useLocalData } from "@/components/local-data/local-data";
 import { Badge } from "@/components/ui/badge";
 import { Button, buttonVariants } from "@/components/ui/button";
-import { PackageIcon } from "@/components/ui/icons";
 import { formatDateVi, formatMoney } from "@/lib/format";
 import { canCancel, computeOrderState, isTerminal } from "@/modules/orders";
 import { t, type DictionaryKey } from "@/platform/i18n";
+import { ItemArt, itemDetails } from "./item-display";
 import { renderableOrderImage } from "./order-lines";
 import { OrderTimeline } from "./timeline";
 import { stateLabel } from "./state-label";
@@ -197,19 +197,12 @@ export function OrderDetail({ id, placed }: { readonly id: string; readonly plac
                 className="flex gap-4 rounded-xl border border-border bg-surface p-4"
               >
                 <div className="flex size-16 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-art-stage text-muted-foreground">
-                  {image ? (
-                    // eslint-disable-next-line @next/next/no-img-element -- self-hosted, rights re-checked above
-                    <img src={image.src} alt={image.alt} className="size-full object-contain" />
-                  ) : (
-                    <PackageIcon size={28} aria-hidden="true" />
-                  )}
+                  <ItemArt item={item} view={view} iconSize={28} />
                 </div>
                 <div className="min-w-0 flex-1">
                   <p className="font-medium">{item.titleVi}</p>
-                  {Object.keys(item.attributes).length > 0 ? (
-                    <p className="text-sm text-muted-foreground">
-                      {Object.values(item.attributes).join(" · ")}
-                    </p>
+                  {itemDetails(item, view) ? (
+                    <p className="text-sm text-muted-foreground">{itemDetails(item, view)}</p>
                   ) : null}
                   <p className="text-sm text-muted-foreground">
                     {item.merchantName} · {t("orders.quantity", { count: item.quantity })}
@@ -277,9 +270,13 @@ export function OrderDetail({ id, placed }: { readonly id: string; readonly plac
               </Button>
             </div>
           ) : (
-            <Button variant="ghost" onClick={() => setConfirming("delete")}>
+            <button
+              type="button"
+              onClick={() => setConfirming("delete")}
+              className="min-h-11 cursor-pointer text-sm underline underline-offset-2"
+            >
               {t("orders.delete")}
-            </Button>
+            </button>
           )}
         </div>
         <p role="status" className={message ? "text-sm" : "sr-only"} data-testid="order-status">

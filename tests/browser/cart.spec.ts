@@ -149,9 +149,9 @@ test.describe("cart page", () => {
 
     await decrease.click();
     await expect(quantity).toHaveAccessibleName(/: 98$/);
-    await page.getByRole("button", { name: /^Xóa .* khỏi giỏ/ }).click();
+    await page.getByRole("button", { name: /^Xoá .* khỏi giỏ/ }).click();
     await expect(page.getByRole("heading", { name: "Giỏ hàng đang trống" })).toBeVisible();
-    await expect(page.getByTestId("cart-status")).toContainText("Đã xóa");
+    await expect(page.getByTestId("cart-status")).toContainText("Đã xoá");
     await page.reload();
     await expect(page.getByRole("heading", { name: "Giỏ hàng đang trống" })).toBeVisible();
   });
@@ -326,13 +326,15 @@ test.describe("manual import", () => {
 
     // deleting the imported item leaves a clearly marked line, never a silent disappearance
     await open(page);
-    await page.getByRole("button", { name: /^Xóa .*Tai nghe thử/ }).click();
-    await page.getByRole("button", { name: /^Xác nhận xóa/ }).click();
+    await page.getByRole("button", { name: /^Xoá .*Tai nghe thử/ }).click();
+    await page.getByRole("button", { name: /^Xác nhận xoá/ }).click();
+    // wait for the deletion to be stored before leaving the page
+    await expect(page.getByTestId("import-status")).toContainText("Đã xoá");
     await page.goto("/cart");
     await expect(
       page
         .getByRole("region", { name: "Không còn trong dữ liệu" })
-        .getByText("Mục này không còn trong dữ liệu. Hãy xóa khỏi giỏ."),
+        .getByText("Mục này không còn trong dữ liệu. Hãy xoá khỏi giỏ."),
     ).toBeVisible();
   });
 

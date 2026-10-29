@@ -30,12 +30,13 @@ UI language: Vietnamese-first. See `docs/decisions/ADR-005-technology-stack.md`.
 
 ## Project Status
 
-Phase 0 (discovery and specification) is complete. Phase 1 (engineering foundation) is implemented and awaiting review; Phase 2 (UI/UX design system) is next.
+Phases 0 (specification) and 1 (engineering foundation) are complete. Phase 2 (UI/UX design system and interactive prototype) is implemented and awaiting owner design approval; see `docs/UX_SPEC.md`. The prototype runs on clearly labeled synthetic data (fictional "Fixturia" products, sample prices); it has no real catalog, cart persistence, or checkout yet.
 
 ## Documentation
 
 | Document | Purpose |
 |---|---|
+| `docs/UX_SPEC.md` | Phase 2 design direction, tokens, components, configurator behaviour, preview routes |
 | `docs/PRD.md` | MVP requirements, owner-confirmed UX direction, journeys, acceptance gates |
 | `docs/ROADMAP.md` | Phase-by-phase plan to a public MVP, critical path |
 | `docs/ARCHITECTURE.md` | Layers, persistence, security headers, testing |
@@ -68,14 +69,18 @@ npm run dev     # development server at http://localhost:3000
 | `npm run smoke` | Starts the production build and checks every route, the shell, and the security headers |
 | `npm run verify` | All of the above, in order |
 
-Production: `npm run build && npm start`.
+Production: `npm run build && npm start`. Phase 2 preview routes: `/`, `/search` (also `?demo=loading`, `?demo=error`), `/product/fx-aero`, `/product/fx-nova`, `/design` (full list in `docs/UX_SPEC.md` section 9).
+
+Design tooling: the vendored UI/UX Pro Max skill (`.claude/skills/ui-ux-pro-max/`, pinned and documented in its `UPSTREAM.md`) is available to Claude Code sessions started in this repository. It is advisory only.
 
 ## Structure
 
 ```
 src/app/                    routes (thin)
 src/components/layout/      application shell
-src/components/ui/          shadcn-style primitives
+src/components/ui/          shadcn-style primitives and icons
+src/components/{search,product,foundations}/  Phase 2 prototype components
+src/prototype/              Phase 2 synthetic data and search (replaced by the catalog in P3/P5)
 src/modules/<name>/domain/  pure domain logic: no React, Next.js, browser, clock, or randomness (enforced)
 src/platform/               infrastructure adapters and the Vietnamese dictionary (i18n)
 src/config/                 navigation and security headers

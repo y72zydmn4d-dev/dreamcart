@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { PageContainer } from "@/components/layout/page-container";
+import { getStorefront } from "@/platform/catalog/server";
 import { t, type DictionaryKey } from "@/platform/i18n";
 
 export const metadata: Metadata = { title: t("pages.about.title") };
@@ -11,14 +12,17 @@ const NOT_REAL: readonly DictionaryKey[] = [
 ];
 const REAL: readonly DictionaryKey[] = ["pages.about.real.products", "pages.about.real.prices"];
 
-export default function AboutPage() {
+export default async function AboutPage() {
+  const { active } = await getStorefront();
   return (
     <PageContainer className="py-12 sm:py-16">
       <h1 className="text-headline font-semibold">{t("pages.about.title")}</h1>
       <p className="mt-3 max-w-2xl text-lg text-muted-foreground">{t("pages.about.lead")}</p>
-      <p className="mt-4 max-w-2xl rounded-lg border border-dashed border-border-strong bg-surface px-4 py-3 text-sm text-muted-foreground">
-        {t("pages.about.prototypeNote")}
-      </p>
+      {active.mode === "synthetic" ? (
+        <p className="mt-4 max-w-2xl rounded-lg border border-dashed border-border-strong bg-surface px-4 py-3 text-sm text-muted-foreground">
+          {t("pages.about.prototypeNote")}
+        </p>
+      ) : null}
 
       <section aria-labelledby="not-real-heading" className="mt-10 max-w-2xl">
         <h2 id="not-real-heading" className="text-xl font-semibold">

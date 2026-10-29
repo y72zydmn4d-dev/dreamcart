@@ -1,110 +1,90 @@
 "use client";
 
 import { attributeLabel, formatAttribute } from "@/components/product/attribute-format";
-import { t } from "@/platform/i18n";
-import { PROTOTYPE_PRODUCTS, type AttributeKey } from "@/prototype/catalog";
-import {
-  FILTER_GROUPS,
-  PRICE_BUCKETS,
-  facetCounts,
-  filterValues,
-  runSearch,
-  type PriceBucket,
-  type SearchState,
-} from "@/prototype/search";
+import type { Vocabulary } from "@/modules/catalog";
+import type { Facets, FilterState, PriceBucketKey } from "@/modules/discovery";
+import { t, type DictionaryKey } from "@/platform/i18n";
 
 interface FilterPanelProps {
-  readonly state: SearchState;
-  readonly onChange: (next: SearchState) => void;
+  readonly facets: Facets;
+  readonly filters: FilterState;
+  readonly vocabulary: Vocabulary;
+  readonly onChange: (next: FilterState) => void;
 }
 
-const BUCKETS = Object.keys(PRICE_BUCKETS) as PriceBucket[];
+const optionClass =
+  "flex min-h-11 cursor-pointer items-center gap-3 rounded-lg px-2 hover:bg-muted has-disabled:cursor-not-allowed has-disabled:text-muted-foreground has-disabled:hover:bg-transparent";
 
 /**
- * Filters use native checkboxes and radios (keyboard and screen-reader support for free). A value
- * that would yield zero results is disabled rather than hidden, and its count is shown.
+ * Filters use native checkboxes and radios (keyboard and screen-reader support for free). Only filters whose data
+ * exists are offered, and a value that would yield zero results is disabled rather than hidden, with its count.
  */
-export function FilterPanel({ state, onChange }: FilterPanelProps) {
-  const toggle = (key: AttributeKey, value: string) => {
-    const current = state.filters[key] ?? [];
-    const nextValues = current.includes(value)
-      ? current.filter((v) => v !== value)
-      : [...current, value];
-    onChange({ ...state, filters: { ...state.filters, [key]: nextValues } });
+export function FilterPanel({ facets, filters, vocabulary, onChange }: FilterPanelProps) {
+  const toggle = (key: string, value: string | number) => {
+    const current = filters.selected[key] ?? [];
+    const next = current.includes(value) ? current.filter((v) => v !== value) : [...current, value];
+    onChange({ ...filters, selected: { ...filters.selected, [key]: next } });
   };
-
-  const priceCounts = Object.fromEntries(
-    BUCKETS.map((b) => [b, runSearch(PROTOTYPE_PRODUCTS, { ...state, price: b }).length]),
-  );
+  const setPrice = (price: PriceBucketKey | null) => onChange({ ...filters, price });
 
   return (
     <div className="flex flex-col gap-6">
-      <fieldset>
-        <legend className="mb-2 text-sm font-semibold">{t("search.filters.price")}</legend>
-        <div className="flex flex-col gap-1">
-          {[null, ...BUCKETS].map((bucket) => {
-            const count = bucket ? (priceCounts[bucket] ?? 0) : undefined;
-            const disabled = bucket !== null && count === 0 && state.price !== bucket;
-            return (
-              <label
-                key={bucket ?? "any"}
-                className={`flex min-h-11 cursor-pointer items-center gap-3 rounded-lg px-2 hover:bg-muted has-disabled:cursor-not-allowed has-disabled:text-muted-foreground has-disabled:hover:bg-transparent`}
-              >
+      {facets.price.length > 0 ? (
+        <fieldset>
+          <legend className="mb-2 text-sm font-semibold">{t("search.filters.price")}</legend>
+          <div className="flex flex-col gap-1">
+            <label className={optionClass}>
+              <input
+                type="radio"
+                name="price"
+                className="size-4 accent-(--accent)"
+                checked={filters.price === null}
+                onChange={() => setPrice(null)}
+              />
+              <span className="flex-1">{t("search.filters.all")}</span>
+            </label>
+            {facets.price.map((bucket) => (
+              <label key={bucket.key} className={optionClass}>
                 <input
                   type="radio"
                   name="price"
                   className="size-4 accent-(--accent)"
-                  checked={state.price === bucket}
-                  disabled={disabled}
-                  onChange={() => onChange({ ...state, price: bucket })}
+                  checked={bucket.selected}
+                  disabled={bucket.disabled}
+                  onChange={() => setPrice(bucket.key)}
                 />
-                <span className="flex-1">
-                  {bucket ? t(`search.price.${bucket}`) : t("search.filters.all")}
-                </span>
-                {count !== undefined ? (
-                  <span className="text-sm text-muted-foreground">{count}</span>
-                ) : null}
+                <span className="flex-1">{t(`search.price.${bucket.key}` as DictionaryKey)}</span>
+                <span className="text-sm text-muted-foreground">{bucket.count}</span>
               </label>
-            );
-          })}
-        </div>
-      </fieldset>
+            ))}
+          </div>
+        </fieldset>
+      ) : null}
 
-      {state.category ? (
-        FILTER_GROUPS[state.category].map((key) => {
-          const values = filterValues(PROTOTYPE_PRODUCTS, state.category!, key);
-          const counts = facetCounts(PROTOTYPE_PRODUCTS, state, key, values);
-          return (
-            <fieldset key={key}>
-              <legend className="mb-2 text-sm font-semibold">{attributeLabel(key)}</legend>
-              <div className="flex flex-col gap-1">
-                {values.map((value) => {
-                  const checked = state.filters[key]?.includes(value) ?? false;
-                  const disabled = !checked && (counts[value] ?? 0) === 0;
-                  return (
-                    <label
-                      key={value}
-                      className="flex min-h-11 cursor-pointer items-center gap-3 rounded-lg px-2 hover:bg-muted has-disabled:cursor-not-allowed has-disabled:text-muted-foreground has-disabled:hover:bg-transparent"
-                    >
-                      <input
-                        type="checkbox"
-                        className="size-4 accent-(--accent)"
-                        checked={checked}
-                        disabled={disabled}
-                        onChange={() => toggle(key, value)}
-                      />
-                      <span className="flex-1">{formatAttribute(key, value)}</span>
-                      <span className="text-sm text-muted-foreground">{counts[value] ?? 0}</span>
-                    </label>
-                  );
-                })}
-              </div>
-            </fieldset>
-          );
-        })
-      ) : (
+      {facets.groups.map((group) => (
+        <fieldset key={group.key}>
+          <legend className="mb-2 text-sm font-semibold">{attributeLabel(group.key)}</legend>
+          <div className="flex flex-col gap-1">
+            {group.values.map((v) => (
+              <label key={String(v.value)} className={optionClass}>
+                <input
+                  type="checkbox"
+                  className="size-4 accent-(--accent)"
+                  checked={v.selected}
+                  disabled={v.disabled}
+                  onChange={() => toggle(group.key, v.value)}
+                />
+                <span className="flex-1">{formatAttribute(group.key, v.value, vocabulary)}</span>
+                <span className="text-sm text-muted-foreground">{v.count}</span>
+              </label>
+            ))}
+          </div>
+        </fieldset>
+      ))}
+
+      {filters.category === null && facets.groups.length === 0 ? (
         <p className="text-sm text-muted-foreground">{t("search.filters.hint")}</p>
-      )}
+      ) : null}
     </div>
   );
 }

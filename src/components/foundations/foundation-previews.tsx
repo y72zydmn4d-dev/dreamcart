@@ -5,7 +5,6 @@ import { CheckIcon } from "@/components/ui/icons";
 import { formatVnd } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import { t, type DictionaryKey } from "@/platform/i18n";
-import { COLOR_SWATCHES } from "@/prototype/catalog";
 
 /**
  * Static design foundations for Phases 7–9 (cart, checkout, orders, tracking, collection). They show
@@ -34,7 +33,7 @@ export function CartLinePreview() {
         <div className="w-24 shrink-0 overflow-hidden rounded-xl bg-art-stage">
           <ProductArt
             kind="laptop"
-            color={COLOR_SWATCHES.silver}
+            color={"#c9cbd1"}
             label={t("art.labelNoColor", { name: "Fixturia Aero" })}
           />
         </div>
@@ -156,7 +155,7 @@ export function CollectionCardPreview() {
       <div className="overflow-hidden rounded-xl bg-art-stage">
         <ProductArt
           kind="headphones"
-          color={COLOR_SWATCHES.silver}
+          color={"#c9cbd1"}
           label={t("art.labelNoColor", { name: "Fixturia Studio 700" })}
         />
       </div>

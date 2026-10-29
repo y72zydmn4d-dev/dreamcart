@@ -11,19 +11,25 @@ import {
   type AttributeValue,
   type Selection,
 } from "@/modules/configurator/domain/configurator";
+import type { Vocabulary } from "@/modules/catalog";
+import type { ProductView } from "@/modules/discovery";
 import { t } from "@/platform/i18n";
-import type { AttributeKey, PrototypeProduct } from "@/prototype/catalog";
 import { attributeLabel, formatAttribute } from "./attribute-format";
+import { PriceNote } from "./price-note";
 
 interface ConfiguratorProps {
-  readonly product: PrototypeProduct;
+  readonly product: ProductView;
+  /** Option groups in display order; only groups the catalog has data for. */
+  readonly groups: readonly string[];
+  readonly vocabulary: Vocabulary;
+  readonly synthetic: boolean;
   readonly selection: Selection;
   readonly initialSelection: Selection;
   readonly onChange: (next: Selection) => void;
 }
 
 interface Conflict {
-  readonly key: AttributeKey;
+  readonly key: string;
   readonly value: AttributeValue;
   readonly conflicts: readonly string[];
   readonly selectionIfReset: Selection;
@@ -53,14 +59,21 @@ const keyboardOpenNow = () => {
  */
 export function Configurator({
   product,
+  groups,
+  vocabulary,
+  synthetic,
   selection,
   initialSelection,
   onChange,
 }: ConfiguratorProps) {
   const uid = useId();
+  const configVariants = useMemo(
+    () => product.variants.map((v) => ({ id: v.variant.id, attributes: v.variant.attributes })),
+    [product],
+  );
   const view = useMemo(
-    () => deriveConfigurator(product.variants, product.groups, selection),
-    [product, selection],
+    () => deriveConfigurator(configVariants, groups, selection),
+    [configVariants, groups, selection],
   );
   const [collapsed, setCollapsed] = useState<ReadonlySet<string>>(new Set());
   const [conflict, setConflict] = useState<Conflict | null>(null);
@@ -70,12 +83,11 @@ export function Configurator({
 
   const sectionId = (key: string) => `${uid}-section-${key}`;
   const headerId = (key: string) => `${uid}-header-${key}`;
-  const valueText = (key: string, value: AttributeValue) =>
-    formatAttribute(key as AttributeKey, value);
+  const valueText = (key: string, value: AttributeValue) => formatAttribute(key, value, vocabulary);
 
-  const choose = (key: AttributeKey, value: AttributeValue) => {
+  const choose = (key: string, value: AttributeValue) => {
     setNotice(false);
-    const result = selectOption(product.variants, selection, key, value);
+    const result = selectOption(configVariants, selection, key, value);
     if (result.status === "ok") {
       setConflict(null);
       onChange(result.selection);
@@ -105,29 +117,46 @@ export function Configurator({
   };
 
   const resolved = view.resolvedVariantId
-    ? product.variants.find((v) => v.id === view.resolvedVariantId)
+    ? product.variants.find((v) => v.variant.id === view.resolvedVariantId)
     : undefined;
-  const matchingPrices = product.variants
-    .filter((v) => view.matchingVariantIds.includes(v.id))
-    .map((v) => v.samplePriceMinor);
-  const minPrice = Math.min(...matchingPrices);
-  const maxPrice = Math.max(...matchingPrices);
-  const missingLabels = view.missing.map((k) => attributeLabel(k as AttributeKey)).join(", ");
+  // Prices come only from verified offers on the variants still possible; a variant with no offer has none.
+  const matchingBest = product.variants
+    .filter((v) => view.matchingVariantIds.includes(v.variant.id))
+    .flatMap((v) => (v.best ? [v.best.amountMinor] : []));
+  const minPrice = matchingBest.length > 0 ? Math.min(...matchingBest) : null;
+  const maxPrice = matchingBest.length > 0 ? Math.max(...matchingBest) : null;
+  const missingLabels = view.missing.map((k) => attributeLabel(k)).join(", ");
+  const resolvedPrice = resolved?.best ?? null;
   const fullPrice = resolved
-    ? formatVnd(resolved.samplePriceMinor)
-    : minPrice === maxPrice
-      ? t("configurator.priceFrom", { price: formatVnd(minPrice) })
-      : t("configurator.priceRange", { min: formatVnd(minPrice), max: formatVnd(maxPrice) });
+    ? resolvedPrice
+      ? formatVnd(resolvedPrice.amountMinor)
+      : t("search.noPrice")
+    : minPrice === null || maxPrice === null
+      ? t("search.noPrice")
+      : minPrice === maxPrice
+        ? t("configurator.priceFrom", { price: formatVnd(minPrice) })
+        : t("configurator.priceRange", { min: formatVnd(minPrice), max: formatVnd(maxPrice) });
   // The compact bar shows only the lowest matching price; the exact range is in the expanded summary.
   const compactPrice = resolved
-    ? formatVnd(resolved.samplePriceMinor)
-    : t("configurator.priceFrom", { price: formatVnd(minPrice) });
+    ? fullPrice
+    : minPrice === null
+      ? t("search.noPrice")
+      : t("configurator.priceFrom", { price: formatVnd(minPrice) });
   const statusText = resolved
-    ? t("configurator.complete")
+    ? resolvedPrice
+      ? t("product.configPriced")
+      : t("product.configUnpriced")
     : t("configurator.missing", { groups: missingLabels });
   const hintText = resolved
-    ? t("configurator.variantId", { id: resolved.id })
+    ? t("configurator.variantId", { id: resolved.variant.id })
     : t("configurator.selectAll");
+  const priceNote = resolvedPrice ? (
+    <PriceNote
+      observedAt={resolvedPrice.observedAt}
+      state={resolvedPrice.state}
+      synthetic={synthetic}
+    />
+  ) : null;
   // Stays operable when incomplete: it takes the user to the first missing group.
   const onAddToCart = () => {
     if (resolved) setNotice(true);
@@ -153,7 +182,7 @@ export function Configurator({
 
       <nav aria-label={t("configurator.quickNav")} className="-mx-1 overflow-x-auto px-1">
         <ul className="flex gap-2 pb-1">
-          {product.groups.map((key) => {
+          {groups.map((key) => {
             const value = selection[key];
             return (
               <li key={key}>
@@ -181,7 +210,7 @@ export function Configurator({
 
       <div className="flex flex-col gap-4">
         {view.groups.map((group) => {
-          const key = group.key as AttributeKey;
+          const key = group.key;
           const isCollapsed = collapsed.has(key);
           const selected = selection[key];
           const panelId = `${sectionId(key)}-panel`;
@@ -302,9 +331,7 @@ export function Configurator({
                       >
                         {t("configurator.conflictApply", {
                           value: valueText(key, conflict.value),
-                          groups: conflict.conflicts
-                            .map((g) => attributeLabel(g as AttributeKey))
-                            .join(", "),
+                          groups: conflict.conflicts.map((g) => attributeLabel(g)).join(", "),
                         })}
                       </Button>
                       <Button
@@ -345,7 +372,7 @@ export function Configurator({
           )}
         >
           <ul className="flex flex-col gap-1 text-sm">
-            {product.groups.map((k) => (
+            {groups.map((k) => (
               <li key={k} className="flex justify-between gap-3">
                 <span className="text-muted-foreground">{attributeLabel(k)}</span>
                 <span className="font-medium">
@@ -356,6 +383,8 @@ export function Configurator({
               </li>
             ))}
           </ul>
+          <p className="mt-2 text-lg font-semibold">{fullPrice}</p>
+          {priceNote}
           <p className="mt-2 text-sm text-muted-foreground">{statusText}</p>
           <p className="mt-1 text-xs text-muted-foreground">{hintText}</p>
         </div>
@@ -372,7 +401,7 @@ export function Configurator({
                 {compactPrice}
               </span>
               <span className="truncate text-xs text-muted-foreground">
-                {t("fixture.priceLabel")} ·{" "}
+                {synthetic ? t("fixture.priceLabel") : t("price.reference")} ·{" "}
                 {resolved
                   ? t("configurator.selectedAll")
                   : t("configurator.missingCount", { count: view.missing.length })}
@@ -410,24 +439,26 @@ export function Configurator({
         aria-label={t("configurator.summary")}
         className="sticky bottom-0 z-20 hidden rounded-2xl border border-border bg-background/90 px-gutter py-3 shadow-float backdrop-blur-md sm:block"
       >
-        <div className="flex flex-row items-center justify-between gap-3">
+        <div className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
           <div className="min-w-0">
             <p className="text-sm text-muted-foreground">{t("configurator.summary")}</p>
             <p className="font-medium">
-              {product.groups
+              {groups
                 .filter((k) => selection[k] !== undefined)
                 .map((k) => valueText(k, selection[k]!))
                 .join(" · ") || t("configurator.notSelected")}
             </p>
             <p className="text-lg font-semibold" aria-live="polite">
               {fullPrice}
-              <span className="ml-2 align-middle text-xs font-normal text-muted-foreground">
-                {t("fixture.priceLabel")}
-              </span>
             </p>
+            {priceNote ?? (
+              <p className="text-xs text-muted-foreground">
+                {synthetic ? t("fixture.priceLabel") : t("price.reference")}
+              </p>
+            )}
             <p className="text-sm text-muted-foreground">{statusText}</p>
           </div>
-          <div className="flex flex-col items-end gap-1">
+          <div className="flex flex-col gap-1 xl:items-end">
             {/* Stays operable when incomplete: it takes the user to the first missing group. */}
             <Button size="lg" aria-describedby={`${uid}-cta-hint`} onClick={onAddToCart}>
               {t("configurator.addToCart")}

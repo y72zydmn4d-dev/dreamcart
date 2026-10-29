@@ -1,6 +1,6 @@
 "use client";
 
-import { useId, useMemo, useState } from "react";
+import { useId, useMemo, useState, useSyncExternalStore, type KeyboardEvent } from "react";
 import { Button } from "@/components/ui/button";
 import { CheckIcon, ChevronDownIcon, InfoIcon } from "@/components/ui/icons";
 import { formatVnd } from "@/lib/format";
@@ -33,6 +33,20 @@ const prefersReducedMotion = () =>
   typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
 /**
+ * True while an on-screen keyboard shrinks the visual viewport (pinch-zoom excluded). The sticky bar
+ * then stops floating so it cannot sit over the little space the keyboard leaves.
+ */
+function subscribeKeyboard(onChange: () => void) {
+  const vv = window.visualViewport;
+  vv?.addEventListener("resize", onChange);
+  return () => vv?.removeEventListener("resize", onChange);
+}
+const keyboardOpenNow = () => {
+  const vv = window.visualViewport;
+  return !!vv && vv.scale <= 1.01 && window.innerHeight - vv.height > 150;
+};
+
+/**
  * Hybrid Continuous Configurator (decision P-5): every group on one page, collapsible, revisitable in
  * any order, with quick navigation and a sticky summary. Availability comes from the domain module;
  * an incompatible choice asks before changing anything.
@@ -51,6 +65,8 @@ export function Configurator({
   const [collapsed, setCollapsed] = useState<ReadonlySet<string>>(new Set());
   const [conflict, setConflict] = useState<Conflict | null>(null);
   const [notice, setNotice] = useState(false);
+  const [expanded, setExpanded] = useState(false);
+  const keyboardOpen = useSyncExternalStore(subscribeKeyboard, keyboardOpenNow, () => false);
 
   const sectionId = (key: string) => `${uid}-section-${key}`;
   const headerId = (key: string) => `${uid}-header-${key}`;
@@ -97,6 +113,26 @@ export function Configurator({
   const minPrice = Math.min(...matchingPrices);
   const maxPrice = Math.max(...matchingPrices);
   const missingLabels = view.missing.map((k) => attributeLabel(k as AttributeKey)).join(", ");
+  const fullPrice = resolved
+    ? formatVnd(resolved.samplePriceMinor)
+    : minPrice === maxPrice
+      ? t("configurator.priceFrom", { price: formatVnd(minPrice) })
+      : t("configurator.priceRange", { min: formatVnd(minPrice), max: formatVnd(maxPrice) });
+  // The compact bar shows only the lowest matching price; the exact range is in the expanded summary.
+  const compactPrice = resolved
+    ? formatVnd(resolved.samplePriceMinor)
+    : t("configurator.priceFrom", { price: formatVnd(minPrice) });
+  const statusText = resolved
+    ? t("configurator.complete")
+    : t("configurator.missing", { groups: missingLabels });
+  const hintText = resolved
+    ? t("configurator.variantId", { id: resolved.id })
+    : t("configurator.selectAll");
+  // Stays operable when incomplete: it takes the user to the first missing group.
+  const onAddToCart = () => {
+    if (resolved) setNotice(true);
+    else if (view.missing[0]) jumpTo(view.missing[0]);
+  };
 
   return (
     <div className="flex flex-col gap-6">
@@ -288,12 +324,93 @@ export function Configurator({
         })}
       </div>
 
+      {/* Below sm: compact bar (price + action) that expands to the full summary on demand. */}
       <div
         role="region"
         aria-label={t("configurator.summary")}
-        className="sticky bottom-0 z-20 -mx-gutter border-t border-border bg-background/90 px-gutter py-3 backdrop-blur-md sm:mx-0 sm:rounded-2xl sm:border sm:shadow-float"
+        data-bottom-bar
+        onKeyDown={(event: KeyboardEvent) => {
+          if (event.key === "Escape" && expanded) setExpanded(false);
+        }}
+        className={cn(
+          "sticky bottom-0 z-20 -mx-gutter border-t border-border bg-background/95 px-gutter pt-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] backdrop-blur-md sm:hidden",
+          keyboardOpen && "static",
+        )}
       >
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div
+          id={`${uid}-summary-details`}
+          className={cn(
+            "max-h-[45dvh] overflow-y-auto pb-3",
+            expanded ? "animate-fade-up" : "hidden",
+          )}
+        >
+          <ul className="flex flex-col gap-1 text-sm">
+            {product.groups.map((k) => (
+              <li key={k} className="flex justify-between gap-3">
+                <span className="text-muted-foreground">{attributeLabel(k)}</span>
+                <span className="font-medium">
+                  {selection[k] !== undefined
+                    ? valueText(k, selection[k]!)
+                    : t("configurator.notSelected")}
+                </span>
+              </li>
+            ))}
+          </ul>
+          <p className="mt-2 text-sm text-muted-foreground">{statusText}</p>
+          <p className="mt-1 text-xs text-muted-foreground">{hintText}</p>
+        </div>
+        <div className="flex items-center gap-3">
+          <button
+            type="button"
+            aria-expanded={expanded}
+            aria-controls={`${uid}-summary-details`}
+            onClick={() => setExpanded((v) => !v)}
+            className="flex min-h-11 min-w-0 flex-1 cursor-pointer items-center justify-between gap-2 rounded-xl text-left"
+          >
+            <span className="flex min-w-0 flex-col">
+              <span className="font-semibold whitespace-nowrap" aria-live="polite">
+                {compactPrice}
+              </span>
+              <span className="truncate text-xs text-muted-foreground">
+                {t("fixture.priceLabel")} ·{" "}
+                {resolved
+                  ? t("configurator.selectedAll")
+                  : t("configurator.missingCount", { count: view.missing.length })}
+              </span>
+            </span>
+            <span className="sr-only">
+              {expanded ? t("configurator.summaryCollapse") : t("configurator.summaryExpand")}
+            </span>
+            <ChevronDownIcon
+              className={cn(
+                "shrink-0 transition-transform duration-(--duration-base)",
+                expanded ? "" : "rotate-180",
+              )}
+            />
+          </button>
+          <Button
+            aria-describedby={`${uid}-cta-hint-compact`}
+            onClick={onAddToCart}
+            className="max-w-[8.5rem] shrink-0 px-4 py-1.5 leading-tight text-balance whitespace-normal"
+          >
+            {t("configurator.addToCart")}
+          </Button>
+          <span id={`${uid}-cta-hint-compact`} className="sr-only">
+            {hintText}
+          </span>
+        </div>
+        <p role="status" className={cn("text-sm", notice ? "mt-2" : "sr-only")}>
+          {notice ? t("configurator.prototypeNotice") : ""}
+        </p>
+      </div>
+
+      {/* sm and up: the full summary card. */}
+      <div
+        role="region"
+        aria-label={t("configurator.summary")}
+        className="sticky bottom-0 z-20 hidden rounded-2xl border border-border bg-background/90 px-gutter py-3 shadow-float backdrop-blur-md sm:block"
+      >
+        <div className="flex flex-row items-center justify-between gap-3">
           <div className="min-w-0">
             <p className="text-sm text-muted-foreground">{t("configurator.summary")}</p>
             <p className="font-medium">
@@ -303,46 +420,24 @@ export function Configurator({
                 .join(" · ") || t("configurator.notSelected")}
             </p>
             <p className="text-lg font-semibold" aria-live="polite">
-              {resolved
-                ? formatVnd(resolved.samplePriceMinor)
-                : minPrice === maxPrice
-                  ? t("configurator.priceFrom", { price: formatVnd(minPrice) })
-                  : t("configurator.priceRange", {
-                      min: formatVnd(minPrice),
-                      max: formatVnd(maxPrice),
-                    })}
+              {fullPrice}
               <span className="ml-2 align-middle text-xs font-normal text-muted-foreground">
                 {t("fixture.priceLabel")}
               </span>
             </p>
-            <p className="text-sm text-muted-foreground">
-              {resolved
-                ? t("configurator.complete")
-                : t("configurator.missing", { groups: missingLabels })}
-            </p>
+            <p className="text-sm text-muted-foreground">{statusText}</p>
           </div>
-          <div className="flex flex-col gap-1 sm:items-end">
+          <div className="flex flex-col items-end gap-1">
             {/* Stays operable when incomplete: it takes the user to the first missing group. */}
-            <Button
-              size="lg"
-              aria-describedby={`${uid}-cta-hint`}
-              onClick={() => {
-                if (resolved) setNotice(true);
-                else if (view.missing[0]) jumpTo(view.missing[0]);
-              }}
-              className="w-full sm:w-auto"
-            >
+            <Button size="lg" aria-describedby={`${uid}-cta-hint`} onClick={onAddToCart}>
               {t("configurator.addToCart")}
             </Button>
-            {!resolved ? (
-              <p id={`${uid}-cta-hint`} className="text-xs text-muted-foreground">
-                {t("configurator.selectAll")}
-              </p>
-            ) : (
-              <p id={`${uid}-cta-hint`} className="font-mono text-xs text-muted-foreground">
-                {t("configurator.variantId", { id: resolved.id })}
-              </p>
-            )}
+            <p
+              id={`${uid}-cta-hint`}
+              className={cn("text-xs text-muted-foreground", resolved && "font-mono")}
+            >
+              {hintText}
+            </p>
           </div>
         </div>
         <p role="status" className={cn("text-sm", notice ? "mt-3" : "sr-only")}>

@@ -1,0 +1,87 @@
+{
+  "_notice": "SYNTHETIC TEST DATA. Brand, products, and attributes are fictional and exist only to test deterministic matching. Never import into the production catalog. A production build must fail if any id starting with 'fx-' is present.",
+  "schemaVersion": 1,
+  "products": [
+    {
+      "id": "fx-aero",
+      "brand": "Fixturia",
+      "family": "Aero",
+      "model": "",
+      "category": "laptop",
+      "variants": [
+        { "id": "fx-aero:13-fx1-8-256", "attributes": { "screen_in": 13, "chip": "fx1", "ram_gb": 8, "storage_gb": 256 } },
+        { "id": "fx-aero:13-fx1-16-512", "attributes": { "screen_in": 13, "chip": "fx1", "ram_gb": 16, "storage_gb": 512 } },
+        { "id": "fx-aero:13-fx2-16-512", "attributes": { "screen_in": 13, "chip": "fx2", "ram_gb": 16, "storage_gb": 512 } },
+        { "id": "fx-aero:15-fx2-16-512", "attributes": { "screen_in": 15, "chip": "fx2", "ram_gb": 16, "storage_gb": 512 } },
+        { "id": "fx-aero:15-fx2-32-1024", "attributes": { "screen_in": 15, "chip": "fx2", "ram_gb": 32, "storage_gb": 1024 } }
+      ]
+    },
+    {
+      "id": "fx-titan",
+      "brand": "Fixturia",
+      "family": "Titan",
+      "model": "",
+      "category": "laptop",
+      "variants": [
+        { "id": "fx-titan:16-fx2-32-1024", "attributes": { "screen_in": 16, "chip": "fx2", "ram_gb": 32, "storage_gb": 1024 } },
+        { "id": "fx-titan:16-fx2-32-unknown", "attributes": { "screen_in": 16, "chip": "fx2", "ram_gb": 32 } }
+      ]
+    },
+    {
+      "id": "fx-nova",
+      "brand": "Fixturia",
+      "family": "Nova",
+      "model": "5",
+      "category": "phone",
+      "variants": [
+        { "id": "fx-nova:128-graphite", "attributes": { "storage_gb": 128, "color": "graphite" } },
+        { "id": "fx-nova:256-graphite", "attributes": { "storage_gb": 256, "color": "graphite" } },
+        { "id": "fx-nova:256-sand", "attributes": { "storage_gb": 256, "color": "sand" } },
+        { "id": "fx-nova:512-graphite", "attributes": { "storage_gb": 512, "color": "graphite" } }
+      ]
+    },
+    {
+      "id": "fx-nova-mini",
+      "brand": "Fixturia",
+      "family": "Nova",
+      "model": "5 Mini",
+      "category": "phone",
+      "variants": [
+        { "id": "fx-nova-mini:128-graphite", "attributes": { "storage_gb": 128, "color": "graphite" } }
+      ]
+    },
+    {
+      "id": "fx-buds-pro",
+      "brand": "Fixturia",
+      "family": "Buds",
+      "model": "Pro 2",
+      "category": "audio",
+      "variants": [
+        { "id": "fx-buds-pro:black", "attributes": { "color": "black" } },
+        { "id": "fx-buds-pro:white", "attributes": { "color": "white" } },
+        { "id": "fx-buds-pro:color-unknown", "attributes": {} }
+      ]
+    },
+    {
+      "id": "fx-buds-lite",
+      "brand": "Fixturia",
+      "family": "Buds",
+      "model": "Lite",
+      "category": "audio",
+      "variants": [
+        { "id": "fx-buds-lite:black", "attributes": { "color": "black" } }
+      ]
+    },
+    {
+      "id": "fx-studio",
+      "brand": "Fixturia",
+      "family": "Studio",
+      "model": "700",
+      "category": "audio",
+      "variants": [
+        { "id": "fx-studio:black", "attributes": { "color": "black" } },
+        { "id": "fx-studio:silver", "attributes": { "color": "silver" } }
+      ]
+    }
+  ]
+}

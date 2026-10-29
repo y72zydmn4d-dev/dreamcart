@@ -30,10 +30,13 @@ Read docs/PRODUCT_BLUEPRINT.md before making decisions.
 - React
 - Tailwind CSS
 - shadcn/ui
-- Supabase PostgreSQL
+- Zod
+- IndexedDB (local-first cart and virtual orders) behind repository ports
 - Vercel
+- Supabase PostgreSQL: deferred, not part of the MVP (see docs/decisions/ADR-005)
 
-Architecture: Modular Monolith.
+Architecture: Modular Monolith. UI language: Vietnamese-first.
+Decision precedence: ADRs (docs/decisions/) > docs/PRD.md > docs/PRODUCT_BLUEPRINT.md.
 
 ## Development Workflow
 

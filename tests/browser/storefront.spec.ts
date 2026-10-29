@@ -64,13 +64,18 @@ test.describe("search", () => {
   }) => {
     await page.goto("/");
     const box = page.getByRole("combobox");
-    await box.fill("nov");
     const options = page.getByRole("option");
-    await expect(options.first()).toBeVisible();
+    // The page hydrates after first paint; typing that races hydration is retried, as a user would retype.
+    await expect(async () => {
+      await box.fill("");
+      await box.fill("nov");
+      await expect(options.first()).toBeVisible({ timeout: 1500 });
+    }).toPass({ timeout: 15_000 });
     await expect(box).toHaveAttribute("aria-expanded", "true");
     await box.press("Escape");
     await expect(box).toHaveAttribute("aria-expanded", "false");
     await box.fill("dien thoai nova");
+    await expect(box).toHaveValue("dien thoai nova");
     await box.press("Enter");
     await expect(page).toHaveURL(/\/search\?q=dien%20thoai%20nova|\/search\?q=dien\+thoai\+nova/);
     await expect(

@@ -57,6 +57,15 @@ jobs:
       - name: Real-browser tests (IndexedDB and storefront in Chromium, Firefox and WebKit)
         run: npm run test:browser
 
+      - name: Keep browser traces of failed or flaky tests
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: browser-test-results
+          path: test-results/
+          if-no-files-found: ignore
+          retention-days: 7
+
       - name: Dependency audit (informational)
         run: npm audit --omit=dev --audit-level=high
         continue-on-error: true

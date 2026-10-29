@@ -15,9 +15,16 @@ export default defineConfig({
   // (a Firefox page load once timed out after 30 s on a page that had loaded in over a hundred other tests).
   workers: process.env.CI ? 2 : undefined,
   timeout: 45_000,
-  retries: 0,
+  // Firefox on the CI runner has stalled a page load three times in three runs, each on a different test and page,
+  // while 100+ other loads in the same run were fine and Chromium/WebKit never stalled. One retry keeps that
+  // from blocking merges; a retried pass is reported as "flaky" (never hidden) and the trace is kept for diagnosis.
+  retries: process.env.CI ? 1 : 0,
   reporter: [["list"]],
-  use: { baseURL: `http://127.0.0.1:${PORT}`, navigationTimeout: 45_000 },
+  use: {
+    baseURL: `http://127.0.0.1:${PORT}`,
+    navigationTimeout: 45_000,
+    trace: "retain-on-first-failure",
+  },
   webServer: {
     command: `npx next start -p ${PORT}`,
     url: `http://127.0.0.1:${PORT}`,

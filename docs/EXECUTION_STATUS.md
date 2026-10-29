@@ -17,16 +17,16 @@ Status labels: `ENGINEERING_COMPLETE`, `VERIFIED`, `BLOCKED_EXTERNAL_DEPENDENCY`
 | 6 Production storefront | VERIFIED (on synthetic fixtures) | #7 | `42df549` | 567 unit tests; 59 storefront specs per browser, 0 axe violations at 5 widths; Chromium and WebKit never stalled in CI; see the Firefox flake below |
 | 7 Persistent cart and manual import | VERIFIED (on synthetic fixtures) | #8 | `6416b97` | 618 unit tests; 13 cart/import specs per browser; CI green with Firefox retries (see Open issues) |
 | 8 Virtual checkout and orders | VERIFIED (on synthetic fixtures) | #9 | `17cacd6` | 624 unit tests; 12 checkout/orders/data specs per browser; CI green |
-| 9 Virtual shipping and My Collection | ENGINEERING_COMPLETE (pending merge) | see below | – | functional MVP milestone |
-| 10 QA, security and hardening | not started | | | |
+| 9 Virtual shipping and My Collection | VERIFIED (on synthetic fixtures) | #10 | `743e26d` | 626 unit tests; tracking, collection and 21-step journey specs; functional MVP milestone |
+| 10 QA, security and hardening | ENGINEERING_COMPLETE (pending merge); device, screen-reader and release-risk items `PENDING_HUMAN_VALIDATION` | see below | – | report: `docs/QA_REPORT.md` |
 | 11 Pilot testing and UX polish | not started | | | human pilot is `PENDING_HUMAN_VALIDATION` |
 | 12 Release readiness | not started | | | production release needs explicit owner approval |
 
-## Current phase: 9
+## Current phase: 10
 
-- Branch: `claude/phase-9-tracking-collection` (from `main` at `17cacd6`).
-- Delivered: the simulated delivery timeline on the order page (six virtual states, expected times for timed scenarios, none for Fast, cancelled orders keep the steps they reached), the Fast "next step" control, the delivered screen, `/collection` (derived from delivered, non-cancelled orders; one card per order line; image re-check), an in-app delivery notice (once per order, retired when the user sees the collection or the order), high-water persistence of what was shown, and `journey.spec.ts`: one 21-step real-browser journey from the home page to "delete all data" with a controlled clock and a zero-cross-origin assertion.
-- Test results are in the Phase 9 pull request.
+- Branch: `claude/phase-10-qa-hardening` (from `main` at `743e26d`).
+- Delivered: the system-wide audit and report (`docs/QA_REPORT.md`), CLS fix (0.30 → 0.00), failure-injection specs (no IndexedDB, full storage, corrupted records, newer database), keyboard specs, performance budgets, source-hygiene guards, production license audit, `/privacy`, `docs/RUNBOOK.md` (build, deploy, rollback, user backup guide, incident table), the ADR-011 CSP revisit (policy unchanged, controls now tested), and CI split into parallel per-engine jobs behind the unchanged `Verify (Node 24)` check.
+- Needs people, not code: real-device and screen-reader checks, storage-eviction observation, the owner's acceptance of the residual risks listed in the QA report.
 
 ## Standing blockers (carried forward)
 
@@ -41,4 +41,4 @@ Status labels: `ENGINEERING_COMPLETE`, `VERIFIED`, `BLOCKED_EXTERNAL_DEPENDENCY`
 
 ## Next action
 
-Merge the Phase 9 pull request when CI is green, then start Phase 10 (comprehensive QA, security including the ADR-011 CSP tradeoff, accessibility, performance, cross-browser) from the updated `main`.
+Merge the Phase 10 pull request when CI is green, then start Phase 11 (pilot plan and independent polish; the human pilot itself is `PENDING_HUMAN_VALIDATION`) from the updated `main`.

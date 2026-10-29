@@ -3,7 +3,7 @@ import { t } from "@/platform/i18n";
 
 export default function Loading() {
   return (
-    <PageContainer className="py-12" aria-busy="true">
+    <PageContainer className="min-h-dvh py-12" aria-busy="true">
       <p role="status" className="sr-only">
         {t("a11y.loading")}
       </p>

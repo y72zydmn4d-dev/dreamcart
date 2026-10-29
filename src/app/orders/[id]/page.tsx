@@ -19,7 +19,7 @@ export default async function OrderPage({
   return (
     <PageContainer className="max-w-4xl py-8 sm:py-10">
       <h1 className="text-headline font-semibold">{t("orders.title")}</h1>
-      <div className="mt-8">
+      <div className="mt-8 min-h-[60dvh]">
         <CatalogScope>
           <OrderDetail id={id} placed={placed === "1"} />
         </CatalogScope>

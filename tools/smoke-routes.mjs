@@ -13,7 +13,7 @@ const BASE = `http://127.0.0.1:${PORT}`;
 const NOTICE = "Mô phỏng — không thanh toán, không đặt hàng, không giao hàng thật.";
 const NAV_LABEL = 'aria-label="Điều hướng chính"';
 
-const OK_ROUTES = ["/", "/search", "/product/fx-aero", "/product/fx-nova", "/cart", "/import", "/checkout", "/orders", "/settings", "/collection", "/about", "/credits", "/design"];
+const OK_ROUTES = ["/", "/search", "/product/fx-aero", "/product/fx-nova", "/cart", "/import", "/checkout", "/orders", "/settings", "/privacy", "/collection", "/about", "/credits", "/design"];
 // Prototype routes that show synthetic data must say so.
 const FIXTURE_ROUTES = ["/", "/product/fx-aero", "/product/fx-nova", "/design"];
 const FIXTURE_LABEL = "Dữ liệu mẫu";

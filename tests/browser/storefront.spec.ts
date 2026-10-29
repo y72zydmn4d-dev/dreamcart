@@ -36,6 +36,7 @@ for (const width of WIDTHS) {
       "/checkout",
       "/orders",
       "/settings",
+      "/privacy",
     ]) {
       test(`${path}: no horizontal overflow, labeled, accessible`, async ({ page }) => {
         await page.goto(path);
@@ -43,7 +44,17 @@ for (const width of WIDTHS) {
         // the simulation banner is always present; synthetic data says so wherever it appears
         await expect(page.getByRole("region", { name: /mô phỏng/i }).first()).toBeVisible();
         // pages that show no catalog data (credits, an empty cart, the import form) have nothing to label
-        if (!["/credits", "/cart", "/import", "/checkout", "/orders", "/settings"].includes(path))
+        if (
+          ![
+            "/credits",
+            "/cart",
+            "/import",
+            "/checkout",
+            "/orders",
+            "/settings",
+            "/privacy",
+          ].includes(path)
+        )
           await expect(page.getByText(SYNTHETIC).first()).toBeVisible();
         expect(await axeViolations(page)).toEqual([]);
       });

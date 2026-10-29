@@ -137,6 +137,12 @@ export interface LocalData {
   readonly placeOrder: (args: PlaceOrderArgs) => Promise<PlaceActionResult>;
   readonly cancelOrder: (id: string) => Promise<OrderActionResult>;
   readonly deleteOrder: (id: string) => Promise<boolean>;
+  /** Fast scenario only: one step forward from the state currently shown. */
+  readonly advanceOrder: (id: string) => Promise<OrderActionResult>;
+  /** Persist what has been shown (raises each order's high-water mark) and re-read the orders. */
+  readonly recordProgress: () => Promise<void>;
+  /** Remember that a one-time notice was seen. */
+  readonly dismissNotice: (id: string) => Promise<void>;
   readonly updateSettings: (patch: Partial<Settings>) => Promise<boolean>;
   readonly exportBackup: () => Promise<ExportActionResult>;
   /** Parse a backup file's text. Pure: nothing is stored until `restoreBackup`. */
@@ -397,6 +403,38 @@ export function LocalDataProvider({ children }: { readonly children: ReactNode }
           return result;
         } catch (e) {
           return { ok: false, error: "storage", kind: storageKindOf(e) };
+        }
+      },
+      advanceOrder: async (id) => {
+        if (!persistence) return { ok: false, error: "storage", kind: "unavailable" };
+        try {
+          const result = await persistence.orders.advance(id);
+          await refresh(persistence);
+          return result;
+        } catch (e) {
+          return { ok: false, error: "storage", kind: storageKindOf(e) };
+        }
+      },
+      recordProgress: async () => {
+        if (!persistence) return;
+        try {
+          await refresh(persistence);
+        } catch {
+          // showing progress must never fail the page; the next view tries again
+        }
+      },
+      dismissNotice: async (id) => {
+        if (!persistence) return;
+        try {
+          const current = await persistence.settings.get();
+          if (current.dismissedNotices.includes(id)) return;
+          setSettings(
+            await persistence.settings.update({
+              dismissedNotices: [...current.dismissedNotices, id].slice(-50),
+            }),
+          );
+        } catch {
+          // a notice that cannot be remembered simply shows again
         }
       },
       deleteOrder: async (id) => {

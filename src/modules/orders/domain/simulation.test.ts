@@ -10,7 +10,9 @@ import {
   observeOrderState,
   ORDER_PROGRESS,
   orderStateIndex,
+  scheduledDeliveryMs,
   simulationRecordSchema,
+  stateWhenCancelled,
   timeDerivedState,
   type OrderState,
   type SimulationRecord,
@@ -219,5 +221,27 @@ describe("property: random clock sequences never regress state", () => {
         shownIndex = idx;
       }
     }
+  });
+});
+
+describe("display helpers", () => {
+  it("knows when a timed scenario delivers, and that the manual one has no schedule", () => {
+    expect(scheduledDeliveryMs(buildScenarioSnapshot("quick", T0))).toBe(T0 + 180_000);
+    expect(scheduledDeliveryMs(buildScenarioSnapshot("relaxed", T0))).toBe(T0 + 3_600_000);
+    expect(scheduledDeliveryMs(buildScenarioSnapshot("fast", T0))).toBeNull();
+  });
+
+  it("reports the state an order was in when it was cancelled", () => {
+    const quick = newSimulationRecord("quick", T0);
+    const at = (ms: number) => cancelOrder(quick, T0 + ms);
+    const early = at(20_000);
+    expect(early.ok && stateWhenCancelled(early.record)).toBe("PREPARING");
+    const packed = at(50_000);
+    expect(packed.ok && stateWhenCancelled(packed.record)).toBe("PACKED");
+    expect(stateWhenCancelled(quick)).toBeNull();
+
+    const fast = advanceManually(newSimulationRecord("fast", T0), T0);
+    const cancelled = fast.ok ? cancelOrder(fast.record, T0 + 5) : null;
+    expect(cancelled?.ok && stateWhenCancelled(cancelled.record)).toBe("PREPARING");
   });
 });

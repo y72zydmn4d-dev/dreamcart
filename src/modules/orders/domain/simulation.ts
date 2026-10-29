@@ -170,6 +170,22 @@ export function advanceManually(record: SimulationRecord, nowMs: number): Transi
   };
 }
 
+/**
+ * When a timed scenario reaches `VIRTUALLY_DELIVERED`, or `null` for the manual scenario (it has no schedule).
+ * Display only: the state itself comes from `computeOrderState`.
+ */
+export function scheduledDeliveryMs(snapshot: ScenarioSnapshot): number | null {
+  const last = snapshot.milestoneOffsetsMs.at(-1);
+  return last === undefined ? null : snapshot.startedAtMs + last;
+}
+
+/** The progress state an order was in when it was cancelled, or `null` if it is not cancelled. */
+export function stateWhenCancelled(record: SimulationRecord): ProgressState | null {
+  if (record.cancelledAtMs === null) return null;
+  const state = computeOrderState({ ...record, cancelledAtMs: null }, record.cancelledAtMs);
+  return state === "CANCELLED" ? null : state;
+}
+
 /** Terminal states are never left. */
 export const isTerminal = (state: OrderState): boolean =>
   state === "CANCELLED" || state === "VIRTUALLY_DELIVERED";

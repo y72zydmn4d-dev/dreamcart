@@ -3,7 +3,7 @@
 import type { Route } from "next";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useCatalog } from "@/components/catalog/catalog-context";
 import { saveReasonText } from "@/components/cart/messages";
 import { useLocalData } from "@/components/local-data/local-data";
@@ -11,9 +11,10 @@ import { Badge } from "@/components/ui/badge";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { PackageIcon } from "@/components/ui/icons";
 import { formatDateVi, formatMoney } from "@/lib/format";
-import { canCancel, computeOrderState } from "@/modules/orders";
+import { canCancel, computeOrderState, isTerminal } from "@/modules/orders";
 import { t, type DictionaryKey } from "@/platform/i18n";
 import { renderableOrderImage } from "./order-lines";
+import { OrderTimeline } from "./timeline";
 import { stateLabel } from "./state-label";
 import { useNow } from "./use-now";
 
@@ -30,6 +31,26 @@ export function OrderDetail({ id, placed }: { readonly id: string; readonly plac
   const now = useNow(REFRESH_MS);
   const [confirming, setConfirming] = useState<"cancel" | "delete" | null>(null);
   const [message, setMessage] = useState("");
+  const found = data.orders.find((o) => o.order.id === id);
+  const state = found
+    ? computeOrderState(found.order.simulation, now || found.order.createdAtMs)
+    : null;
+  const stored = found?.state ?? null;
+  const { recordProgress, dismissNotice } = data;
+  const recorded = useRef<string | null>(null);
+
+  // What the user has been shown becomes the order's high-water mark, so a clock set backwards cannot undo it.
+  useEffect(() => {
+    if (!state || state === "CANCELLED" || state === stored) return;
+    if (recorded.current === state) return;
+    recorded.current = state;
+    void recordProgress();
+  }, [state, stored, recordProgress]);
+
+  // An order the user is looking at in its delivered state needs no "delivered" notice later.
+  useEffect(() => {
+    if (state === "VIRTUALLY_DELIVERED") void dismissNotice(`delivered:${id}`);
+  }, [state, id, dismissNotice]);
 
   if (data.status === "loading") {
     return (
@@ -38,8 +59,7 @@ export function OrderDetail({ id, placed }: { readonly id: string; readonly plac
       </p>
     );
   }
-  const found = data.orders.find((o) => o.order.id === id);
-  if (!found) {
+  if (!found || !state) {
     return (
       <section className="rounded-xl border border-dashed border-border-strong bg-surface p-8 text-center">
         <h2 className="text-title font-semibold">{t("orders.notFoundTitle")}</h2>
@@ -54,7 +74,6 @@ export function OrderDetail({ id, placed }: { readonly id: string; readonly plac
   }
 
   const { order } = found;
-  const state = computeOrderState(order.simulation, now || order.createdAtMs);
 
   const cancel = async () => {
     const result = await data.cancelOrder(order.id);
@@ -65,6 +84,14 @@ export function OrderDetail({ id, placed }: { readonly id: string; readonly plac
     else if (result.error === "storage")
       setMessage(t("orders.actionFailed", { reason: saveReasonText(result.kind) }));
     else setMessage(t("orders.notFoundTitle"));
+  };
+
+  const advance = async () => {
+    const result = await data.advanceOrder(order.id);
+    if (result.ok) setMessage(t("tracking.advanced", { state: stateLabel(result.state) }));
+    else if (result.error === "storage")
+      setMessage(t("tracking.advanceFailed", { reason: saveReasonText(result.kind) }));
+    else setMessage(t("tracking.advanceFailed", { reason: result.error }));
   };
 
   const remove = async () => {
@@ -129,6 +156,33 @@ export function OrderDetail({ id, placed }: { readonly id: string; readonly plac
           {t("orders.catalogVersion", { version: order.catalogVersion })}
         </p>
       </section>
+
+      {state === "VIRTUALLY_DELIVERED" ? (
+        <section
+          role="status"
+          className="flex flex-col gap-2 rounded-xl border border-border bg-success p-5 text-success-foreground"
+        >
+          <h2 className="text-title font-semibold">{t("tracking.deliveredTitle")}</h2>
+          <p>
+            {t("tracking.deliveredBody", {
+              destination: t(`checkout.destination.${order.destination}` as DictionaryKey),
+            })}
+          </p>
+          <div>
+            <Link href="/collection" className={buttonVariants({ variant: "outline" })}>
+              {t("tracking.toCollection")}
+            </Link>
+          </div>
+        </section>
+      ) : null}
+
+      <OrderTimeline order={order} state={state} />
+      {order.simulation.scenario.scenario === "fast" && !isTerminal(state) ? (
+        <div className="flex flex-col items-start gap-1">
+          <Button onClick={advance}>{t("tracking.next")}</Button>
+          <p className="text-sm text-muted-foreground">{t("tracking.nextHint")}</p>
+        </div>
+      ) : null}
 
       <section aria-labelledby="order-items" className="flex flex-col gap-3">
         <h2 id="order-items" className="text-title font-semibold">

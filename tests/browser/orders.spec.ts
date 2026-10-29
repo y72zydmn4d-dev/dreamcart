@@ -6,55 +6,18 @@ import { readFileSync } from "node:fs";
  * Virtual checkout, orders and data controls in a real browser, on the synthetic fixture catalog. Every test gets a
  * fresh browser context, so storage starts empty. Nothing here may contact another origin.
  */
-const ADD = "Thêm vào giỏ mô phỏng";
-const CONFIRM = "Tạo đơn mô phỏng";
+import {
+  CONFIRM,
+  acknowledge,
+  addAeroToCart,
+  openCheckout,
+  orderCodes,
+  placeOneOrder,
+} from "./support";
+
 const WATERMARK = "MÔ PHỎNG · KHÔNG PHẢI HOÁ ĐƠN";
 
 test.use({ reducedMotion: "reduce" });
-
-async function addAeroToCart(page: Page) {
-  await page.goto("/product/fx-aero");
-  const main = page.getByRole("main");
-  await main.getByRole("button", { name: /^13 inch/ }).click();
-  await main.getByRole("button", { name: /FX1/ }).first().click();
-  await main
-    .getByRole("button", { name: /^16 GB/ })
-    .first()
-    .click();
-  await main
-    .getByRole("button", { name: /^512 GB/ })
-    .first()
-    .click();
-  const offers = page.locator("section[aria-labelledby='offers-heading']");
-  await offers.getByRole("button", { name: ADD }).first().click();
-  await expect(offers.getByTestId("add-to-cart-status").first()).toContainText("Đã thêm");
-}
-
-const acknowledge = (page: Page) =>
-  page.getByRole("checkbox", { name: /Tôi hiểu đây là mô phỏng/ });
-
-async function openCheckout(page: Page) {
-  await page.goto("/checkout");
-  await expect(page.getByRole("button", { name: CONFIRM })).toBeEnabled();
-}
-
-/** Add an item, check out with the given scenario, and return the order's page path. */
-async function placeOneOrder(page: Page, scenario: RegExp = /Vừa/) {
-  await addAeroToCart(page);
-  await openCheckout(page);
-  await page.getByRole("radio", { name: scenario }).check();
-  await acknowledge(page).check();
-  await page.getByRole("button", { name: CONFIRM }).click();
-  await page.waitForURL(/\/orders\/[^/?]+\?placed=1$/);
-  return new URL(page.url()).pathname;
-}
-
-async function orderCodes(page: Page) {
-  await page.goto("/orders");
-  await expect(page.getByRole("main")).toBeVisible();
-  await expect(page.getByText(/Chưa có đơn mô phỏng nào|DC-V-/).first()).toBeVisible();
-  return page.locator("main a p.font-mono").allTextContents();
-}
 
 const axeViolations = async (page: Page) =>
   (await new AxeBuilder({ page }).analyze()).violations.map((v) => `${v.id} (${v.nodes.length})`);

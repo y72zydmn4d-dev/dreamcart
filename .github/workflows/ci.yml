@@ -16,7 +16,8 @@ jobs:
   verify:
     name: Verify (Node 24)
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    # The real-browser suite runs every spec in Chromium, Firefox and WebKit (about 12-16 minutes on the runner).
+    timeout-minutes: 30
     env:
       NEXT_TELEMETRY_DISABLED: "1"
     steps:

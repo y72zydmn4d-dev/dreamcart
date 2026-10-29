@@ -39,12 +39,6 @@ jobs:
       - name: Unit, property and fixture-conformance tests
         run: npm test
 
-      - name: Install browsers for real-engine tests
-        run: npx playwright install --with-deps chromium firefox webkit
-
-      - name: Real-browser tests (IndexedDB in Chromium, Firefox and WebKit)
-        run: npm run test:browser
-
       - name: Documentation checks
         run: npm run docs:check
 
@@ -56,6 +50,12 @@ jobs:
 
       - name: Route smoke test
         run: npm run smoke
+
+      - name: Install browsers for real-engine tests
+        run: npx playwright install --with-deps chromium firefox webkit
+
+      - name: Real-browser tests (IndexedDB and storefront in Chromium, Firefox and WebKit)
+        run: npm run test:browser
 
       - name: Dependency audit (informational)
         run: npm audit --omit=dev --audit-level=high

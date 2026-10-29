@@ -13,8 +13,8 @@ Status labels: `ENGINEERING_COMPLETE`, `VERIFIED`, `BLOCKED_EXTERNAL_DEPENDENCY`
 | 2 UI/UX design system and prototype | VERIFIED (owner-approved design) | #3 | `8506750` | |
 | 3 Domain and simulation core | VERIFIED | #4 | `70abbf1` | 317 tests at merge |
 | 4 Persistence and import foundation | VERIFIED | #5 | `f75c612` | 463 tests; real-browser IndexedDB tests green on Chromium, Firefox and WebKit in CI |
-| 5 Catalog and discovery engine | ENGINEERING_COMPLETE (pending merge); real-data acceptance `BLOCKED_EXTERNAL_DEPENDENCY` | see below | – | real-catalog acceptance is `BLOCKED_EXTERNAL_DEPENDENCY` (human curation and image rights) |
-| 6 Production storefront | not started | | | |
+| 5 Catalog and discovery engine | ENGINEERING_COMPLETE; real-data acceptance `BLOCKED_EXTERNAL_DEPENDENCY` | #6 | `9834318` | real-catalog acceptance is `BLOCKED_EXTERNAL_DEPENDENCY` (human curation and image rights) |
+| 6 Production storefront | ENGINEERING_COMPLETE (pending merge) | see below | – | |
 | 7 Persistent cart and manual import | not started | | | |
 | 8 Virtual checkout and orders | not started | | | |
 | 9 Virtual shipping and My Collection | not started | | | functional MVP milestone |
@@ -22,11 +22,11 @@ Status labels: `ENGINEERING_COMPLETE`, `VERIFIED`, `BLOCKED_EXTERNAL_DEPENDENCY`
 | 11 Pilot testing and UX polish | not started | | | human pilot is `PENDING_HUMAN_VALIDATION` |
 | 12 Release readiness | not started | | | production release needs explicit owner approval |
 
-## Current phase: 5
+## Current phase: 6
 
-- Branch: `claude/phase-5-catalog` (from `main` at `f75c612`).
-- Delivered: catalog validation pipeline and content version, CSV ingestion, discovery engine (search, facets, sorting, suggestions, URL state), catalog-derived vocabulary, synthetic dataset isolated in `data/synthetic/`, empty real catalog in `data/catalog/`, media budgets and credits extraction, `docs/CATALOG_READINESS.md` (readiness report and curation checklist).
-- Test results are in the Phase 5 pull request.
+- Branch: `claude/phase-6-storefront` (from `main` at `9834318`).
+- Delivered: home, search, product detail, gallery, configurator and merchant offers on the catalog and discovery engine; synthetic fallback labeled everywhere; `/credits`; shared loading/empty/error states; real-browser storefront tests at 375/390/768/1024/1440 px with axe; the Phase 2 prototype data removed.
+- Test results are in the Phase 6 pull request.
 
 ## Standing blockers (carried forward)
 
@@ -35,4 +35,4 @@ Status labels: `ENGINEERING_COMPLETE`, `VERIFIED`, `BLOCKED_EXTERNAL_DEPENDENCY`
 
 ## Next action
 
-Merge the Phase 5 pull request when CI is green, then start Phase 6 (storefront on the catalog and discovery engine) from the updated `main`.
+Merge the Phase 6 pull request when CI is green, then start Phase 7 (persistent cart and manual import) from the updated `main`.

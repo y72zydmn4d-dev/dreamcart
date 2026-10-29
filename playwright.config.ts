@@ -11,9 +11,13 @@ export default defineConfig({
   testDir: "tests/browser",
   testMatch: "**/*.spec.ts",
   fullyParallel: true,
+  // Three engines on a small CI runner: fewer workers and longer timeouts avoid load-induced navigation stalls
+  // (a Firefox page load once timed out after 30 s on a page that had loaded in over a hundred other tests).
+  workers: process.env.CI ? 2 : undefined,
+  timeout: 45_000,
   retries: 0,
   reporter: [["list"]],
-  use: { baseURL: `http://127.0.0.1:${PORT}` },
+  use: { baseURL: `http://127.0.0.1:${PORT}`, navigationTimeout: 45_000 },
   webServer: {
     command: `npx next start -p ${PORT}`,
     url: `http://127.0.0.1:${PORT}`,

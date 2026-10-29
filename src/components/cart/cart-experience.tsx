@@ -9,25 +9,11 @@ import { useLocalData } from "@/components/local-data/local-data";
 import { Badge } from "@/components/ui/badge";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { formatMoney } from "@/lib/format";
-import {
-  assessLine,
-  checkoutStatus,
-  lineKey,
-  MAX_QUANTITY,
-  subtotalsByCurrency,
-  type CartLine,
-  type LineStatus,
-} from "@/modules/cart";
+import { checkoutStatus, MAX_QUANTITY, subtotalsByCurrency, type CartLine } from "@/modules/cart";
 import { multiplyMinor, type Money } from "@/modules/shared/domain/money";
 import { t, type DictionaryKey } from "@/platform/i18n";
 import { cartFailureText } from "./messages";
-import { buildLineIndex, resolveLine, type ResolvedLine } from "./resolve-line";
-
-interface Row {
-  readonly resolved: ResolvedLine;
-  readonly status: LineStatus;
-  readonly key: string;
-}
+import { useCartRows, type CartRow } from "./use-cart-rows";
 
 const totalsText = (lines: readonly CartLine[]): string[] => {
   const totals = subtotalsByCurrency({ lines: [...lines], revision: 0, checkoutKey: "-" });
@@ -37,22 +23,15 @@ const totalsText = (lines: readonly CartLine[]): string[] => {
 };
 
 export function CartExperience() {
-  const { view, synthetic, nowMs } = useCatalog();
+  const { synthetic } = useCatalog();
   const data = useLocalData();
-  const { cart, userProducts } = data;
+  const { cart } = data;
   const [message, setMessage] = useState("");
 
-  const rows = useMemo<Row[]>(() => {
-    if (!cart) return [];
-    const index = buildLineIndex(view, userProducts, nowMs);
-    return cart.lines.map((line) => {
-      const resolved = resolveLine(line, index);
-      return { resolved, status: assessLine(line, resolved.current), key: lineKey(line) };
-    });
-  }, [cart, view, userProducts, nowMs]);
+  const rows = useCartRows();
 
   const groups = useMemo(() => {
-    const byHeading = new Map<string, Row[]>();
+    const byHeading = new Map<string, CartRow[]>();
     for (const row of rows) {
       const heading =
         row.resolved.origin === "unknown"
@@ -204,12 +183,15 @@ export function CartExperience() {
             {blocked === "blocked:currency_not_supported" ? (
               <p className="text-sm text-muted-foreground">{t("cart.checkout.blockedCurrency")}</p>
             ) : null}
-            <Button disabled aria-describedby="checkout-note">
-              {t("cart.checkout.cta")}
-            </Button>
-            <p id="checkout-note" className="text-sm text-muted-foreground">
-              {t("cart.checkout.soon")}
-            </p>
+            {blocked === "ok" && issues === 0 ? (
+              <Link href="/checkout" className={buttonVariants({ size: "lg" })}>
+                {t("cart.checkout.cta")}
+              </Link>
+            ) : (
+              <Button size="lg" disabled>
+                {t("cart.checkout.cta")}
+              </Button>
+            )}
             <p className="text-xs text-muted-foreground">{t("cart.disclosure")}</p>
           </aside>
         </div>
@@ -229,7 +211,7 @@ function CartLineCard({
   onRemove,
   onAccept,
 }: {
-  readonly row: Row;
+  readonly row: CartRow;
   readonly synthetic: boolean;
   readonly onQuantity: (quantity: number) => void;
   readonly onRemove: () => void;

@@ -104,6 +104,14 @@ What `src/platform/persistence` does where the text above leaves room. All of it
 - **Imported items** (ADR-003): `createUserProduct` validates the draft (SafeUrl, bounded text, price parsed by currency exponent, reserved attribute names refused) and returns an `unverified` record. A cart line for an imported item uses `variantId = user-…` and `offerId = user-…@user`; its price is `USER_ENTERED` and cartable only in VND. Deleting an imported item turns its cart line into an "unavailable" line instead of removing it silently. Nothing about an imported item is fetched or rendered as an image.
 - **Cart eligibility** is evaluated by `evaluateOffer` for catalog offers and by `evaluateUserProduct` for imported items; the UI never decides it.
 
+### Phase 8 implementation notes
+
+- **Placing an order:** the checkout page passes the checkout key of the cart it is showing. `LocalData.placeOrder` calls the Phase 4 `orders.placeOrder` transaction (idempotency lookup, domain `placeOrder`, insert order, empty cart, rotate key) with a line resolver built by `orderLineResolver` from the catalog read model and the imported items. A display-code collision retries with a new code (3 attempts). A stale key (cart changed in another tab) is refused as `stale_cart`; a repeated key returns the existing order. The order page is reached with `?placed=1` to show the confirmation banner.
+- **Orders are rendered from their snapshot.** The only live lookup is the image: `renderableOrderImage` shows the stored image only while the catalog still holds that exact file as CLEARED; otherwise the placeholder tile with the "illustration, not a real product photo" note.
+- **Simulated state** is `computeOrderState(record, now)` with the browser clock refreshed every 5 s for display; the stored high-water mark is raised when orders are loaded (`observeAll`). The timeline UI, the Fast control and My Collection arrive in Phase 9.
+- **Data controls:** export builds the versioned backup (`exportAll`) and downloads it as a Blob; import runs the full `parseBackup` validation before anything is stored, then merge (default) or replace (needs its own confirmation); reset calls `deleteAllData` after an explicit checkbox. After a restore or reset the cart revision jumps, so the "cart changed in another tab" notice is suppressed for 3 s.
+- **Lost-data notice:** a localStorage marker (`dreamcart:had-data`) is set whenever orders or imported items exist and cleared only by explicit deletion; if IndexedDB is later empty while the marker is set, a notice points to Settings and the backup restore.
+
 ## 5. Storage eviction, recovery, and data portability
 
 Browser storage is not a database you own. Known risks (reported browser behavior; verify on real devices in Phase 10):

@@ -16,5 +16,6 @@ export const NAV_ITEMS = [
   { href: "/import", labelKey: "nav.import" },
   { href: "/orders", labelKey: "nav.orders" },
   { href: "/collection", labelKey: "nav.collection" },
+  { href: "/settings", labelKey: "nav.settings" },
   { href: "/about", labelKey: "nav.about" },
 ] as const satisfies readonly NavItem[];

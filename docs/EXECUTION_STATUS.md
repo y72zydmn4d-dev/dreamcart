@@ -20,11 +20,11 @@ Status labels: `ENGINEERING_COMPLETE`, `VERIFIED`, `BLOCKED_EXTERNAL_DEPENDENCY`
 | 9 Virtual shipping and My Collection | VERIFIED (on synthetic fixtures) | #10 | `743e26d` | 626 unit tests; tracking, collection and 21-step journey specs; functional MVP milestone |
 | 10 QA, security and hardening | ENGINEERING_COMPLETE; device, screen-reader and release-risk items `PENDING_HUMAN_VALIDATION` | #11 | `f13f39d` | report: `docs/QA_REPORT.md`; CI now ~8 min (parallel per engine) |
 | 11 Pilot testing and UX polish | ENGINEERING_COMPLETE; the human pilot is `PENDING_HUMAN_VALIDATION` | #12 | `c48ad00` | plan: `docs/PILOT_PLAN.md`; clock hook fixed (QA F12) |
-| 12 Release readiness | ENGINEERING_COMPLETE (pending merge); overall `READY_FOR_RELEASE_REVIEW`, not `READY_FOR_OWNER_RELEASE_APPROVAL` | see below | – | `docs/FINAL_ACCEPTANCE_REPORT.md`, `docs/RELEASE_CHECKLIST.md`; production NOT published |
+| 12 Release readiness | ENGINEERING_COMPLETE; overall `READY_FOR_RELEASE_REVIEW`, not `READY_FOR_OWNER_RELEASE_APPROVAL` | #13 | `07e8657` | `docs/FINAL_ACCEPTANCE_REPORT.md`, `docs/RELEASE_CHECKLIST.md`; production NOT published |
 
-## Current phase: 12
+## Current phase: none (all planned phases merged)
 
-- Branch: `claude/phase-12-release-readiness` (from `main` at `c48ad00`).
+- Phase 12 was merged from `claude/phase-12-release-readiness` as `07e8657`; the autonomous plan is complete.
 - Delivered: `docs/FINAL_ACCEPTANCE_REPORT.md` (verdict, gate-by-gate evidence, what was not verified, owner decisions), `docs/RELEASE_CHECKLIST.md`, CLAUDE.md "Deployment" section recording the owner's authorization of Vercel Preview deployments (production still needs explicit approval each time; the outdated "no deployment before Phase 12" statements were corrected), `SMOKE_BASE_URL` / `SMOKE_MODE=release` for the smoke tool and `E2E_BASE_URL` for the browser suite so a deployment can be checked with one command, the `/design` gallery hidden in release builds, a takedown path in the runbook, and a demonstrated release-build refusal of synthetic data.
 - **Overall status: `READY_FOR_RELEASE_REVIEW`.** `READY_FOR_OWNER_RELEASE_APPROVAL` is not claimed: the real catalog and image rights (`BLOCKED_EXTERNAL_DEPENDENCY`), the pilot, device and screen-reader checks, deployment verification and rollback rehearsal (`PENDING_HUMAN_VALIDATION`) are open.
 - Vercel: the two projects were not touched. The environment's network policy blocks `*.vercel.app`, so no deployed URL was checked; only the bot's "Ready" build status is evidence of a successful preview build. Check whether the production branch is `main` (it may already publish the synthetic build).
@@ -42,4 +42,4 @@ Status labels: `ENGINEERING_COMPLETE`, `VERIFIED`, `BLOCKED_EXTERNAL_DEPENDENCY`
 
 ## Next action
 
-Merge the Phase 12 pull request when CI is green. The autonomous plan is then complete: the next steps belong to the owner (see the final acceptance report: catalog and rights, pilot, deployment checks, launch authorization).
+The autonomous plan is complete. The next steps belong to the owner (see `docs/FINAL_ACCEPTANCE_REPORT.md` and `docs/RELEASE_CHECKLIST.md`): supply the verified catalog and image rights, run the pilot and the device and screen-reader checks, check the Vercel production-branch setting and run the deployment checks, then decide on launch. Engineering follow-ups available on request: read the Firefox traces for the page-load stalls, a phone-width run of the full journey, and an optional offline shell.

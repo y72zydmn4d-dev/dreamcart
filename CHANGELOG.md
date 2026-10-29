@@ -2,6 +2,12 @@
 
 DreamCart is pre-release: nothing has been published to production, and the product still runs on labeled synthetic fixtures until a verified real catalog and image rights exist (see `docs/EXECUTION_STATUS.md`). Entries are grouped by phase; each phase was one pull request.
 
+## Phase 12 — Release readiness
+
+- Final acceptance report and release checklist; overall status `READY_FOR_RELEASE_REVIEW` (the real catalog, pilot and device checks are still open).
+- CLAUDE.md records the owner's authorization of Vercel Preview deployments; production publication still needs explicit approval.
+- `SMOKE_BASE_URL`, `SMOKE_MODE=release` and `E2E_BASE_URL` check a deployment with the existing smoke and browser suites; release builds do not publish the `/design` gallery; takedown path added to the runbook.
+
 ## Phase 11 — Pilot plan and polish
 
 - Added the human pilot plan, consent text, task script, severity scale and report template (`docs/PILOT_PLAN.md`). The pilot itself needs people and is `PENDING_HUMAN_VALIDATION`.

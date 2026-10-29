@@ -27,12 +27,14 @@ export function SiteFooter() {
           >
             {t("footer.credits")}
           </Link>
-          <Link
-            href="/design"
-            className="inline-flex min-h-11 items-center rounded-sm underline underline-offset-2"
-          >
-            {t("footer.designSystem")}
-          </Link>
+          {process.env.NEXT_PUBLIC_DREAMCART_RELEASE === "1" ? null : (
+            <Link
+              href="/design"
+              className="inline-flex min-h-11 items-center rounded-sm underline underline-offset-2"
+            >
+              {t("footer.designSystem")}
+            </Link>
+          )}
         </p>
       </PageContainer>
     </footer>

@@ -79,6 +79,8 @@ The longest and least certain items: **RT-2/RT-3** (image rights and manual cura
 ### P12 Optional Public MVP Launch — *Launch* — S/M
 1. **Objective:** a public, free-tier, clearly simulated release. 2. **Scope:** deploy and document. 3. **Tasks:** confirm current hosting terms; owner connects the hosting account on a free plan; preview-deployment checks (headers, smoke); optional domain; final credits, privacy, and about pages; launch checklist; verified rollback plan; bugfix-only cadence afterward. 4. **Deliverables:** live URL, launch checklist, changelog. 5. **Depends:** P11; RT-5; RT-2 complete. 6. **Acceptance:** complete journey works on target browsers on the deployed URL; simulation notice on every route; no paid resource; rollback verified. 7. **Tests:** smoke suite against the deployment. 8. **DoD+:** owner signs the launch checklist. 9. **Risks:** hosting-terms mismatch; unread terms (B3); image complaints (keep a takedown path). 10. **Approval:** Yes, explicit launch authorization; deployment is never pre-authorized.
 
+> **Update (Phase 12):** the owner later authorized Vercel *Preview* deployments (see CLAUDE.md "Deployment"). Production publication is still never pre-authorized: it needs explicit launch authorization against `docs/RELEASE_CHECKLIST.md`.
+
 ## After the MVP (not authorized)
 
 Supabase sync, wishlist, rating survey, authorized metadata extraction, licensed provider integrations, English UI, research module. Each needs its own ADR, a user-value case, and a time budget.

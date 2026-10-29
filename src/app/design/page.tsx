@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { notFound } from "next/navigation";
 import {
   CartLinePreview,
   CheckoutPreview,
@@ -45,6 +46,8 @@ const TYPE_SCALE = [
 
 /** Living reference for tokens and components (prototype; not linked from primary navigation). */
 export default async function DesignPage() {
+  // The component gallery is a development aid: a release build does not publish it.
+  if (process.env.NEXT_PUBLIC_DREAMCART_RELEASE === "1") notFound();
   const { active, builtAtMs } = await getStorefront();
   const sample = buildCatalogView(active.catalog, builtAtMs).products[0]!;
   return (

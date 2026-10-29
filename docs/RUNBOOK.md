@@ -26,6 +26,20 @@ CI (`.github/workflows/ci.yml`) runs `quality` (everything in `verify` plus the 
 - No environment variable or secret is needed to build or run the app.
 - Production publication needs the owner's explicit approval (see `docs/EXECUTION_STATUS.md`). To roll back, promote the previous successful deployment in Vercel (instant rollback) or revert the merge commit on `main`; users' data is untouched because it never leaves their browsers.
 
+### Verify a deployment
+
+```bash
+SMOKE_BASE_URL=https://<preview-host> npm run smoke                      # routes, 404s, shell, simulation notice, headers
+SMOKE_BASE_URL=https://<host> SMOKE_MODE=release npm run smoke           # a release build: no fixtures, no /design
+E2E_BASE_URL=https://<preview-host> npx playwright test --project=chromium   # the whole browser suite against the preview
+```
+
+The browser suite assumes the synthetic fixtures (`/product/fx-aero`), so run it against previews, not against a release build. A preview URL may sit behind Vercel's deployment protection; sign in or use the project's bypass setting first. Rollback and domain changes are Vercel dashboard actions the owner performs (CLAUDE.md "Deployment").
+
+### Takedown and complaints
+
+Image or price complaints are handled by the owner: remove the affected media record or set its rights to `NOT_CLEARED` and the source's `persistencePolicy` to `reference_only` in `data/catalog`, merge through a pull request, and redeploy. Orders already placed fall back to the placeholder automatically because their images are re-checked against current rights. There is no public contact address in the product yet: the owner must add one to `/credits` and `/privacy` before a public release.
+
 ## 4. When something is wrong in a user's browser
 
 | What the user sees | Meaning | What to do |

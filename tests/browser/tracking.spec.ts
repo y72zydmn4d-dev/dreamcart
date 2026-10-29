@@ -4,6 +4,8 @@ import { orderCodes, placeOneOrder } from "./support";
 /**
  * Simulated delivery and My Collection with a controlled clock (Playwright `page.clock`). The synthetic order
  * states are a pure function of the stored record and the clock, so these tests move time instead of waiting.
+ * `fastForward` jumps the clock and fires each due timer once (`runFor` replays every timer in between, which stalled
+ * Firefox in CI).
  * Quick = 180 s with state starts at 0, 18, 45, 81, 135 and 180 s.
  */
 test.use({ reducedMotion: "reduce" });
@@ -29,15 +31,15 @@ test.describe("Quick scenario", () => {
       page.getByText("không có hãng vận chuyển, mã vận đơn hay lô hàng thật"),
     ).toBeVisible();
 
-    await page.clock.runFor(60_000);
+    await page.clock.fastForward(60_000);
     await expect(state(page)).toHaveText(PACKED);
-    await page.clock.runFor(60_000);
+    await page.clock.fastForward(60_000);
     await expect(state(page)).toHaveText(IN_TRANSIT);
     // past PACKED the lifecycle continues: no cancel
     await expect(page.getByRole("button", { name: "Huỷ đơn mô phỏng" })).toHaveCount(0);
     await expect(page.getByRole("button", { name: "Bước tiếp theo" })).toHaveCount(0);
 
-    await page.clock.runFor(100_000);
+    await page.clock.fastForward(100_000);
     await expect(state(page)).toHaveText(DELIVERED);
     await expect(page.getByRole("heading", { name: "Đã giao ảo" })).toBeVisible();
 
@@ -55,7 +57,7 @@ test.describe("Quick scenario", () => {
 
   test("progress never goes backwards when the clock is set back", async ({ page }) => {
     const path = await placeOneOrder(page);
-    await page.clock.runFor(100_000);
+    await page.clock.fastForward(100_000);
     await expect(state(page)).toHaveText(IN_TRANSIT);
     // what was shown is stored; give the page a moment to persist it
     await page.reload();
@@ -72,14 +74,14 @@ test.describe("Quick scenario", () => {
 
   test("a cancellation holds: later time and a reload never revive the order", async ({ page }) => {
     await placeOneOrder(page);
-    await page.clock.runFor(50_000);
+    await page.clock.fastForward(50_000);
     await expect(state(page)).toHaveText(PACKED);
     await page.getByRole("button", { name: "Huỷ đơn mô phỏng" }).click();
     await page.getByRole("button", { name: "Xác nhận huỷ đơn" }).click();
     await expect(state(page)).toHaveText("Đã huỷ (mô phỏng)");
     await expect(page.getByText("Đơn đã huỷ khi đang ở bước: Đã đóng gói (ảo)")).toBeVisible();
 
-    await page.clock.runFor(400_000);
+    await page.clock.fastForward(400_000);
     await page.reload();
     await expect(state(page)).toHaveText("Đã huỷ (mô phỏng)");
     await page.goto("/collection");
@@ -92,7 +94,7 @@ test.describe("Quick scenario", () => {
     await expect(page.getByRole("heading", { name: "Giỏ hàng đang trống" })).toBeVisible();
     await expect(page.getByText(/đã được giao ảo/)).toHaveCount(0);
 
-    await page.clock.runFor(200_000);
+    await page.clock.fastForward(200_000);
     const notice = page.getByRole("status").filter({ hasText: /đã được giao ảo/ });
     await expect(notice).toBeVisible();
     await notice.getByRole("link", { name: "Xem Bộ sưu tập" }).click();
@@ -110,7 +112,7 @@ test.describe("Quick scenario", () => {
     page,
   }) => {
     await placeOneOrder(page);
-    await page.clock.runFor(200_000);
+    await page.clock.fastForward(200_000);
     await expect(state(page)).toHaveText(DELIVERED);
     const requests: string[] = [];
     page.on("request", (r) => requests.push(r.url()));
@@ -129,7 +131,7 @@ test.describe("Fast scenario", () => {
     await expect(page.getByText(/dự kiến/)).toHaveCount(0);
 
     // time passing changes nothing in the manual scenario
-    await page.clock.runFor(3_600_000);
+    await page.clock.fastForward(3_600_000);
     await expect(state(page)).toHaveText("Đã xác nhận đơn mô phỏng");
 
     const next = page.getByRole("button", { name: "Bước tiếp theo" });
@@ -163,7 +165,7 @@ test.describe("Fast scenario", () => {
 test("orders placed in different scenarios keep their own pace", async ({ page }) => {
   await placeOneOrder(page, /Nhanh/);
   await placeOneOrder(page, /Vừa/);
-  await page.clock.runFor(200_000);
+  await page.clock.fastForward(200_000);
   await page.goto("/orders");
   await expect(page.locator("main a p.font-mono")).toHaveCount(2);
   await expect(page.getByText(DELIVERED, { exact: true })).toHaveCount(1);

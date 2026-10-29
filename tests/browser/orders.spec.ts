@@ -80,16 +80,17 @@ test.describe("checkout", () => {
     await acknowledge(page).check();
     await acknowledge(other).check();
 
-    await Promise.all([
-      page.getByRole("button", { name: CONFIRM }).dblclick(),
-      // the other tab may lose its button first (the order made here empties the cart there): that is a valid outcome
-      other
-        .getByRole("button", { name: CONFIRM })
-        .click({ timeout: 5000 })
-        .catch(() => undefined),
-    ]);
-    await page.waitForURL(/\/orders\//);
-    await other.waitForTimeout(500);
+    // Whichever tab wins the race, the other tab's button disappears (the order empties the cart there). That is the
+    // outcome under test, so a click on a vanished button is not an error.
+    const press = (tab: Page, double: boolean) => {
+      const button = tab.getByRole("button", { name: CONFIRM });
+      return (double ? button.dblclick({ timeout: 5000 }) : button.click({ timeout: 5000 })).catch(
+        () => undefined,
+      );
+    };
+    await Promise.all([press(page, true), press(other, false)]);
+    await Promise.race([page.waitForURL(/\/orders\//), other.waitForURL(/\/orders\//)]);
+    await page.waitForTimeout(500);
 
     const codes = await orderCodes(page);
     expect(codes).toHaveLength(1);

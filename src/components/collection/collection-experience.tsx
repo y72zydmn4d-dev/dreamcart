@@ -4,11 +4,11 @@ import Link from "next/link";
 import { useEffect, useMemo } from "react";
 import { useCatalog } from "@/components/catalog/catalog-context";
 import { useLocalData } from "@/components/local-data/local-data";
+import { ItemArt, itemDetails } from "@/components/orders/item-display";
 import { renderableOrderImage } from "@/components/orders/order-lines";
 import { useNow } from "@/components/orders/use-now";
 import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
-import { PackageIcon } from "@/components/ui/icons";
 import { formatDateVi } from "@/lib/format";
 import { computeOrderState, scheduledDeliveryMs, type OrderItemSnapshot } from "@/modules/orders";
 import { t } from "@/platform/i18n";
@@ -100,19 +100,12 @@ export function CollectionExperience() {
               className="flex flex-col gap-3 rounded-2xl border border-border bg-surface p-4 shadow-card"
             >
               <div className="flex aspect-[4/3] items-center justify-center overflow-hidden rounded-xl bg-art-stage text-muted-foreground">
-                {image ? (
-                  // eslint-disable-next-line @next/next/no-img-element -- self-hosted, rights re-checked above
-                  <img src={image.src} alt={image.alt} className="size-full object-contain" />
-                ) : (
-                  <PackageIcon size={48} aria-hidden="true" />
-                )}
+                <ItemArt item={item} view={view} iconSize={48} />
               </div>
               <div className="flex flex-col gap-1">
                 <h2 className="text-lg font-semibold">{item.titleVi}</h2>
-                {Object.keys(item.attributes).length > 0 ? (
-                  <p className="text-sm text-muted-foreground">
-                    {Object.values(item.attributes).join(" · ")}
-                  </p>
+                {itemDetails(item, view) ? (
+                  <p className="text-sm text-muted-foreground">{itemDetails(item, view)}</p>
                 ) : null}
                 <p className="text-sm text-muted-foreground">
                   {t("collection.quantity", { count: item.quantity })} ·{" "}

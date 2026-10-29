@@ -95,7 +95,7 @@ test("corrupted records are set aside, never shown, and the app keeps working", 
   await page.goto("/orders");
   const notice = page.getByRole("alert").filter({ hasText: "bản ghi bị lỗi đã được tách riêng" });
   await expect(notice).toBeVisible();
-  await expect(notice).toContainText("không bị xóa");
+  await expect(notice).toContainText("không bị xoá");
   // the valid order is still listed; the broken one is not
   await expect(page.locator("main a p.font-mono")).toHaveCount(1);
   await page.goto("/cart");
@@ -124,7 +124,7 @@ test("a database from a newer DreamCart is never overwritten or downgraded", asy
   await page.reload();
   const notice = page.getByRole("alert").filter({ hasText: "phiên bản DreamCart mới hơn" });
   await expect(notice).toBeVisible();
-  await expect(notice).toContainText("không ghi đè hay xóa");
+  await expect(notice).toContainText("không ghi đè hay xoá");
   const version = await page.evaluate(
     () =>
       new Promise<number>((resolve, reject) => {

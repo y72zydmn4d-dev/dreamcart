@@ -30,7 +30,9 @@ UI language: Vietnamese-first. See `docs/decisions/ADR-005-technology-stack.md`.
 
 ## Project Status
 
-Phases 0 (specification), 1 (engineering foundation) and 2 (UI/UX design system and prototype) are merged. Phases 3 (domain and simulation core) and 4 (local persistence, backup import/export) are in the repository; execution progress is tracked in `docs/EXECUTION_STATUS.md`. The Phase 2 prototype still runs on clearly labeled synthetic data (fictional "Fixturia" products, sample prices); there is no real catalog, cart persistence, or checkout yet.
+The whole simulated shopping journey works in the browser, end to end: discover and configure a product, add offers (or a product you import by link) to a persistent cart, check out a virtual order, follow its simulated delivery, collect it, and export or erase your data. Phases 0–10 are merged (specification, foundation, design system, domain core, local persistence, catalog and discovery engine, storefront, cart and import, checkout and orders, tracking and collection, and the QA/security/hardening phase); execution progress and every status label are tracked in `docs/EXECUTION_STATUS.md`, and the system-wide audit is `docs/QA_REPORT.md`.
+
+**It still runs on clearly labeled synthetic data** (fictional "Fixturia" products and sample prices) because the verified real catalog and image rights are owner-controlled and not yet supplied; a release build (`NEXT_PUBLIC_DREAMCART_RELEASE=1`) refuses to start without a real catalog. The human pilot (`docs/PILOT_PLAN.md`), real-device checks and the public release are pending people, not code. Nothing is deployed to production.
 
 ## Documentation
 
@@ -46,6 +48,11 @@ Phases 0 (specification), 1 (engineering foundation) and 2 (UI/UX design system 
 | `docs/PRODUCT_SOURCE_MATRIX.md` | Provider feasibility and licensing evidence |
 | `docs/SEARCH_FIXTURES.md` | Exact-variant matching rules and search fixtures |
 | `docs/DECISIONS.md` | ADR index, final owner decisions P-1…P-10, Blueprint reconciliation |
+| `docs/EXECUTION_STATUS.md` | The resume point: status of every phase, blockers, open issues, next action |
+| `docs/QA_REPORT.md` | Phase 10 audit: what was checked, findings, performance, security, residual risks |
+| `docs/RUNBOOK.md` | Build, deploy, roll back, incident table and the user backup guide |
+| `docs/PILOT_PLAN.md` | Plan, consent text, task script and report template for the human pilot |
+| `CHANGELOG.md` | What changed, phase by phase |
 | `docs/PHASE1_ENTRY_CRITERIA.md` | Gates, blockers, and scope for Phase 1 |
 | `docs/PRODUCT_BLUEPRINT.md` | Original v1.0 vision (amended; see banner) |
 
@@ -63,17 +70,18 @@ npm run dev     # development server at http://localhost:3000
 | `npm run lint` | ESLint (Next.js rules plus the domain-purity rules) |
 | `npm run typecheck` | `next typegen` then `tsc --noEmit` (strict) |
 | `npm test` | Vitest: unit, property, architecture, and the `fixtures/` conformance suites (search, pricing, cart, configurator) |
-| `npm run test:browser` | Playwright real-browser tests: IndexedDB and the storefront (needs `npm run build` first and `npx playwright install chromium firefox webkit` once) |
+| `npm run test:browser` | Playwright real-browser tests in Chromium, Firefox and WebKit: persistence, storefront, cart, checkout, orders, tracking, the 21-step journey, failure injection, keyboard and performance (needs `npm run build` first and `npx playwright install chromium firefox webkit` once; `-- --project=chromium` runs one engine) |
 | `npm run catalog:check` | Validate the real and synthetic catalog data (runs automatically before `npm run build`) |
 | `npm run catalog:import -- file.csv` | Convert a curation CSV into `data/catalog/*.json` |
 | `npm run coverage` | The same tests with a V8 coverage report (`coverage/`, not committed) |
-| `npm run docs:check` | Phase 0 documentation consistency checks |
+| `npm run docs:check` | Documentation consistency checks |
+| `npm run licenses` | Production dependency licence audit |
 | `npm run format:check` | Prettier (application code; Phase 0 docs are excluded) |
 | `npm run build` | Production build |
 | `npm run smoke` | Starts the production build and checks every route, the shell, and the security headers |
 | `npm run verify` | All of the above, in order |
 
-Production: `npm run build && npm start`. Phase 2 preview routes: `/`, `/search` (also `?demo=loading`, `?demo=error`), `/product/fx-aero`, `/product/fx-nova`, `/design` (full list in `docs/UX_SPEC.md` section 9).
+Production: `npm run build && npm start`. Routes: `/` home, `/search`, `/product/<id>`, `/cart`, `/import`, `/checkout`, `/orders` and `/orders/<id>`, `/collection`, `/settings`, `/privacy`, `/credits`, `/about`, `/design` (state and component gallery).
 
 Design tooling: the vendored UI/UX Pro Max skill (`.claude/skills/ui-ux-pro-max/`, pinned and documented in its `UPSTREAM.md`) is available to Claude Code sessions started in this repository. It is advisory only.
 
@@ -83,8 +91,7 @@ Design tooling: the vendored UI/UX Pro Max skill (`.claude/skills/ui-ux-pro-max/
 src/app/                    routes (thin)
 src/components/layout/      application shell
 src/components/ui/          shadcn-style primitives and icons
-src/components/{search,product,foundations}/  Phase 2 prototype components
-src/prototype/              Phase 2 synthetic data and search (replaced by the catalog in P3/P5)
+src/components/{search,product,cart,checkout,orders,collection,import,settings,local-data,catalog}/  feature components
 src/modules/<name>/domain/  pure domain logic: no React, Next.js, browser, clock, or randomness (enforced)
 src/modules/<name>/index.ts the module's public API; modules import each other only through it (enforced)
 src/modules/<name>/application/ persistence port interfaces

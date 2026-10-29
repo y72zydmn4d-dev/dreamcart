@@ -1,0 +1,180 @@
+{
+  "_notice": "Deterministic search fixtures for the rules in docs/SEARCH_FIXTURES.md. Run against fixtures/search/fixture-catalog.json only. Result arrays are in expected output order.",
+  "schemaVersion": 1,
+  "fixtures": [
+    { "id": "F01", "intent": "Product text only; no constraints returns every variant as a match",
+      "query": "fixturia aero",
+      "expected": { "status": "results", "results": [
+        { "productId": "fx-aero", "class": "match", "variantIds": ["fx-aero:13-fx1-8-256", "fx-aero:13-fx1-16-512", "fx-aero:13-fx2-16-512", "fx-aero:15-fx2-16-512", "fx-aero:15-fx2-32-1024"] } ] } },
+    { "id": "F02", "intent": "Two unlabeled memory tokens: smaller is RAM, larger is storage (laptop)",
+      "query": "aero 13 inch 16gb 512gb",
+      "expected": { "status": "results", "results": [
+        { "productId": "fx-aero", "class": "match", "variantIds": ["fx-aero:13-fx1-16-512", "fx-aero:13-fx2-16-512"] } ] } },
+    { "id": "F03", "intent": "Inch mark, chip, and labeled memory narrow to a single variant",
+      "query": "aero 13\" fx2 16gb ram 512gb ssd",
+      "expected": { "status": "results", "results": [
+        { "productId": "fx-aero", "class": "match", "variantIds": ["fx-aero:13-fx2-16-512"] } ] } },
+    { "id": "F04", "intent": "Each constraint exists alone but not together: never substitute a variant",
+      "query": "aero 15 inch 8gb 256gb",
+      "expected": { "status": "results", "results": [
+        { "productId": "fx-aero", "class": "near", "variantIds": [], "reasons": ["combination_unavailable"] } ] } },
+    { "id": "F05", "intent": "Screen size that no variant offers",
+      "query": "aero 14 inch",
+      "expected": { "status": "results", "results": [
+        { "productId": "fx-aero", "class": "near", "variantIds": [], "reasons": ["constraint_unavailable:screen_in"] } ] } },
+    { "id": "F06", "intent": "TB unit converts to 1024 GB; labeled tokens in any order",
+      "query": "aero 32gb ram 1tb ssd",
+      "expected": { "status": "results", "results": [
+        { "productId": "fx-aero", "class": "match", "variantIds": ["fx-aero:15-fx2-32-1024"] } ] } },
+    { "id": "F07", "intent": "TB unit can only mean storage, so no ambiguity; variant with missing storage is unknown, not matched",
+      "query": "titan 1tb",
+      "expected": { "status": "results", "results": [
+        { "productId": "fx-titan", "class": "match", "variantIds": ["fx-titan:16-fx2-32-1024"] } ] } },
+    { "id": "F08", "intent": "Variant with missing storage is unknown, never matched",
+      "query": "titan 32gb ram 1tb ssd",
+      "expected": { "status": "results", "results": [
+        { "productId": "fx-titan", "class": "match", "variantIds": ["fx-titan:16-fx2-32-1024"] } ] } },
+    { "id": "F09", "intent": "Unknown (missing) storage value yields constraint_unknown, not a match",
+      "query": "titan 32gb ram 512gb ssd",
+      "expected": { "status": "results", "results": [
+        { "productId": "fx-titan", "class": "near", "variantIds": [], "reasons": ["constraint_unknown:storage_gb"] } ] } },
+    { "id": "F10", "intent": "Constraint satisfied by every variant returns all of them",
+      "query": "titan 16 inch",
+      "expected": { "status": "results", "results": [
+        { "productId": "fx-titan", "class": "match", "variantIds": ["fx-titan:16-fx2-32-1024", "fx-titan:16-fx2-32-unknown"] } ] } },
+    { "id": "F11", "intent": "Single unlabeled memory token on a phone is storage; sibling product is near",
+      "query": "nova 256gb",
+      "expected": { "status": "results", "results": [
+        { "productId": "fx-nova", "class": "match", "variantIds": ["fx-nova:256-graphite", "fx-nova:256-sand"] },
+        { "productId": "fx-nova-mini", "class": "near", "variantIds": [], "reasons": ["constraint_unavailable:storage_gb"] } ] } },
+    { "id": "F12", "intent": "Storage plus color; similarly named product ranked after the exact match",
+      "query": "nova 5 256gb graphite",
+      "expected": { "status": "results", "results": [
+        { "productId": "fx-nova", "class": "match", "variantIds": ["fx-nova:256-graphite"] },
+        { "productId": "fx-nova-mini", "class": "near", "variantIds": [], "reasons": ["constraint_unavailable:storage_gb"] } ] } },
+    { "id": "F13", "intent": "Missing combination on one product, missing values on the other; sort reasons alphabetically",
+      "query": "nova 5 512gb sand",
+      "expected": { "status": "results", "results": [
+        { "productId": "fx-nova", "class": "near", "variantIds": [], "reasons": ["combination_unavailable"] },
+        { "productId": "fx-nova-mini", "class": "near", "variantIds": [], "reasons": ["constraint_unavailable:color", "constraint_unavailable:storage_gb"] } ] } },
+    { "id": "F14", "intent": "Extra model token excludes the shorter-named sibling",
+      "query": "nova 5 mini",
+      "expected": { "status": "results", "results": [
+        { "productId": "fx-nova-mini", "class": "match", "variantIds": ["fx-nova-mini:128-graphite"] } ] } },
+    { "id": "F15", "intent": "Vietnamese category alias with diacritics-free text; coverage ordering",
+      "query": "dien thoai nova",
+      "expected": { "status": "results", "results": [
+        { "productId": "fx-nova", "class": "match", "variantIds": ["fx-nova:128-graphite", "fx-nova:256-graphite", "fx-nova:256-sand", "fx-nova:512-graphite"] },
+        { "productId": "fx-nova-mini", "class": "match", "variantIds": ["fx-nova-mini:128-graphite"] } ] } },
+    { "id": "F16", "intent": "Diacritics are normalized: 'điện thoại' equals 'dien thoai'",
+      "query": "điện thoại nova 5 128gb",
+      "expected": { "status": "results", "results": [
+        { "productId": "fx-nova", "class": "match", "variantIds": ["fx-nova:128-graphite"] },
+        { "productId": "fx-nova-mini", "class": "match", "variantIds": ["fx-nova-mini:128-graphite"] } ] } },
+    { "id": "F17", "intent": "Category alias with brand-only text; coverage ties broken by product id",
+      "query": "tai nghe fixturia",
+      "expected": { "status": "results", "results": [
+        { "productId": "fx-buds-lite", "class": "match", "variantIds": ["fx-buds-lite:black"] },
+        { "productId": "fx-studio", "class": "match", "variantIds": ["fx-studio:black", "fx-studio:silver"] },
+        { "productId": "fx-buds-pro", "class": "match", "variantIds": ["fx-buds-pro:black", "fx-buds-pro:white", "fx-buds-pro:color-unknown"] } ] } },
+    { "id": "F18", "intent": "Vietnamese color alias; unknown-color variant is not matched",
+      "query": "buds pro 2 đen",
+      "expected": { "status": "results", "results": [
+        { "productId": "fx-buds-pro", "class": "match", "variantIds": ["fx-buds-pro:black"] } ] } },
+    { "id": "F19", "intent": "English color",
+      "query": "buds pro 2 white",
+      "expected": { "status": "results", "results": [
+        { "productId": "fx-buds-pro", "class": "match", "variantIds": ["fx-buds-pro:white"] } ] } },
+    { "id": "F20", "intent": "Requested color absent; an unknown-color variant prevents a plain 'unavailable'",
+      "query": "buds pro 2 silver",
+      "expected": { "status": "results", "results": [
+        { "productId": "fx-buds-pro", "class": "near", "variantIds": [], "reasons": ["constraint_unknown:color"] } ] } },
+    { "id": "F21", "intent": "Shared family token returns both products; higher coverage first",
+      "query": "buds black",
+      "expected": { "status": "results", "results": [
+        { "productId": "fx-buds-lite", "class": "match", "variantIds": ["fx-buds-lite:black"] },
+        { "productId": "fx-buds-pro", "class": "match", "variantIds": ["fx-buds-pro:black"] } ] } },
+    { "id": "F22", "intent": "Numeric model token and color",
+      "query": "studio 700 silver",
+      "expected": { "status": "results", "results": [
+        { "productId": "fx-studio", "class": "match", "variantIds": ["fx-studio:silver"] } ] } },
+    { "id": "F23", "intent": "Color not offered by any variant",
+      "query": "studio 700 white",
+      "expected": { "status": "results", "results": [
+        { "productId": "fx-studio", "class": "near", "variantIds": [], "reasons": ["constraint_unavailable:color"] } ] } },
+    { "id": "F24", "intent": "Typo in a long token (transposition, distance 1)",
+      "query": "fixtruia aero",
+      "expected": { "status": "results", "results": [
+        { "productId": "fx-aero", "class": "match", "variantIds": ["fx-aero:13-fx1-8-256", "fx-aero:13-fx1-16-512", "fx-aero:13-fx2-16-512", "fx-aero:15-fx2-16-512", "fx-aero:15-fx2-32-1024"] } ] } },
+    { "id": "F25", "intent": "Typo (extra letter) combined with a hard screen filter",
+      "query": "aeroo 13 inch",
+      "expected": { "status": "results", "results": [
+        { "productId": "fx-aero", "class": "match", "variantIds": ["fx-aero:13-fx1-8-256", "fx-aero:13-fx1-16-512", "fx-aero:13-fx2-16-512"] } ] } },
+    { "id": "F26", "intent": "Prefix match for tokens of length 3 or more",
+      "query": "aer 13 inch",
+      "expected": { "status": "results", "results": [
+        { "productId": "fx-aero", "class": "match", "variantIds": ["fx-aero:13-fx1-8-256", "fx-aero:13-fx1-16-512", "fx-aero:13-fx2-16-512"] } ] } },
+    { "id": "F27", "intent": "Unknown text yields an honest empty result",
+      "query": "zzz",
+      "expected": { "status": "no_match", "results": [] } },
+    { "id": "F28", "intent": "Attributes without product text or category are too broad",
+      "query": "16gb 512gb",
+      "expected": { "status": "query_too_broad", "results": [] } },
+    { "id": "F29", "intent": "Whitespace-only query",
+      "query": "   ",
+      "expected": { "status": "empty_query", "results": [] } },
+    { "id": "F30", "intent": "Category-only query with constraints; one match and one near product",
+      "query": "laptop 16gb ram 512gb ssd",
+      "expected": { "status": "results", "results": [
+        { "productId": "fx-aero", "class": "match", "variantIds": ["fx-aero:13-fx1-16-512", "fx-aero:13-fx2-16-512", "fx-aero:15-fx2-16-512"] },
+        { "productId": "fx-titan", "class": "near", "variantIds": [], "reasons": ["constraint_unavailable:ram_gb", "constraint_unknown:storage_gb"] } ] } },
+    { "id": "F31", "intent": "Added in review. Chip that no variant offers, other constraints individually satisfiable",
+      "query": "aero 13 inch 16gb 512gb fx3",
+      "expected": { "status": "results", "results": [
+        { "productId": "fx-aero", "class": "near", "variantIds": [], "reasons": ["constraint_unavailable:chip"] } ] } },
+    { "id": "F32", "intent": "Added in review. Contradictory screen sizes must not silently resolve to either",
+      "query": "aero 13 inch 15 inch",
+      "expected": { "status": "results", "results": [
+        { "productId": "fx-aero", "class": "ambiguous", "variantIds": [], "reasons": ["conflicting:screen_in"] } ] } },
+    { "id": "F33", "intent": "Added in review. Contradictory colors across two candidate products",
+      "query": "buds black white",
+      "expected": { "status": "results", "results": [
+        { "productId": "fx-buds-lite", "class": "ambiguous", "variantIds": [], "reasons": ["conflicting:color"] },
+        { "productId": "fx-buds-pro", "class": "ambiguous", "variantIds": [], "reasons": ["conflicting:color"] } ] } },
+    { "id": "F34", "intent": "Added in review. Prefix label must not swallow the next number's label",
+      "query": "aero ssd 512gb ram 16gb",
+      "expected": { "status": "results", "results": [
+        { "productId": "fx-aero", "class": "match", "variantIds": ["fx-aero:13-fx1-16-512", "fx-aero:13-fx2-16-512", "fx-aero:15-fx2-16-512"] } ] } },
+    { "id": "F35", "intent": "Added in review. Single unlabeled GB token on a laptop stays ambiguous (UI must ask RAM or SSD)",
+      "query": "titan 32gb",
+      "expected": { "status": "results", "results": [
+        { "productId": "fx-titan", "class": "ambiguous", "variantIds": [], "reasons": ["ambiguous_gb"] } ] } },
+    { "id": "F36", "intent": "Added in review. Network generation '5g' is not memory and is not parsed as 5 GB",
+      "query": "nova 5g 128gb",
+      "expected": { "status": "no_match", "results": [] } },
+    { "id": "F37", "intent": "Added in review. Mixed TB and unlabeled GB: each resolvable, combination absent",
+      "query": "aero 1tb 16gb",
+      "expected": { "status": "results", "results": [
+        { "productId": "fx-aero", "class": "near", "variantIds": [], "reasons": ["combination_unavailable"] } ] } },
+    { "id": "F38", "intent": "P-6 shorthand: 256G means 256 GB when the number is a plausible memory size (same result as F11)",
+      "query": "nova 256g",
+      "expected": { "status": "results", "results": [
+        { "productId": "fx-nova", "class": "match", "variantIds": ["fx-nova:256-graphite", "fx-nova:256-sand"] },
+        { "productId": "fx-nova-mini", "class": "near", "variantIds": [], "reasons": ["constraint_unavailable:storage_gb"] } ] } },
+    { "id": "F39", "intent": "P-6 shorthand: two unlabeled shorthand tokens, smaller is RAM",
+      "query": "aero 16g 512g",
+      "expected": { "status": "results", "results": [
+        { "productId": "fx-aero", "class": "match", "variantIds": ["fx-aero:13-fx1-16-512", "fx-aero:13-fx2-16-512", "fx-aero:15-fx2-16-512"] } ] } },
+    { "id": "F40", "intent": "P-6 shorthand: 1T means 1 TB, which can only be storage",
+      "query": "titan 1t",
+      "expected": { "status": "results", "results": [
+        { "productId": "fx-titan", "class": "match", "variantIds": ["fx-titan:16-fx2-32-1024"] } ] } },
+    { "id": "F41", "intent": "P-6 safety: 4G is a network generation, not memory, so it is a text token and matches nothing",
+      "query": "nova 4g 128gb",
+      "expected": { "status": "no_match", "results": [] } },
+    { "id": "F42", "intent": "P-6 shorthand with a trailing label and a TB shorthand",
+      "query": "titan 32g ram 1t",
+      "expected": { "status": "results", "results": [
+        { "productId": "fx-titan", "class": "match", "variantIds": ["fx-titan:16-fx2-32-1024"] } ] } }
+  ]
+}

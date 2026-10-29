@@ -12,6 +12,12 @@ products and simulated transactions.
 
 Read docs/PRODUCT_BLUEPRINT.md before making decisions.
 
+Owner-confirmed UX direction is a product requirement, not a suggestion
+(see docs/PRD.md section 3): Apple-inspired premium design with DreamCart
+identity, Apple-first editorial homepage, Shopee/Lazada-inspired search and
+discovery, Apple-inspired product pages, hybrid configurator with dependent
+options, premium-first catalog of about 20-30 verified products.
+
 ## Non-Negotiable Rules
 
 1. Never implement real payment processing.
@@ -30,10 +36,13 @@ Read docs/PRODUCT_BLUEPRINT.md before making decisions.
 - React
 - Tailwind CSS
 - shadcn/ui
-- Supabase PostgreSQL
+- Zod
+- IndexedDB (local-first cart and virtual orders) behind repository ports
 - Vercel
+- Supabase PostgreSQL: deferred, not part of the MVP (see docs/decisions/ADR-005)
 
-Architecture: Modular Monolith.
+Architecture: Modular Monolith. UI language: Vietnamese-first.
+Decision precedence: ADRs (docs/decisions/) > docs/PRD.md > docs/PRODUCT_BLUEPRINT.md.
 
 ## Development Workflow
 

@@ -1,4 +1,6 @@
 # DREAMCART — PRODUCT BLUEPRINT v1.0
+> **Amended 2026-10-29 (Phase 0).** This is the original v1.0 vision, kept for history. Where it conflicts with `docs/decisions/` (ADRs) or `docs/PRD.md`, those win. Notable supersessions: Supabase and the 11-table schema/API draft (deferred, ADR-005/006), URL import (manual-first, ADR-003), provider priorities (ADR-004), roadmap numbering (PRD §10). See the reconciliation table in `docs/DECISIONS.md`. External citations in this file were not independently re-verified.
+
 **Status:** Proposed / conditional GO  
 **Date:** 2026-10-29  
 **Owner:** DreamCart project  

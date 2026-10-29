@@ -7,7 +7,7 @@
 Tracking must be reproducible, free of background workers, and never regress. Owner-approved scenarios: Fast (manual), Quick (~3 min), Relaxed (~1 h).
 
 ## Decision
-Order state is a pure function of the stored scenario snapshot (`startedAt`, `durationSeconds`, `milestoneOffsets`, `scenarioVersion`), an injected clock, a stored high-water state, and the manual step count: `state = max(time-derived, high-water, manual)`. The high-water state is written when an order is viewed, so a backward clock cannot regress it. Cancellation is allowed up to `PACKED` (owner to confirm) and `CANCELLED` is terminal. The collection is a derived view of delivered orders, so there is nothing to keep idempotent. Notifications are in-app only, on open. No timers, cron, push, email, or SMS.
+Order state is a pure function of the stored scenario snapshot (`startedAt`, `durationSeconds`, `milestoneOffsets`, `scenarioVersion`), an injected clock, a stored high-water state, a manual step index, and a cancellation record. A cancellation record wins (`CANCELLED` is terminal); otherwise `state = max(time-derived, high-water, manual)`. The high-water state is written whenever an order is viewed or the collection is computed, so a backward clock cannot regress what the user has seen. Cancellation (allowed through `PACKED`, **pending P-2**) is checked inside the transaction that records it, using the clock at that moment, so a cancel racing a transition is decided once; the UI shows it by state, never as a countdown. The collection is a derived view of delivered orders rendered from snapshots, so there is nothing to keep idempotent. Notifications are in-app only, on open. No timers, cron, push, email, or SMS.
 
 ## Alternatives
 - Timers or workers: not durable, adds backend cost.

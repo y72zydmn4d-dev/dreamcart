@@ -26,10 +26,10 @@
       "query": "aero 32gb ram 1tb ssd",
       "expected": { "status": "results", "results": [
         { "productId": "fx-aero", "class": "match", "variantIds": ["fx-aero:15-fx2-32-1024"] } ] } },
-    { "id": "F07", "intent": "Single unlabeled memory token on a laptop is ambiguous; nothing is called exact",
+    { "id": "F07", "intent": "TB unit can only mean storage, so no ambiguity; variant with missing storage is unknown, not matched",
       "query": "titan 1tb",
       "expected": { "status": "results", "results": [
-        { "productId": "fx-titan", "class": "ambiguous", "variantIds": [], "reasons": ["ambiguous_gb"] } ] } },
+        { "productId": "fx-titan", "class": "match", "variantIds": ["fx-titan:16-fx2-32-1024"] } ] } },
     { "id": "F08", "intent": "Variant with missing storage is unknown, never matched",
       "query": "titan 32gb ram 1tb ssd",
       "expected": { "status": "results", "results": [
@@ -127,6 +127,34 @@
       "query": "laptop 16gb ram 512gb ssd",
       "expected": { "status": "results", "results": [
         { "productId": "fx-aero", "class": "match", "variantIds": ["fx-aero:13-fx1-16-512", "fx-aero:13-fx2-16-512", "fx-aero:15-fx2-16-512"] },
-        { "productId": "fx-titan", "class": "near", "variantIds": [], "reasons": ["constraint_unavailable:ram_gb", "constraint_unknown:storage_gb"] } ] } }
+        { "productId": "fx-titan", "class": "near", "variantIds": [], "reasons": ["constraint_unavailable:ram_gb", "constraint_unknown:storage_gb"] } ] } },
+    { "id": "F31", "intent": "Added in review. Chip that no variant offers, other constraints individually satisfiable",
+      "query": "aero 13 inch 16gb 512gb fx3",
+      "expected": { "status": "results", "results": [
+        { "productId": "fx-aero", "class": "near", "variantIds": [], "reasons": ["constraint_unavailable:chip"] } ] } },
+    { "id": "F32", "intent": "Added in review. Contradictory screen sizes must not silently resolve to either",
+      "query": "aero 13 inch 15 inch",
+      "expected": { "status": "results", "results": [
+        { "productId": "fx-aero", "class": "ambiguous", "variantIds": [], "reasons": ["conflicting:screen_in"] } ] } },
+    { "id": "F33", "intent": "Added in review. Contradictory colors across two candidate products",
+      "query": "buds black white",
+      "expected": { "status": "results", "results": [
+        { "productId": "fx-buds-lite", "class": "ambiguous", "variantIds": [], "reasons": ["conflicting:color"] },
+        { "productId": "fx-buds-pro", "class": "ambiguous", "variantIds": [], "reasons": ["conflicting:color"] } ] } },
+    { "id": "F34", "intent": "Added in review. Prefix label must not swallow the next number's label",
+      "query": "aero ssd 512gb ram 16gb",
+      "expected": { "status": "results", "results": [
+        { "productId": "fx-aero", "class": "match", "variantIds": ["fx-aero:13-fx1-16-512", "fx-aero:13-fx2-16-512", "fx-aero:15-fx2-16-512"] } ] } },
+    { "id": "F35", "intent": "Added in review. Single unlabeled GB token on a laptop stays ambiguous (UI must ask RAM or SSD)",
+      "query": "titan 32gb",
+      "expected": { "status": "results", "results": [
+        { "productId": "fx-titan", "class": "ambiguous", "variantIds": [], "reasons": ["ambiguous_gb"] } ] } },
+    { "id": "F36", "intent": "Added in review. Network generation '5g' is not memory and is not parsed as 5 GB",
+      "query": "nova 5g 128gb",
+      "expected": { "status": "no_match", "results": [] } },
+    { "id": "F37", "intent": "Added in review. Mixed TB and unlabeled GB: each resolvable, combination absent",
+      "query": "aero 1tb 16gb",
+      "expected": { "status": "results", "results": [
+        { "productId": "fx-aero", "class": "near", "variantIds": [], "reasons": ["combination_unavailable"] } ] } }
   ]
 }

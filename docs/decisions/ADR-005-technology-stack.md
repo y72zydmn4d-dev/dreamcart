@@ -14,4 +14,4 @@ Next.js (App Router) + React + TypeScript (strict) + Tailwind CSS + shadcn/ui + 
 - Plain React/Vite: loses prerendering and routing conventions the project wants.
 
 ## Consequences
-(+) $0, small surface, fast. (−) Single-device data until the later sync phase; storage-eviction risk is mitigated by export/import (ADR-006). Vercel Hobby is noncommercial: no ads, affiliate links, or paid use without re-checking its terms.
+(+) $0, small surface, fast. (−) Single-device data until the later sync phase; storage-eviction risk is mitigated by export/import (ADR-006). The Blueprint cites Vercel Hobby as personal/noncommercial; that claim was not re-verified in Phase 0 (network allowlist), so ads, affiliate links, or paid use require re-checking the current terms first.

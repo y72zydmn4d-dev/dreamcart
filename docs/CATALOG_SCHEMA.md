@@ -1,101 +1,128 @@
-# Catalog and Image Provenance Schema
+# Catalog, Pricing, Snapshot, and Configurator Schema
 
-**Status:** Phase 0 specification. Phase 1 turns it into Zod schemas; this document is the source of truth until then.
-**Storage:** versioned data files in the repository, validated at build time. Changes arrive by pull request. No database in the MVP, but the shape maps 1:1 to future Postgres tables.
+**Status:** Phase 0 specification (revised after self-review). Phase 3 turns it into Zod schemas and domain code; this document is the source of truth until then. Conformance fixtures: `fixtures/pricing/`, `fixtures/configurator/`, `fixtures/search/` (`node tools/verify-fixtures.mjs`).
+**Storage:** versioned data files in the repository, validated at build time; changes arrive by pull request. No database in the MVP; the shape maps 1:1 to future Postgres tables.
+
+Items marked **PENDING** are proposals awaiting owner decision (`docs/DECISIONS.md`, section "Pending owner decisions").
 
 ## Entities
 
 ```
 Source 1──* Offer *──1 Variant *──1 Product
-                 Offer 1──1 PriceObservation
+                 Offer 0..1──1 PriceObservation
 Product/Variant 1──* MediaAsset
 ```
 
-Identity rules (from the Blueprint): **Product** (brand + family + model), **Variant** (a source-backed attribute combination), **Offer** (a seller listing of one variant), and **PriceObservation** are distinct. A variant's attributes are never inferred from another variant.
+Product (brand + family + model), Variant (a source-backed attribute combination), Offer (a seller listing of one variant), and PriceObservation are distinct. Attributes are never inferred from another variant.
 
 ### Source
 
-| Field | Type | Rule |
-|---|---|---|
-| `id` | string | stable slug |
-| `kind` | `retailer` \| `manufacturer` \| `open_data` \| `owner_curated` | |
-| `name`, `domain` | string | domain is lowercase host only |
-| `termsReviewedAt` | ISO date \| null | null = not reviewed |
-| `persistencePolicy` | `snapshot_allowed` \| `reference_only` \| `unknown` | `unknown` blocks checkout (see Eligibility) |
-| `policyEvidence` | URL \| note | clause reference |
+| Field | Rule |
+|---|---|
+| `id`, `name`, `domain` | slug; lowercase host only |
+| `kind` | `retailer` \| `manufacturer` \| `open_data` \| `owner_curated` |
+| `termsReviewedAt` | ISO date or null (null = not reviewed) |
+| `persistencePolicy` | `snapshot_allowed` \| `reference_only` \| `unknown`. **PENDING P-3:** whether the owner's manual recording of a visible price makes `snapshot_allowed` the default for curated sources. Until decided, curated sources must be set explicitly, and `unknown` blocks the cart (fixture O13) |
+| `policyEvidence` | URL or note naming the clause |
 
 ### Product
 
-`id` (slug), `brand`, `family`, `model` (may be empty), `category` (`laptop` \| `phone` \| `audio` for now), `titleVi`, `summaryVi`, `verificationStatus` (`verified` \| `needs_review`), `createdAt`. Only `verified` products ship. Ids beginning `fx-` are reserved for test fixtures and rejected in production builds.
+`id` (slug), `brand`, `family`, `model` (may be empty), `category` (`laptop` \| `phone` \| `audio` initially; not a permanent restriction), `titleVi`, `summaryVi`, `verificationStatus` (`verified` \| `needs_review`), `createdAt`. Only `verified` products ship. Ids beginning `fx-` are reserved for fixtures and rejected in production builds.
+
+**Authoring rule.** `titleVi`, `summaryVi`, and any descriptive text are written by the curator in their own words. Merchant or manufacturer marketing copy, review text, and spec-sheet prose are not copied. Specifications are recorded as structured facts (attribute values), not pasted text.
 
 ### Variant
 
-`id`, `productId`, `attributes` (typed per category), `gtin` (nullable), `variantKey` (unique per product, derived deterministically from attributes). Attribute vocabularies:
+`id`, `productId`, `attributes`, `gtin` (nullable), `variantKey` (deterministic, unique per product).
 
-- laptop: `screen_in` (number), `chip` (string), `ram_gb` (int), `storage_gb` (int), `color` (optional)
-- phone: `storage_gb` (int), `color` (string)
-- audio: `type` (earbuds \| over_ear \| on_ear), `color` (string)
+| Category | Required attributes (production) | Optional |
+|---|---|---|
+| laptop | `screen_in`, `chip`, `ram_gb`, `storage_gb` | `color` |
+| phone | `storage_gb`, `color` | `chip` |
+| audio | `type` (earbuds \| over_ear \| on_ear), `color` | |
 
-A missing attribute stays missing; it is never defaulted.
+A shipped variant must carry every required attribute, because an unconfigurable variant can never be selected or matched. Optional attributes may be absent and are then *unknown*, never defaulted. (The fixture catalog intentionally violates this to test unknown handling.)
 
 ### Offer
 
-`id`, `variantId`, `sourceId`, `url` (http/https, no credentials, tracking parameters stripped), `merchantName`, `availability` (`in_stock` \| `out_of_stock` \| `unknown`), `price` (PriceObservation). Currency is the original currency of the source. No conversion.
+`id`, `variantId`, `sourceId`, `url` (http/https, no credentials, tracking parameters stripped), `merchantName`, `availability` (`in_stock` \| `out_of_stock` \| `unknown`), `price` (PriceObservation **or null**). A variant with no offers, or only offers with `price: null`, is `UNAVAILABLE`.
 
 ### PriceObservation
 
-| Field | Type | Rule |
-|---|---|---|
-| `amountMinor` | integer ≥ 0 | VND has exponent 0, so 1,000,000 VND is `1000000`. Per-currency exponent table in code |
-| `currency` | ISO 4217 | `VND` for MVP checkout |
-| `observedAt` | ISO datetime | when a human saw it |
-| `observer` | string | curator handle |
-| `provenanceType` | `curator_observed` \| `manufacturer_listed` \| `user_entered` | |
-| `evidenceUrl` | URL | the page viewed |
-| `evidenceNote` | string | optional (for example "list price, promotion excluded") |
+| Field | Rule |
+|---|---|
+| `amountMinor` | safe integer ≥ 1. VND has exponent 0 (1,000,000 VND is `1000000`). Unknown price is `null`, never `0` |
+| `currency` | ISO 4217, uppercase three letters. `VND` for MVP checkout |
+| `observedAt` | ISO datetime when a human saw it. Build validation rejects future values; at runtime a future value is treated as age 0 |
+| `observer` | curator handle |
+| `provenanceType` | `curator_observed` \| `manufacturer_listed` \| `user_entered` |
+| `evidenceUrl`, `evidenceNote` | the page viewed; for example "list price, promotion excluded" |
 
 ### MediaAsset (image provenance record)
 
-| Field | Type | Rule |
-|---|---|---|
-| `id` | string | |
-| `productId` / `variantId` | string | one required |
-| `kind` | `photo` \| `official_render` \| `placeholder` | `placeholder` is generic category art, never product-specific |
-| `file` | repo path | self-hosted under `public/`; no hotlinking of third-party hosts |
-| `altVi` | string | required |
-| `width`, `height` | int | for layout without shift |
-| `rights.status` | `CLEARED` \| `PENDING` \| `NOT_CLEARED` | only `CLEARED` renders as a product image |
-| `rights.basis` | `open_license` \| `written_permission` \| `published_terms` \| `own_work` | required when CLEARED |
-| `rights.licenseId` | string | SPDX or Creative Commons id when applicable |
-| `rights.licenseUrl`, `rights.sourcePageUrl` | URL | |
-| `rights.creator`, `rights.attributionText` | string | displayed where the license requires |
-| `rights.evidence` | URL or repo path to the permission/terms record | required when CLEARED |
-| `rights.restrictions` | string[] | for example "no modification" |
-| `rights.reviewedBy`, `rights.reviewedAt` | string, ISO date | |
-| `rights.expiresAt` | ISO date \| null | |
+| Field | Rule |
+|---|---|
+| `id`, `productId` / `variantId` | one target required |
+| `kind` | `photo` \| `official_render` \| `brand_art` \| `placeholder`. `brand_art` is abstract DreamCart-authored artwork (never presented as a photograph of the product); `placeholder` is generic category art |
+| `file` | self-hosted repo path; no hotlinking. Pre-generated responsive sizes (see ARCHITECTURE §8) |
+| `altVi`, `width`, `height` | required |
+| `rights.status` | `CLEARED` \| `PENDING` \| `NOT_CLEARED`. Only `CLEARED` renders as a product image |
+| `rights.basis` | `open_license` \| `written_permission` \| `published_terms` \| `own_work` (required when CLEARED; `brand_art` is `own_work`) |
+| `rights.licenseId`, `licenseUrl`, `sourcePageUrl`, `creator`, `attributionText` | as the license requires |
+| `rights.evidence` | URL or path to the permission or terms record (required when CLEARED) |
+| `rights.restrictions`, `reviewedBy`, `reviewedAt`, `expiresAt` | |
 
-**Rendering rules.** Not `CLEARED` → show the placeholder with the label "Ảnh minh hoạ chưa có". Placeholders must not imitate a photograph of the product. The project does not generate fictional product photography. Third-party trademark and logo artwork is not used as decoration.
+**Rendering rules.** Not `CLEARED` → the placeholder with the label "Ảnh minh hoạ chưa có". The project does not generate fictional product photography. Third-party trademarks and logo artwork are not used as decoration. Required attributions appear on the product page and on a Credits page.
 
-## Derived price states (computed, never stored)
+## Derived price state (computed, never stored)
 
-`age = now − observedAt`. Constants live in one config file and are **proposals for owner confirmation**:
+Configuration (a single file; **PENDING P-1**, working defaults are the recommended values):
 
-| State | Condition | Display | Cart / checkout |
+```
+warnAfterDays: { curator_observed: 14, manufacturer_listed: 45 }
+blockAfterDays: null          // a number would make older prices EXPIRED (not addable)
+```
+
+`age = max(0, now − observedAt)`.
+
+| State | Condition | Display | Cart |
 |---|---|---|---|
-| `OBSERVED` | provenance is curator/manufacturer and age ≤ 14 days | "Giá tham khảo, ghi nhận ngày …" | allowed |
-| `STALE` | age 15–90 days | same plus warning badge "Giá có thể đã thay đổi" | allowed with badge, repeated in checkout |
-| `EXPIRED` | age > 90 days | "Giá đã cũ, chưa cập nhật" | viewable; **not addable** |
-| `USER_ENTERED` | provenance `user_entered` | "Người dùng nhập, chưa xác minh" | allowed |
-| `UNAVAILABLE` | no price | "Chưa có giá" | not addable |
+| `OBSERVED` | `age ≤ warnAfterDays[provenance]` | "Giá tham khảo, ghi nhận ngày …" | allowed |
+| `STALE` | older than the warn window (and not expired) | same + "Giá có thể đã thay đổi" | allowed with badge, repeated at checkout |
+| `EXPIRED` | only if `blockAfterDays` is set and `age > blockAfterDays` | "Giá đã cũ, chưa cập nhật" | viewable, **not addable** |
+| `USER_ENTERED` | provenance `user_entered`; no staleness | "Người dùng nhập, chưa xác minh" | allowed |
+| `UNAVAILABLE` | no offer or `price: null` | "Chưa có giá" | not addable |
 
-## Eligibility rules (summary)
+Boundaries are inclusive (exactly the window is still the earlier state); see offers O02, O03, O06, O07.
 
-An offer can enter the cart only if: its price state is `OBSERVED`, `STALE`, or `USER_ENTERED`; its source `persistencePolicy` is `snapshot_allowed` (user-entered offers are local user data and exempt); and its currency is `VND` for MVP checkout. A cart is single-currency. Other currencies stay viewable with original currency and provenance; there is no exchange-rate conversion.
+## Cart eligibility (ordered checks; first failure wins)
 
-## Validation (build time, Phase 2)
+1. `UNAVAILABLE` → `no_price`; `EXPIRED` → `expired`.
+2. Currency not `VND` → `currency_not_supported` (still viewable with original currency; no conversion).
+3. Not `USER_ENTERED` and source policy not `snapshot_allowed` → `source_reference_only` or `source_policy_unknown`.
 
-Zod parse; unique ids; every product has ≥ 1 variant; every variant has ≥ 1 offer or an explicit no-offer status; every shipped offer has a source and a price observation; `variantKey` unique per product; `CLEARED` media has basis and evidence; no `fx-` ids; no rights status `PENDING`/`NOT_CLEARED` rendered as a product image. A failing check fails the build.
+Cart lines are keyed by `variantId + offerId`; the same key merges quantities, a different offer for the same variant is a separate line. Quantity is an integer 1–99; adding past 99 is rejected visibly and leaves the line unchanged (no silent clamp). Subtotals are integers per currency. Checkout requires a non-empty single-currency VND cart. See cart cases C01–C12.
 
-## Curation input format
+## Order snapshot (immutable; a virtual order stores everything it needs to render forever)
 
-Human curators fill one row per variant-offer in `docs/templates/catalog_curation_template.csv`. A script (Phase 2) converts and validates the CSV into the data files. See `docs/CURATION_PROCESS.md`.
+Per item: `productId`, `variantId`, `offerId`, `brand`, `titleVi`, `attributes`, `quantity`, merchant name and source URL, price (`amountMinor`, `currency`, `observedAt`, `provenanceType`, `evidenceUrl`), `priceStateAtPlacement` and the warning shown, source `persistencePolicy`, and an `imageRef` (`mediaId`, `file`, `rightsStatus`, `attributionText`). Per order: `catalogVersion` (content hash of the catalog at placement), scenario snapshot, destination preset, payment label, `idempotencyKey`, `code`, timestamps.
+
+Rendering a snapshot's image re-checks the **current** media registry: if the asset is gone or no longer `CLEARED`, the placeholder is shown. A product that left the catalog still renders from its snapshot (without a live link to the product page).
+
+## Configurator derivation (hybrid configurator with dependent options)
+
+Option groups per category, in order: laptop `screen_in, chip, ram_gb, storage_gb`; phone `storage_gb, color`; audio `type, color`. All options come from real variants; nothing is invented.
+
+- A value is **available** if at least one variant has that value and matches every *other* currently selected group; **selected** if chosen; otherwise **unavailable** (shown disabled with a reason, never hidden).
+- Selecting an unavailable value changes nothing: the result is `needs_reset` naming the conflicting groups, and the UI offers an explicit reset of those groups. Nothing is changed silently.
+- A variant resolves only when every group is selected and exactly one variant matches. Add-to-cart is disabled until then. Image, specs, and price change only when backed by the resolved variant's data.
+
+Cases K01–K12 define the behavior; the interaction design (steps vs. a single panel, reset flow) is in the Phase 2 UX specification (**PENDING P-5**).
+
+## Validation (build time; implemented in Phase 5)
+
+Zod parse; unique ids; `variantKey` unique per product; required attributes present; every shipped offer has a source and either a valid price observation or `null`; `observedAt` not in the future; `CLEARED` media has basis and evidence; no `fx-` ids; no `PENDING`/`NOT_CLEARED` image rendered as a product image; each product has a `verified` status. A failing check fails the build. An advisory (non-failing) report lists offers past their warn window so curators can refresh them.
+
+## Curation input
+
+Human curators fill one row per variant-offer in `docs/templates/catalog_curation_template.csv`; a Phase 5 script converts and validates it into the data files. See `docs/CURATION_PROCESS.md`.

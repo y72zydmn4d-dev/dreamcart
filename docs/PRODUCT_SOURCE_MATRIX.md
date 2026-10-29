@@ -24,14 +24,14 @@ T = technical capability. A = access and authentication. L = data licensing and 
 | **Manual / user-entered** | Yes | None | User data, labeled unverified | Full | Local only | **MVP** |
 | **Shopify Global Catalog** | Likely (MCP tools; REST API reported deprecated [S]) | Unknown (credentials; Blueprint cites an auth tutorial [B]) | Search-result caching **not allowed** [S] | Unknown (non-purchase use not confirmed [B]) | Results: no. Images: unknown [B says no reuse outside listing] | Research; not MVP |
 | **eBay Browse API** | Yes | Production = eBay partner approval via partner program; growth check; approval not guaranteed [S] | Unknown | Unknown | Unknown | Future candidate |
-| **Amazon Creators API** | Yes | Associates account + at least 10 qualifying sales in 30 days; access lapses without sales [S] | Terms forbid caching customer information; field caching otherwise allowed [S]; 24h limit is an unverified third-party claim [C] | Poor: program purpose is directing sales to Amazon [C] | Unknown | Not viable now |
+| **Amazon Creators API** | Yes | Associates account + at least 10 qualifying sales in 30 days; access lapses without sales [S] | Caching customer information derived from Amazon is against the terms [S]; limits on stored product fields are unclear from what was read, and a 24h cap is an unverified third-party claim [C] | Poor: program purpose is directing sales to Amazon [C] | Unknown | Not viable now |
 | **Lazada Open Platform** | Seller-side only found [C] | Seller authorization flow [C] | Unknown | Not applicable (seller API) | Unknown | Not viable |
 | **Lazada affiliate API** | Product search and feed reported [C] | Affiliate account [C] | Unknown | Unknown | Unknown | Research |
 | **Shopee Open Platform** | Shop-level seller data only [C] | Seller account, region-dependent [C] | Unknown | Not applicable | Unknown | Not viable |
 | **Third-party scrapers of marketplaces** | Exist [C] | n/a | Rights unverified; unauthorized scraping excluded by project rule | No | No | **Excluded** |
 | **Open Icecat** (specs, images) | Yes (documented APIs; automated access to free content permitted [S]) | Free registration [S] | Open Content License; restrictions include not selling a brand's data; image terms not confirmed [S] | Good for specs/images if license permits display; does not appear to provide VN prices (unverified) | Unknown | **Phase 0/1 research priority** |
 | **Wikimedia Commons / Wikidata** | Yes | None | Per-file license; attribution; trademark law applies separately [S] | Good for images/specs where coverage exists | Per file license | Image path, per file |
-| **Manufacturer press/spec pages** | Manual only | None | Varies per brand; written permission may be needed | Good | Per brand terms | Image path, per brand |
+| **Manufacturer press/spec pages and official storefront list prices** | Manual only | None | Varies per brand; terms for recording prices and for image use not read; written permission may be needed | Good: list prices change less often than retailer promotions, matching the premium-first catalog | Per brand terms | Price source and image path, per brand |
 | **Retailer pages via JSON-LD / Open Graph** | Feasible (schema.org Product/Offer) | None | Site terms and robots.txt: nothing found [—] | Unknown | Unknown | **Future** authorized extraction only |
 | **Vietnamese retailer/affiliate feeds** | Unknown | Unknown | Unknown | Unknown | Unknown | **Not yet researched** (gap) |
 
@@ -53,6 +53,9 @@ T = technical capability. A = access and authentication. L = data licensing and 
 | R4 | Identify Vietnamese retailer or affiliate data programs with explicit terms | Candidate list with terms |
 | R5 | Read eBay, Amazon, Lazada primary terms only if a future phase needs them | Optional |
 
+6. **Premium-first raises the image stakes.** Premium brands are the likeliest to restrict image reuse, while the owner-confirmed editorial home and product pages depend on large imagery. Brand permission outreach and owner photography should start early, and products should be chosen partly by image availability.
+7. **Vietnam relevance is unresearched** for eBay, Amazon, Lazada affiliate, and Shopify Global Catalog (availability and coverage for Vietnamese shoppers or VND prices). No claim is made.
+
 ## Verdict for the MVP
 
-The curated catalog is a lawful path **by construction**, because the owner supplies and verifies each record. Whether it can also be visually rich depends on image rights (R2, R3, owner photography). That outcome is not yet known and is tracked as blocker B2 in `docs/PHASE1_ENTRY_CRITERIA.md`.
+The curated catalog is the **lowest-risk** path, not a cleared one. It avoids provider access and caching terms, but it still depends on (a) whether recording a visible price is acceptable under each source's terms (pending decision P-3), (b) image rights per asset (R2, R3, owner photography), and (c) the curator writing original text. None of these has been legally reviewed or demonstrated. The image outcome is tracked as blocker B2 in `docs/PHASE1_ENTRY_CRITERIA.md`.

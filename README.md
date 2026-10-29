@@ -36,12 +36,22 @@ Phase 0 — Discovery and specification (complete pending owner review). No appl
 
 | Document | Purpose |
 |---|---|
-| `docs/PRD.md` | MVP requirements, journeys, acceptance gates, roadmap |
+| `docs/PRD.md` | MVP requirements, owner-confirmed UX direction, journeys, acceptance gates |
+| `docs/ROADMAP.md` | Phase-by-phase plan to a public MVP, critical path |
 | `docs/ARCHITECTURE.md` | Layers, persistence, security headers, testing |
-| `docs/CATALOG_SCHEMA.md` | Catalog, price, and image-provenance schemas |
-| `docs/CURATION_PROCESS.md` | How the first ~20 products are verified |
+| `docs/CATALOG_SCHEMA.md` | Catalog, pricing, order-snapshot, image-provenance, and configurator rules |
+| `docs/CURATION_PROCESS.md` | How the first 20–30 products are verified |
 | `docs/PRODUCT_SOURCE_MATRIX.md` | Provider feasibility and licensing evidence |
-| `docs/SEARCH_FIXTURES.md` | Exact-variant matching rules and 30 fixtures |
-| `docs/DECISIONS.md` | ADR index and reconciliation of the Blueprint |
-| `docs/PHASE1_ENTRY_CRITERIA.md` | Gates and scope for Phase 1 |
+| `docs/SEARCH_FIXTURES.md` | Exact-variant matching rules and search fixtures |
+| `docs/DECISIONS.md` | ADR index, pending owner decisions, Blueprint reconciliation |
+| `docs/PHASE1_ENTRY_CRITERIA.md` | Gates, blockers, and scope for Phase 1 |
 | `docs/PRODUCT_BLUEPRINT.md` | Original v1.0 vision (amended; see banner) |
+
+## Validation (no install needed, Node 18+)
+
+```bash
+node tools/verify-fixtures.mjs   # search, pricing, cart, and configurator fixtures
+node tools/check-docs.mjs        # links, JSON, ADR index, fixture ids, secret patterns
+```
+
+Both are Phase 0 spec checks and are replaced by the real test suite in Phase 3.

@@ -11,7 +11,9 @@ DreamCart is a visual shopping experience. Product imagery also carries the high
 - Render a real product image only when its `MediaAsset.rights.status` is `CLEARED` with a recorded basis (open license, written permission, published terms, or own work) and evidence. Display required attribution.
 - Self-host images; no hotlinking; no copying of retailer images.
 - Where no cleared image exists, show a designed generic placeholder labeled "Ảnh minh hoạ chưa có". Never generate fictional product photography and present it as real.
+- Editorial surfaces may use DreamCart `brand_art` (abstract, owner-created, never presented as a photograph of a product) so the Apple-inspired home does not depend on product photography it cannot lawfully show.
 - Image acquisition paths in order: open license, manufacturer permission/terms, owner photography.
+- The owner-confirmed premium-first catalog makes this the highest project risk: premium brands are the likeliest to restrict reuse. Image availability is a product-selection criterion (`CURATION_PROCESS.md`). Pending decision P-4 covers the acquisition plan.
 
 ## Alternatives
 - Image-optional as the design philosophy: rejected by the owner.

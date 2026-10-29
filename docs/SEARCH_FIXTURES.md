@@ -1,48 +1,52 @@
 # Search Matching Rules and Test Fixtures
 
-**Status:** Phase 0 specification. Implementation is Phase 1.
-**Files:** `fixtures/search/fixture-catalog.json` (synthetic catalog), `fixtures/search/queries.json` (30 fixtures with expected output).
+**Status:** Phase 0 specification (revised after self-review). Implementation is Phase 3 (domain core).
+**Files:** `fixtures/search/fixture-catalog.json` (synthetic catalog), `fixtures/search/queries.json` (fixtures with expected output). Related: `fixtures/pricing/`, `fixtures/configurator/`. Run all with `node tools/verify-fixtures.mjs`.
 
-All fixture data is **synthetic** (fictional brand "Fixturia", ids prefixed `fx-`). It tests logic only and is never real product information. A production build must fail if any `fx-` id is present in the shipped catalog.
+All fixture data is **synthetic** (fictional brand "Fixturia", ids prefixed `fx-`). It tests logic only and is never real product information. A production build must fail if any `fx-` id is in the shipped catalog. The fixture catalog deliberately contains two variants that production validation would reject (a laptop variant without `storage_gb`, an audio variant without `color`), so the "unknown" behavior can be tested.
 
 ## Principle
 
-Explicit attributes in a query (screen, chip, RAM, storage, color) are **hard constraints**. A variant is returned as an exact match only if every constraint is satisfied by a *known* value. A missing value means *unknown*, never matched. Text similarity may rank and select products, but never relaxes a constraint.
+Explicit attributes in a query are **hard constraints**. A variant is exact only if every constraint is satisfied by a *known* value. A missing value means *unknown*, never matched. Contradictory constraints are never resolved silently. Text similarity may select and rank products but never relaxes a constraint.
 
 ## Rules (deterministic, in order)
 
-1. **Normalize** the query: Unicode NFD, strip combining marks, `đ`→`d`, lowercase, curly quotes→`"`, collapse whitespace.
-2. **Memory tokens**: `<number>(gb|tb)`, optionally adjacent to a label `ram` or `ssd` (label before the number wins over a label after). `tb` = ×1024 GB. Bare numbers without a unit are text tokens, never inferred as memory.
+1. **Normalize**: Unicode NFD, strip combining marks, `đ`→`d`, lowercase, curly quotes→`"`, collapse whitespace.
+2. **Memory tokens**: `<number>(gb|tb)`. A label (`ram` or `ssd`) immediately **before** the number binds to it. If there is no leading label, a label immediately **after** the number binds to it and is consumed; a trailing label is never consumed when a leading label exists (so `ssd 512gb ram 16gb` reads as SSD 512, RAM 16). `tb` = ×1024 GB. Bare numbers are text tokens. The unit `g` is not memory (`5g` is a network generation, not 5 GB).
 3. **Screen**: `<number>` followed by `inch`, `-inch`, `in`, or `"`.
-4. **Category aliases** (longest first, one per query): laptop → `may tinh xach tay`, `may tinh`, `laptop`, `notebook`; phone → `dien thoai`, `smartphone`, `phone`; audio → `tai nghe`, `headphones`, `headphone`, `earbuds`. A match sets a category filter and is removed from the text tokens.
-5. **Colors** (query token → value): `black`, `white`, `silver`, `graphite`, `sand`, `den`→black, `trang`→white, `bac`→silver. **Chip**: token matching `fx<digit>` (fixture vocabulary; the real vocabulary comes from the catalog).
-6. **Text tokens** are the remainder. If there are no text tokens and no category alias: `empty_query` (blank input) or `query_too_broad`.
-7. **Product candidates**: every text token must match at least one token of `brand + family + model` by: exact; prefix (query token length ≥ 3); or one edit (Damerau–Levenshtein/OSA distance ≤ 1, query token length ≥ 5). A category filter excludes other categories.
-8. **Resolving unlabeled memory tokens per candidate category** (laptop has both RAM and storage; phone has storage; audio has neither):
-   - Laptop, two unlabeled: smaller = RAM, larger = storage. One unlabeled plus one labeled: the unlabeled takes the other attribute. One unlabeled alone, or any other combination: **ambiguous**.
-   - Phone: one unlabeled = storage; more than one: ambiguous.
-   - Attribute not defined for the category (for example a RAM constraint on a phone): never satisfiable.
-9. **Per-variant check** for each constraint: `match`, `mismatch`, or `unknown` (attribute missing on the variant). A variant is exact only if all are `match`.
-10. **Per-product class**:
+4. **Category aliases** (longest first, one per query): laptop → `may tinh xach tay`, `may tinh`, `laptop`, `notebook`; phone → `dien thoai`, `smartphone`, `phone`; audio → `tai nghe`, `headphones`, `headphone`, `earbuds`. A match filters by category and is removed from the text tokens.
+5. **Colors**: `black`, `white`, `silver`, `graphite`, `sand`, plus `den`→black, `trang`→white, `bac`→silver. **Chip**: token matching `fx<digit>` (fixture vocabulary; the real vocabulary comes from the catalog).
+6. **Text tokens** are the remainder. With no text tokens and no category alias: `empty_query` (blank input) or `query_too_broad`.
+7. **Product candidates**: every text token must match a token of `brand + family + model` by: exact; prefix (query token length ≥ 3); or one edit (OSA distance ≤ 1, query token length ≥ 5). A category alias excludes other categories.
+8. **Resolving memory tokens per candidate category** (laptop has RAM and storage; phone has storage; audio has neither):
+   1. labeled tokens bind to their attribute;
+   2. unlabeled `tb` tokens bind to storage (RAM is not expressed in TB);
+   3. remaining unlabeled GB tokens bind only when their count equals the number of free memory attributes: one token and one free attribute binds to it; two tokens and two free attributes bind smaller = RAM, larger = storage. Anything else is **ambiguous**;
+   4. on a category with no memory attributes, memory tokens bind to `storage_gb` and are therefore never satisfiable.
+9. **Conflicts**: after binding, an attribute with two different requested values (two screen sizes, two colors, two chips, two RAM sizes…) is a conflict. Repeated identical values collapse.
+10. **Per-variant check** for each constraint: `match`, `mismatch`, or `unknown` (attribute missing on the variant); an attribute not defined for the category is always `mismatch`. A variant is exact only if all are `match`.
+11. **Per-product class**:
+    - `ambiguous`: rule 8 ambiguity and/or a rule 9 conflict. `variantIds` = [], reasons from `ambiguous_gb`, `conflicting:<attr>` (sorted). Nothing is called exact.
     - `match`: at least one exact variant. `variantIds` = exact variants in catalog order.
-    - `ambiguous`: rule 8 ambiguity. `variantIds` = [], reasons `["ambiguous_gb"]`. Nothing is called exact.
-    - `near`: product text matched but no exact variant. `variantIds` = []. Reasons, sorted alphabetically: for every constraint that no variant matches, `constraint_unknown:<attr>` if at least one variant is unknown for it, else `constraint_unavailable:<attr>`. If every constraint is individually satisfiable, the single reason `combination_unavailable`.
-11. **Result status**: `results`, `no_match`, `query_too_broad`, or `empty_query`.
-12. **Order**: class (`match`, `ambiguous`, `near`), then coverage (matched distinct product tokens ÷ distinct product tokens, descending), then `productId` ascending.
+    - `near`: product text matched but no exact variant. `variantIds` = []. Reasons, sorted: for every constraint no variant matches, `constraint_unknown:<attr>` if at least one variant is unknown for it, else `constraint_unavailable:<attr>`; if every constraint is individually satisfiable, the single reason `combination_unavailable`.
+12. **Result status**: `results`, `no_match`, `query_too_broad`, or `empty_query`.
+13. **Order**: class (`match`, `ambiguous`, `near`), then coverage (matched distinct product tokens ÷ distinct product tokens, descending), then `productId` ascending.
 
-The UI must present `near` and `ambiguous` results as "not an exact match" with the reasons, and must never preselect a different variant on the user's behalf.
+UI obligations: present `near` and `ambiguous` results as "not an exact match" with the reasons; never preselect a different variant; for `ambiguous_gb` offer explicit choices ("16GB RAM" / "16GB SSD").
 
 ## Fixtures
+
+Expected results live in `fixtures/search/queries.json`. F31–F37 were added in the Phase 0 self-review.
 
 | ID | Query | Behavior under test |
 |---|---|---|
 | F01 | `fixturia aero` | text only, all variants |
 | F02 | `aero 13 inch 16gb 512gb` | two unlabeled memory tokens |
 | F03 | `aero 13" fx2 16gb ram 512gb ssd` | inch mark, chip, labeled memory |
-| F04 | `aero 15 inch 8gb 256gb` | constraints individually present, combination absent |
+| F04 | `aero 15 inch 8gb 256gb` | each constraint present, combination absent |
 | F05 | `aero 14 inch` | screen size not offered |
 | F06 | `aero 32gb ram 1tb ssd` | TB conversion |
-| F07 | `titan 1tb` | ambiguous single memory token on laptop |
+| F07 | `titan 1tb` | TB means storage; missing storage is unknown |
 | F08 | `titan 32gb ram 1tb ssd` | variant with missing storage not matched |
 | F09 | `titan 32gb ram 512gb ssd` | unknown storage reason |
 | F10 | `titan 16 inch` | constraint satisfied by all variants |
@@ -66,11 +70,20 @@ The UI must present `near` and `ambiguous` results as "not an exact match" with 
 | F28 | `16gb 512gb` | query too broad |
 | F29 | three spaces | empty query |
 | F30 | `laptop 16gb ram 512gb ssd` | category-only query with constraints |
+| F31 | `aero 13 inch 16gb 512gb fx3` | nonexistent chip |
+| F32 | `aero 13 inch 15 inch` | contradictory screen sizes |
+| F33 | `buds black white` | contradictory colors, two products |
+| F34 | `aero ssd 512gb ram 16gb` | leading label does not consume the next label |
+| F35 | `titan 32gb` | single unlabeled GB on a laptop stays ambiguous |
+| F36 | `nova 5g 128gb` | `5g` is not memory; honest no-match |
+| F37 | `aero 1tb 16gb` | TB plus unlabeled GB, combination absent |
 
-## Validation performed in Phase 0
+## Validation performed (what it does and does not show)
 
-Expected results were written by hand from the rules before any checker ran. A throwaway reference implementation of rules 1–12 (not committed; Phase 1 builds the real one) agreed with 30/30 fixtures, and a deliberately altered fixture was correctly reported as a failure. This shows the rules are internally consistent and deterministic. It does not show real-catalog accuracy: the real catalog will need its own attribute vocabularies, and the fixtures must be re-run against them in Phase 1/2.
+- Expected results were written by hand from the rules, then checked by a dependency-free reference (`tools/verify-fixtures.mjs`, committed so the result is reproducible). Mutating an expectation in each fixture group made the checker fail, so a pass is not vacuous.
+- **The self-review found real defects the first 30 fixtures missed.** The original rules let the *last* value win for contradictory constraints (`aero 13 inch 15 inch` silently matched 15-inch variants; `buds black white` silently matched white), and treated `titan 1tb` as ambiguous. These are fixed (rules 8, 9, 11) and covered by F32, F33, F07.
+- **Not shown:** accuracy on a real catalog, real attribute vocabularies, performance, or behavior on queries nobody thought of. Phase 3 must re-implement the rules as typed domain code, run these fixtures as unit tests, and extend them with fixtures drawn from the real curated catalog.
 
 ## Known limits (accepted for MVP)
 
-Only the attribute types above are parsed. Synonyms beyond the alias lists, non-adjacent labels (`ram ... 16gb`), ranges, and negations are unsupported. Real categories add attributes (for example headphone type), which extend the grammar through a per-category attribute vocabulary, not through fuzzy logic.
+Only the attribute types above are parsed. Unsupported: synonyms beyond the alias lists, non-adjacent labels (`ram ... 16gb`), ranges, negations, and Vietnamese shorthand such as `128G` (a bare `g` is excluded because of `5G`; adding it needs category context and an owner decision, see pending decision P-6). A color word that is also part of a product name would be read as a color. Real categories add attributes (for example headphone type) through per-category vocabularies, never fuzzy logic.

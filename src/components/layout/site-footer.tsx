@@ -8,9 +8,18 @@ export function SiteFooter() {
       <PageContainer className="flex flex-col gap-2 py-8 text-sm text-muted-foreground">
         <p>{t("footer.disclosure")}</p>
         <p>{t("footer.status")}</p>
-        <p>
-          <Link href="/about" className="rounded-sm underline underline-offset-2">
+        <p className="flex flex-wrap gap-x-5 gap-y-1">
+          <Link
+            href="/about"
+            className="inline-flex min-h-11 items-center rounded-sm underline underline-offset-2"
+          >
             {t("simulation.learnMore")}
+          </Link>
+          <Link
+            href="/design"
+            className="inline-flex min-h-11 items-center rounded-sm underline underline-offset-2"
+          >
+            {t("footer.designSystem")}
           </Link>
         </p>
       </PageContainer>

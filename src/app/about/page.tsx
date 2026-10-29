@@ -16,6 +16,9 @@ export default function AboutPage() {
     <PageContainer className="py-12 sm:py-16">
       <h1 className="text-headline font-semibold">{t("pages.about.title")}</h1>
       <p className="mt-3 max-w-2xl text-lg text-muted-foreground">{t("pages.about.lead")}</p>
+      <p className="mt-4 max-w-2xl rounded-lg border border-dashed border-border-strong bg-surface px-4 py-3 text-sm text-muted-foreground">
+        {t("pages.about.prototypeNote")}
+      </p>
 
       <section aria-labelledby="not-real-heading" className="mt-10 max-w-2xl">
         <h2 id="not-real-heading" className="text-xl font-semibold">

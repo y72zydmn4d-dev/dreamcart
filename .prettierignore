@@ -1,0 +1,12 @@
+# Phase 0 documentation, fixtures, and spec tooling are formatted by hand and verified by tools/check-docs.mjs.
+docs
+fixtures
+tools
+CLAUDE.md
+README.md
+
+.next
+node_modules
+coverage
+package-lock.json
+next-env.d.ts

@@ -106,7 +106,7 @@ Catalog, home, and product pages are **prerendered at build** from repo data. Ca
 The Content Security Policy is therefore fitted to this architecture (ADR-011): a per-request nonce would force dynamic rendering of every page, so it is not used. Baseline headers via framework configuration:
 
 - `default-src 'self'`; `img-src 'self' data: blob:` (all product images self-hosted); `font-src 'self'`; `connect-src 'self'`; `object-src 'none'`; `base-uri 'self'`; `form-action 'self'`; `frame-ancestors 'none'`.
-- `script-src`: the Phase 1 spike chooses between (A) hash-based allowance for the framework's inline scripts via its experimental integrity support, or (B) `'self' 'unsafe-inline'` with the rest strict. Choose A if it works on the pinned version without fragility; otherwise B, justified by: no user-generated HTML, no server-rendered untrusted content, React escaping, and the import hardening in section 5. The framework documentation could not be read directly in Phase 0 (network allowlist), so the spike must verify against the pinned version.
+- `script-src 'self' 'unsafe-inline'`: **decided and verified in Phase 1** (ADR-011). A nonce would force dynamic rendering, and static headers cannot carry per-page inline-script hashes, so inline scripts stay allowed while every other directive is strict. Compensating controls: no user-generated HTML, React escaping, import hardening, and `SafeUrl` for every link.
 - `style-src` per Tailwind/framework needs (verify in the spike); `X-Content-Type-Options: nosniff`; `Referrer-Policy: strict-origin-when-cross-origin`; `Permissions-Policy` denying camera, microphone, geolocation.
 - Outbound links use `rel="noopener noreferrer"` and show the "leaving DreamCart" notice.
 

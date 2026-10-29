@@ -30,7 +30,7 @@ UI language: Vietnamese-first. See `docs/decisions/ADR-005-technology-stack.md`.
 
 ## Project Status
 
-Phase 0 (discovery and specification) is complete. Phase 1 (engineering foundation) is in progress.
+Phase 0 (discovery and specification) is complete. Phase 1 (engineering foundation) is implemented and awaiting review; Phase 2 (UI/UX design system) is next.
 
 ## Documentation
 
@@ -47,11 +47,40 @@ Phase 0 (discovery and specification) is complete. Phase 1 (engineering foundati
 | `docs/PHASE1_ENTRY_CRITERIA.md` | Gates, blockers, and scope for Phase 1 |
 | `docs/PRODUCT_BLUEPRINT.md` | Original v1.0 vision (amended; see banner) |
 
-## Validation (no install needed, Node 18+)
+## Local development
+
+**Requirements:** Node.js 24 LTS (see `.nvmrc`) and npm. No environment variables, accounts, Supabase project, or API credentials are needed.
 
 ```bash
-node tools/verify-fixtures.mjs   # search, pricing, cart, and configurator fixtures
-node tools/check-docs.mjs        # links, JSON, ADR index, fixture ids, secret patterns
+npm ci          # reproducible install from package-lock.json
+npm run dev     # development server at http://localhost:3000
 ```
 
-Both are Phase 0 spec checks and are replaced by the real test suite in Phase 3.
+| Command | What it does |
+|---|---|
+| `npm run lint` | ESLint (Next.js rules plus the domain-purity rules) |
+| `npm run typecheck` | `next typegen` then `tsc --noEmit` (strict) |
+| `npm test` | Vitest unit and architecture tests |
+| `npm run fixtures` | Phase 0 search, pricing, cart, and configurator fixtures |
+| `npm run docs:check` | Phase 0 documentation consistency checks |
+| `npm run format:check` | Prettier (application code; Phase 0 docs are excluded) |
+| `npm run build` | Production build |
+| `npm run smoke` | Starts the production build and checks every route, the shell, and the security headers |
+| `npm run verify` | All of the above, in order |
+
+Production: `npm run build && npm start`.
+
+## Structure
+
+```
+src/app/                    routes (thin)
+src/components/layout/      application shell
+src/components/ui/          shadcn-style primitives
+src/modules/<name>/domain/  pure domain logic: no React, Next.js, browser, clock, or randomness (enforced)
+src/platform/               infrastructure adapters and the Vietnamese dictionary (i18n)
+src/config/                 navigation and security headers
+tests/                      architecture and design-token tests
+tools/                      Phase 0 spec checks and the route smoke test
+```
+
+Stack (pinned in `package.json`): Next.js 16.4.3, React 19.3.1, TypeScript 6.0.3 (held below 7 for `typescript-eslint`), Tailwind CSS 4.3.3, Vitest 5.0.5, ESLint 9.39.5, Prettier 3.9.10.

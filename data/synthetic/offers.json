@@ -1,0 +1,420 @@
+[
+  {
+    "id": "fx-aero:13-fx1-8-256@fx-shop-a",
+    "variantId": "fx-aero:13-fx1-8-256",
+    "sourceId": "fx-shop-a",
+    "url": "https://shop-a.fixturia.test/p/fx-aero/13-fx1-8-256",
+    "merchantName": "Cửa hàng Mẫu A (hư cấu)",
+    "availability": "unknown",
+    "price": {
+      "amountMinor": 24990000,
+      "currency": "VND",
+      "observedAt": "2026-10-20T00:00:00Z",
+      "provenanceType": "curator_observed",
+      "observer": "fixture-curator",
+      "evidenceNote": "Dữ liệu mẫu: giá hư cấu, không phải giá thật."
+    }
+  },
+  {
+    "id": "fx-aero:13-fx1-16-512@fx-shop-a",
+    "variantId": "fx-aero:13-fx1-16-512",
+    "sourceId": "fx-shop-a",
+    "url": "https://shop-a.fixturia.test/p/fx-aero/13-fx1-16-512",
+    "merchantName": "Cửa hàng Mẫu A (hư cấu)",
+    "availability": "unknown",
+    "price": {
+      "amountMinor": 29990000,
+      "currency": "VND",
+      "observedAt": "2026-10-20T00:00:00Z",
+      "provenanceType": "curator_observed",
+      "observer": "fixture-curator",
+      "evidenceNote": "Dữ liệu mẫu: giá hư cấu, không phải giá thật."
+    }
+  },
+  {
+    "id": "fx-aero:13-fx1-16-512@fx-shop-b",
+    "variantId": "fx-aero:13-fx1-16-512",
+    "sourceId": "fx-shop-b",
+    "url": "https://shop-b.fixturia.test/p/fx-aero/13-fx1-16-512",
+    "merchantName": "Cửa hàng Mẫu B (hư cấu)",
+    "availability": "unknown",
+    "price": {
+      "amountMinor": 30490000,
+      "currency": "VND",
+      "observedAt": "2026-10-20T00:00:00Z",
+      "provenanceType": "curator_observed",
+      "observer": "fixture-curator",
+      "evidenceNote": "Dữ liệu mẫu: giá hư cấu, không phải giá thật."
+    }
+  },
+  {
+    "id": "fx-aero:13-fx2-16-512@fx-shop-a",
+    "variantId": "fx-aero:13-fx2-16-512",
+    "sourceId": "fx-shop-a",
+    "url": "https://shop-a.fixturia.test/p/fx-aero/13-fx2-16-512",
+    "merchantName": "Cửa hàng Mẫu A (hư cấu)",
+    "availability": "unknown",
+    "price": {
+      "amountMinor": 33990000,
+      "currency": "VND",
+      "observedAt": "2026-10-20T00:00:00Z",
+      "provenanceType": "curator_observed",
+      "observer": "fixture-curator",
+      "evidenceNote": "Dữ liệu mẫu: giá hư cấu, không phải giá thật."
+    }
+  },
+  {
+    "id": "fx-aero:15-fx2-16-512@fx-shop-a",
+    "variantId": "fx-aero:15-fx2-16-512",
+    "sourceId": "fx-shop-a",
+    "url": "https://shop-a.fixturia.test/p/fx-aero/15-fx2-16-512",
+    "merchantName": "Cửa hàng Mẫu A (hư cấu)",
+    "availability": "unknown",
+    "price": {
+      "amountMinor": 37990000,
+      "currency": "VND",
+      "observedAt": "2026-10-20T00:00:00Z",
+      "provenanceType": "curator_observed",
+      "observer": "fixture-curator",
+      "evidenceNote": "Dữ liệu mẫu: giá hư cấu, không phải giá thật."
+    }
+  },
+  {
+    "id": "fx-aero:15-fx2-32-1024@fx-shop-a",
+    "variantId": "fx-aero:15-fx2-32-1024",
+    "sourceId": "fx-shop-a",
+    "url": "https://shop-a.fixturia.test/p/fx-aero/15-fx2-32-1024",
+    "merchantName": "Cửa hàng Mẫu A (hư cấu)",
+    "availability": "unknown",
+    "price": {
+      "amountMinor": 47990000,
+      "currency": "VND",
+      "observedAt": "2026-10-20T00:00:00Z",
+      "provenanceType": "curator_observed",
+      "observer": "fixture-curator",
+      "evidenceNote": "Dữ liệu mẫu: giá hư cấu, không phải giá thật."
+    }
+  },
+  {
+    "id": "fx-aero:15-fx2-32-1024@fx-brand-store",
+    "variantId": "fx-aero:15-fx2-32-1024",
+    "sourceId": "fx-brand-store",
+    "url": "https://store.fixturia.test/p/fx-aero/15-fx2-32-1024",
+    "merchantName": "Fixturia Store (hư cấu)",
+    "availability": "unknown",
+    "price": {
+      "amountMinor": 1999,
+      "currency": "USD",
+      "observedAt": "2026-10-20T00:00:00Z",
+      "provenanceType": "manufacturer_listed",
+      "observer": "fixture-curator",
+      "evidenceNote": "Dữ liệu mẫu: giá hư cấu, không phải giá thật."
+    }
+  },
+  {
+    "id": "fx-titan:16-fx2-32-1024-midnight@fx-shop-a",
+    "variantId": "fx-titan:16-fx2-32-1024-midnight",
+    "sourceId": "fx-shop-a",
+    "url": "https://shop-a.fixturia.test/p/fx-titan/16-fx2-32-1024-midnight",
+    "merchantName": "Cửa hàng Mẫu A (hư cấu)",
+    "availability": "unknown",
+    "price": {
+      "amountMinor": 54990000,
+      "currency": "VND",
+      "observedAt": "2026-10-20T00:00:00Z",
+      "provenanceType": "curator_observed",
+      "observer": "fixture-curator",
+      "evidenceNote": "Dữ liệu mẫu: giá hư cấu, không phải giá thật."
+    }
+  },
+  {
+    "id": "fx-titan:16-fx2-64-2048-midnight@fx-shop-a",
+    "variantId": "fx-titan:16-fx2-64-2048-midnight",
+    "sourceId": "fx-shop-a",
+    "url": "https://shop-a.fixturia.test/p/fx-titan/16-fx2-64-2048-midnight",
+    "merchantName": "Cửa hàng Mẫu A (hư cấu)",
+    "availability": "unknown",
+    "price": null
+  },
+  {
+    "id": "fx-titan:16-fx2-32-1024-silver@fx-shop-a",
+    "variantId": "fx-titan:16-fx2-32-1024-silver",
+    "sourceId": "fx-shop-a",
+    "url": "https://shop-a.fixturia.test/p/fx-titan/16-fx2-32-1024-silver",
+    "merchantName": "Cửa hàng Mẫu A (hư cấu)",
+    "availability": "unknown",
+    "price": {
+      "amountMinor": 54990000,
+      "currency": "VND",
+      "observedAt": "2026-10-20T00:00:00Z",
+      "provenanceType": "curator_observed",
+      "observer": "fixture-curator",
+      "evidenceNote": "Dữ liệu mẫu: giá hư cấu, không phải giá thật."
+    }
+  },
+  {
+    "id": "fx-nova:128-graphite@fx-shop-a",
+    "variantId": "fx-nova:128-graphite",
+    "sourceId": "fx-shop-a",
+    "url": "https://shop-a.fixturia.test/p/fx-nova/128-graphite",
+    "merchantName": "Cửa hàng Mẫu A (hư cấu)",
+    "availability": "unknown",
+    "price": {
+      "amountMinor": 18990000,
+      "currency": "VND",
+      "observedAt": "2026-10-20T00:00:00Z",
+      "provenanceType": "curator_observed",
+      "observer": "fixture-curator",
+      "evidenceNote": "Dữ liệu mẫu: giá hư cấu, không phải giá thật."
+    }
+  },
+  {
+    "id": "fx-nova:256-graphite@fx-shop-a",
+    "variantId": "fx-nova:256-graphite",
+    "sourceId": "fx-shop-a",
+    "url": "https://shop-a.fixturia.test/p/fx-nova/256-graphite",
+    "merchantName": "Cửa hàng Mẫu A (hư cấu)",
+    "availability": "unknown",
+    "price": {
+      "amountMinor": 21990000,
+      "currency": "VND",
+      "observedAt": "2026-10-20T00:00:00Z",
+      "provenanceType": "curator_observed",
+      "observer": "fixture-curator",
+      "evidenceNote": "Dữ liệu mẫu: giá hư cấu, không phải giá thật."
+    }
+  },
+  {
+    "id": "fx-nova:256-sand@fx-shop-a",
+    "variantId": "fx-nova:256-sand",
+    "sourceId": "fx-shop-a",
+    "url": "https://shop-a.fixturia.test/p/fx-nova/256-sand",
+    "merchantName": "Cửa hàng Mẫu A (hư cấu)",
+    "availability": "unknown",
+    "price": {
+      "amountMinor": 21990000,
+      "currency": "VND",
+      "observedAt": "2026-10-20T00:00:00Z",
+      "provenanceType": "curator_observed",
+      "observer": "fixture-curator",
+      "evidenceNote": "Dữ liệu mẫu: giá hư cấu, không phải giá thật."
+    }
+  },
+  {
+    "id": "fx-nova:512-graphite@fx-shop-a",
+    "variantId": "fx-nova:512-graphite",
+    "sourceId": "fx-shop-a",
+    "url": "https://shop-a.fixturia.test/p/fx-nova/512-graphite",
+    "merchantName": "Cửa hàng Mẫu A (hư cấu)",
+    "availability": "unknown",
+    "price": {
+      "amountMinor": 26990000,
+      "currency": "VND",
+      "observedAt": "2025-11-01T00:00:00Z",
+      "provenanceType": "curator_observed",
+      "observer": "fixture-curator",
+      "evidenceNote": "Dữ liệu mẫu: giá hư cấu, không phải giá thật."
+    }
+  },
+  {
+    "id": "fx-nova-mini:128-graphite@fx-shop-a",
+    "variantId": "fx-nova-mini:128-graphite",
+    "sourceId": "fx-shop-a",
+    "url": "https://shop-a.fixturia.test/p/fx-nova-mini/128-graphite",
+    "merchantName": "Cửa hàng Mẫu A (hư cấu)",
+    "availability": "unknown",
+    "price": {
+      "amountMinor": 15990000,
+      "currency": "VND",
+      "observedAt": "2026-10-20T00:00:00Z",
+      "provenanceType": "curator_observed",
+      "observer": "fixture-curator",
+      "evidenceNote": "Dữ liệu mẫu: giá hư cấu, không phải giá thật."
+    }
+  },
+  {
+    "id": "fx-pulse:128-black@fx-shop-a",
+    "variantId": "fx-pulse:128-black",
+    "sourceId": "fx-shop-a",
+    "url": "https://shop-a.fixturia.test/p/fx-pulse/128-black",
+    "merchantName": "Cửa hàng Mẫu A (hư cấu)",
+    "availability": "unknown",
+    "price": {
+      "amountMinor": 9990000,
+      "currency": "VND",
+      "observedAt": "2026-10-20T00:00:00Z",
+      "provenanceType": "curator_observed",
+      "observer": "fixture-curator",
+      "evidenceNote": "Dữ liệu mẫu: giá hư cấu, không phải giá thật."
+    }
+  },
+  {
+    "id": "fx-pulse:128-black@fx-ref-only",
+    "variantId": "fx-pulse:128-black",
+    "sourceId": "fx-ref-only",
+    "url": "https://shop-c.fixturia.test/p/fx-pulse/128-black",
+    "merchantName": "Cửa hàng Mẫu C (hư cấu)",
+    "availability": "unknown",
+    "price": {
+      "amountMinor": 9790000,
+      "currency": "VND",
+      "observedAt": "2026-10-20T00:00:00Z",
+      "provenanceType": "curator_observed",
+      "observer": "fixture-curator",
+      "evidenceNote": "Dữ liệu mẫu: giá hư cấu, không phải giá thật."
+    }
+  },
+  {
+    "id": "fx-pulse:128-white@fx-shop-a",
+    "variantId": "fx-pulse:128-white",
+    "sourceId": "fx-shop-a",
+    "url": "https://shop-a.fixturia.test/p/fx-pulse/128-white",
+    "merchantName": "Cửa hàng Mẫu A (hư cấu)",
+    "availability": "unknown",
+    "price": {
+      "amountMinor": 9990000,
+      "currency": "VND",
+      "observedAt": "2026-10-20T00:00:00Z",
+      "provenanceType": "curator_observed",
+      "observer": "fixture-curator",
+      "evidenceNote": "Dữ liệu mẫu: giá hư cấu, không phải giá thật."
+    }
+  },
+  {
+    "id": "fx-pulse:128-mint@fx-shop-a",
+    "variantId": "fx-pulse:128-mint",
+    "sourceId": "fx-shop-a",
+    "url": "https://shop-a.fixturia.test/p/fx-pulse/128-mint",
+    "merchantName": "Cửa hàng Mẫu A (hư cấu)",
+    "availability": "unknown",
+    "price": {
+      "amountMinor": 9990000,
+      "currency": "VND",
+      "observedAt": "2026-10-20T00:00:00Z",
+      "provenanceType": "curator_observed",
+      "observer": "fixture-curator",
+      "evidenceNote": "Dữ liệu mẫu: giá hư cấu, không phải giá thật."
+    }
+  },
+  {
+    "id": "fx-pulse:256-black@fx-shop-a",
+    "variantId": "fx-pulse:256-black",
+    "sourceId": "fx-shop-a",
+    "url": "https://shop-a.fixturia.test/p/fx-pulse/256-black",
+    "merchantName": "Cửa hàng Mẫu A (hư cấu)",
+    "availability": "unknown",
+    "price": {
+      "amountMinor": 11990000,
+      "currency": "VND",
+      "observedAt": "2026-10-20T00:00:00Z",
+      "provenanceType": "curator_observed",
+      "observer": "fixture-curator",
+      "evidenceNote": "Dữ liệu mẫu: giá hư cấu, không phải giá thật."
+    }
+  },
+  {
+    "id": "fx-pulse:256-white@fx-shop-a",
+    "variantId": "fx-pulse:256-white",
+    "sourceId": "fx-shop-a",
+    "url": "https://shop-a.fixturia.test/p/fx-pulse/256-white",
+    "merchantName": "Cửa hàng Mẫu A (hư cấu)",
+    "availability": "unknown",
+    "price": {
+      "amountMinor": 11990000,
+      "currency": "VND",
+      "observedAt": "2026-10-20T00:00:00Z",
+      "provenanceType": "curator_observed",
+      "observer": "fixture-curator",
+      "evidenceNote": "Dữ liệu mẫu: giá hư cấu, không phải giá thật."
+    }
+  },
+  {
+    "id": "fx-pulse:256-mint@fx-shop-a",
+    "variantId": "fx-pulse:256-mint",
+    "sourceId": "fx-shop-a",
+    "url": "https://shop-a.fixturia.test/p/fx-pulse/256-mint",
+    "merchantName": "Cửa hàng Mẫu A (hư cấu)",
+    "availability": "unknown",
+    "price": {
+      "amountMinor": 11990000,
+      "currency": "VND",
+      "observedAt": "2026-10-20T00:00:00Z",
+      "provenanceType": "curator_observed",
+      "observer": "fixture-curator",
+      "evidenceNote": "Dữ liệu mẫu: giá hư cấu, không phải giá thật."
+    }
+  },
+  {
+    "id": "fx-buds-pro:earbuds-black@fx-shop-a",
+    "variantId": "fx-buds-pro:earbuds-black",
+    "sourceId": "fx-shop-a",
+    "url": "https://shop-a.fixturia.test/p/fx-buds-pro/earbuds-black",
+    "merchantName": "Cửa hàng Mẫu A (hư cấu)",
+    "availability": "unknown",
+    "price": {
+      "amountMinor": 5490000,
+      "currency": "VND",
+      "observedAt": "2026-10-20T00:00:00Z",
+      "provenanceType": "curator_observed",
+      "observer": "fixture-curator",
+      "evidenceNote": "Dữ liệu mẫu: giá hư cấu, không phải giá thật."
+    }
+  },
+  {
+    "id": "fx-buds-pro:earbuds-white@fx-shop-a",
+    "variantId": "fx-buds-pro:earbuds-white",
+    "sourceId": "fx-shop-a",
+    "url": "https://shop-a.fixturia.test/p/fx-buds-pro/earbuds-white",
+    "merchantName": "Cửa hàng Mẫu A (hư cấu)",
+    "availability": "unknown",
+    "price": {
+      "amountMinor": 5490000,
+      "currency": "VND",
+      "observedAt": "2026-10-20T00:00:00Z",
+      "provenanceType": "curator_observed",
+      "observer": "fixture-curator",
+      "evidenceNote": "Dữ liệu mẫu: giá hư cấu, không phải giá thật."
+    }
+  },
+  {
+    "id": "fx-buds-lite:earbuds-black@fx-shop-a",
+    "variantId": "fx-buds-lite:earbuds-black",
+    "sourceId": "fx-shop-a",
+    "url": "https://shop-a.fixturia.test/p/fx-buds-lite/earbuds-black",
+    "merchantName": "Cửa hàng Mẫu A (hư cấu)",
+    "availability": "unknown",
+    "price": null
+  },
+  {
+    "id": "fx-studio:over_ear-black@fx-shop-b",
+    "variantId": "fx-studio:over_ear-black",
+    "sourceId": "fx-shop-b",
+    "url": "https://shop-b.fixturia.test/p/fx-studio/over_ear-black",
+    "merchantName": "Cửa hàng Mẫu B (hư cấu)",
+    "availability": "unknown",
+    "price": {
+      "amountMinor": 8990000,
+      "currency": "VND",
+      "observedAt": "2026-10-20T00:00:00Z",
+      "provenanceType": "curator_observed",
+      "observer": "fixture-curator",
+      "evidenceNote": "Dữ liệu mẫu: giá hư cấu, không phải giá thật."
+    }
+  },
+  {
+    "id": "fx-studio:over_ear-silver@fx-shop-b",
+    "variantId": "fx-studio:over_ear-silver",
+    "sourceId": "fx-shop-b",
+    "url": "https://shop-b.fixturia.test/p/fx-studio/over_ear-silver",
+    "merchantName": "Cửa hàng Mẫu B (hư cấu)",
+    "availability": "unknown",
+    "price": {
+      "amountMinor": 8990000,
+      "currency": "VND",
+      "observedAt": "2026-10-20T00:00:00Z",
+      "provenanceType": "curator_observed",
+      "observer": "fixture-curator",
+      "evidenceNote": "Dữ liệu mẫu: giá hư cấu, không phải giá thật."
+    }
+  }
+]

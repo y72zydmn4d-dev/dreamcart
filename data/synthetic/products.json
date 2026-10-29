@@ -1,0 +1,201 @@
+[
+  {
+    "id": "fx-aero",
+    "brand": "Fixturia",
+    "family": "Aero",
+    "model": "",
+    "category": "laptop",
+    "titleVi": "Fixturia Aero",
+    "summaryVi": "Laptop mẫu với hai kích thước màn hình và hai dòng chip hư cấu, dùng để thử bộ cấu hình phụ thuộc.",
+    "verificationStatus": "verified",
+    "createdAt": "2026-10-01T00:00:00Z",
+    "facts": [
+      {
+        "key": "man_hinh",
+        "labelVi": "Màn hình",
+        "value": "13 hoặc 15 inch (mẫu)"
+      },
+      {
+        "key": "chip",
+        "labelVi": "Chip",
+        "value": "FX1 hoặc FX2 (hư cấu)"
+      },
+      {
+        "key": "pin",
+        "labelVi": "Pin",
+        "value": "Đến 18 giờ (mẫu)"
+      },
+      {
+        "key": "trong_luong",
+        "labelVi": "Trọng lượng",
+        "value": "Từ 1,2 kg (mẫu)"
+      }
+    ]
+  },
+  {
+    "id": "fx-titan",
+    "brand": "Fixturia",
+    "family": "Titan",
+    "model": "16",
+    "category": "laptop",
+    "titleVi": "Fixturia Titan 16",
+    "summaryVi": "Laptop mẫu cấu hình cao, chỉ có một lựa chọn chip và hai mức bộ nhớ.",
+    "verificationStatus": "verified",
+    "createdAt": "2026-10-01T00:00:00Z",
+    "facts": [
+      {
+        "key": "man_hinh",
+        "labelVi": "Màn hình",
+        "value": "16 inch (mẫu)"
+      },
+      {
+        "key": "chip",
+        "labelVi": "Chip",
+        "value": "FX2 (hư cấu)"
+      },
+      {
+        "key": "cong_ket_noi",
+        "labelVi": "Cổng kết nối",
+        "value": "4 cổng (mẫu)"
+      }
+    ]
+  },
+  {
+    "id": "fx-nova",
+    "brand": "Fixturia",
+    "family": "Nova",
+    "model": "5",
+    "category": "phone",
+    "titleVi": "Fixturia Nova 5",
+    "summaryVi": "Điện thoại mẫu: một số màu chỉ có ở một số dung lượng, để thử trạng thái tùy chọn không khả dụng.",
+    "verificationStatus": "verified",
+    "createdAt": "2026-10-01T00:00:00Z",
+    "facts": [
+      {
+        "key": "man_hinh",
+        "labelVi": "Màn hình",
+        "value": "6,4 inch (mẫu)"
+      },
+      {
+        "key": "may_anh",
+        "labelVi": "Máy ảnh",
+        "value": "Kép (mẫu)"
+      },
+      {
+        "key": "ket_noi",
+        "labelVi": "Kết nối",
+        "value": "5G (mẫu)"
+      }
+    ]
+  },
+  {
+    "id": "fx-nova-mini",
+    "brand": "Fixturia",
+    "family": "Nova",
+    "model": "5 Mini",
+    "category": "phone",
+    "titleVi": "Fixturia Nova 5 Mini",
+    "summaryVi": "Điện thoại mẫu nhỏ gọn với một cấu hình duy nhất.",
+    "verificationStatus": "verified",
+    "createdAt": "2026-10-01T00:00:00Z",
+    "facts": [
+      {
+        "key": "man_hinh",
+        "labelVi": "Màn hình",
+        "value": "5,4 inch (mẫu)"
+      },
+      {
+        "key": "may_anh",
+        "labelVi": "Máy ảnh",
+        "value": "Đơn (mẫu)"
+      }
+    ]
+  },
+  {
+    "id": "fx-pulse",
+    "brand": "Fixturia",
+    "family": "Pulse",
+    "model": "3",
+    "category": "phone",
+    "titleVi": "Fixturia Pulse 3",
+    "summaryVi": "Điện thoại mẫu có đủ mọi tổ hợp dung lượng và màu.",
+    "verificationStatus": "verified",
+    "createdAt": "2026-10-01T00:00:00Z",
+    "facts": [
+      {
+        "key": "man_hinh",
+        "labelVi": "Màn hình",
+        "value": "6,1 inch (mẫu)"
+      },
+      {
+        "key": "pin",
+        "labelVi": "Pin",
+        "value": "2 ngày (mẫu)"
+      }
+    ]
+  },
+  {
+    "id": "fx-buds-pro",
+    "brand": "Fixturia",
+    "family": "Buds",
+    "model": "Pro 2",
+    "category": "audio",
+    "titleVi": "Fixturia Buds Pro 2",
+    "summaryVi": "Tai nghe nhét tai mẫu với hai màu.",
+    "verificationStatus": "verified",
+    "createdAt": "2026-10-01T00:00:00Z",
+    "facts": [
+      {
+        "key": "kieu",
+        "labelVi": "Kiểu",
+        "value": "Nhét tai (mẫu)"
+      },
+      {
+        "key": "chong_on",
+        "labelVi": "Chống ồn",
+        "value": "Có (mẫu)"
+      }
+    ]
+  },
+  {
+    "id": "fx-buds-lite",
+    "brand": "Fixturia",
+    "family": "Buds",
+    "model": "Lite",
+    "category": "audio",
+    "titleVi": "Fixturia Buds Lite",
+    "summaryVi": "Tai nghe nhét tai mẫu, một màu.",
+    "verificationStatus": "verified",
+    "createdAt": "2026-10-01T00:00:00Z",
+    "facts": [
+      {
+        "key": "kieu",
+        "labelVi": "Kiểu",
+        "value": "Nhét tai (mẫu)"
+      }
+    ]
+  },
+  {
+    "id": "fx-studio",
+    "brand": "Fixturia",
+    "family": "Studio",
+    "model": "700",
+    "category": "audio",
+    "titleVi": "Fixturia Studio 700",
+    "summaryVi": "Tai nghe chụp tai mẫu với hai màu.",
+    "verificationStatus": "verified",
+    "createdAt": "2026-10-01T00:00:00Z",
+    "facts": [
+      {
+        "key": "kieu",
+        "labelVi": "Kiểu",
+        "value": "Chụp tai (mẫu)"
+      },
+      {
+        "key": "thoi_luong_pin",
+        "labelVi": "Thời lượng pin",
+        "value": "30 giờ (mẫu)"
+      }
+    ]
+  }
+]

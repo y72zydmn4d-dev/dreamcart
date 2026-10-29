@@ -18,6 +18,9 @@
     "format:check": "prettier --check .",
     "coverage": "vitest run --coverage",
     "test:browser": "playwright test",
+    "catalog:check": "node tools/run-ts.mjs tools/catalog-cli.ts check",
+    "catalog:import": "node tools/run-ts.mjs tools/catalog-cli.ts import",
+    "prebuild": "npm run catalog:check",
     "docs:check": "node tools/check-docs.mjs",
     "smoke": "node tools/smoke-routes.mjs",
     "verify": "npm run lint && npm run typecheck && npm run test && npm run docs:check && npm run format:check && npm run build && npm run smoke"

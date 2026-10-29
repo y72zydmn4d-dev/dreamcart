@@ -126,3 +126,12 @@ Zod parse; unique ids; `variantKey` unique per product; required attributes pres
 ## Curation input
 
 Human curators fill one row per variant-offer in `docs/templates/catalog_curation_template.csv`; a Phase 5 script converts and validates it into the data files. See `docs/CURATION_PROCESS.md`.
+
+## Phase 5 implementation notes
+
+- Data lives in `data/catalog/` (real) and `data/synthetic/` (fixtures): `sources`, `products`, `variants`, `offers`, `media`, `vocabulary`, `featured`. `validateCatalog` is the only gate; the build runs it (`npm run catalog:check`).
+- Ids: variant `"<productId>:<attribute values in group order>"`, offer `"<variantId>@<sourceId>"`. `variantKey` must equal the key derived from the attributes. Coded values (`chip`, `color`, `type`) are lowercase slugs with a Vietnamese label in `vocabulary.json`.
+- Products may carry curated `facts` (structured, curator-written). `featured` is an editorial list of product ids.
+- Real mode rejects `fx-` ids, unverified products and prices without observer plus evidence; synthetic mode accepts only `fx-` ids. A real catalog with at least one verified product is used automatically; otherwise non-release builds fall back to the labeled synthetic catalog, and a release build (`NEXT_PUBLIC_DREAMCART_RELEASE=1`) refuses to start.
+- Image files: at most 6 per product, source files at most 1.5 MB, must exist when `CLEARED`. Responsive pre-generated sizes arrive with the first real images.
+- Curation CSV: the template gained `image_alt_vi`, `image_width`, `image_height`. One row per variant-offer; sources are resolved from the offer URL's host against `sources.json`.

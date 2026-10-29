@@ -19,7 +19,16 @@ const uiPatterns = [
 
 // Modular-monolith contract (docs/ARCHITECTURE.md section 2): modules talk to each other only through
 // the other module's public index.ts, never through its internals. `shared` is the shared kernel.
-const modules = ["catalog", "cart", "configurator", "orders", "pricing", "search"];
+const modules = [
+  "catalog",
+  "cart",
+  "configurator",
+  "data-portability",
+  "orders",
+  "pricing",
+  "search",
+  "settings",
+];
 const boundaryPattern = (self) => ({
   group: modules.filter((m) => m !== self).map((m) => `@/modules/${m}/*`),
   message: "Import another module through its public index (@/modules/<name>), not its internals.",
@@ -60,6 +69,8 @@ export default defineConfig([
     ".next/**",
     "node_modules/**",
     "coverage/**",
+    "test-results/**",
+    "playwright-report/**",
     "next-env.d.ts",
     "docs/**",
     "fixtures/**",

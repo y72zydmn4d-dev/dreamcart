@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { moneySchema } from "@/modules/shared/domain/money";
 import { PERSISTENCE_POLICIES, priceObservationSchema } from "@/modules/pricing";
 
 /**
@@ -36,6 +37,11 @@ export const OPTIONAL_ATTRIBUTES: Record<Category, readonly string[]> = {
   audio: [],
 };
 export const AUDIO_TYPES = ["earbuds", "over_ear", "on_ear"] as const;
+
+/** A repository media path: no scheme, no host, no `..`. Product images are self-hosted, never hotlinked. */
+export const MEDIA_PATH_PATTERN = /^\/?[a-zA-Z0-9][a-zA-Z0-9/_.-]*$/;
+export const isMediaPath = (value: string): boolean =>
+  value.length <= 512 && MEDIA_PATH_PATTERN.test(value) && !value.split("/").includes("..");
 
 const attributeValue = z.union([z.string().min(1).max(80), z.number().finite()]);
 
@@ -162,3 +168,19 @@ export function deriveVariantKey(
     .map((key) => `${key}=${String(attributes[key])}`)
     .join(";");
 }
+
+/**
+ * A product the user entered by hand from a link (Phase 7). It is never part of the verified catalog:
+ * `unverified` is always true, the price is the user's own claim (or null), and the link is re-validated
+ * as a SafeUrl wherever it is shown.
+ */
+export const userProductSchema = z.strictObject({
+  id: z.string().regex(/^user-[a-z0-9-]{1,100}$/),
+  title: z.string().min(1).max(200),
+  sourceUrl: z.string().min(1).max(2048),
+  attributes: z.record(z.string().max(40), attributeValue),
+  price: moneySchema.nullable(),
+  unverified: z.literal(true),
+  createdAtMs: z.number().int().safe().min(0),
+});
+export type UserProduct = z.infer<typeof userProductSchema>;

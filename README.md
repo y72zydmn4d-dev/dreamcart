@@ -30,7 +30,7 @@ UI language: Vietnamese-first. See `docs/decisions/ADR-005-technology-stack.md`.
 
 ## Project Status
 
-Phases 0 (specification), 1 (engineering foundation) and 2 (UI/UX design system and prototype) are merged. Phase 3 (domain and simulation core) is implemented and awaiting review: pure, tested business rules with no UI and no persistence yet. The Phase 2 prototype still runs on clearly labeled synthetic data (fictional "Fixturia" products, sample prices); there is no real catalog, cart persistence, or checkout yet.
+Phases 0 (specification), 1 (engineering foundation) and 2 (UI/UX design system and prototype) are merged. Phases 3 (domain and simulation core) and 4 (local persistence, backup import/export) are in the repository; execution progress is tracked in `docs/EXECUTION_STATUS.md`. The Phase 2 prototype still runs on clearly labeled synthetic data (fictional "Fixturia" products, sample prices); there is no real catalog, cart persistence, or checkout yet.
 
 ## Documentation
 
@@ -62,6 +62,7 @@ npm run dev     # development server at http://localhost:3000
 | `npm run lint` | ESLint (Next.js rules plus the domain-purity rules) |
 | `npm run typecheck` | `next typegen` then `tsc --noEmit` (strict) |
 | `npm test` | Vitest: unit, property, architecture, and the `fixtures/` conformance suites (search, pricing, cart, configurator) |
+| `npm run test:browser` | Playwright real-browser tests (needs `npx playwright install chromium firefox webkit` once) |
 | `npm run coverage` | The same tests with a V8 coverage report (`coverage/`, not committed) |
 | `npm run docs:check` | Phase 0 documentation consistency checks |
 | `npm run format:check` | Prettier (application code; Phase 0 docs are excluded) |
@@ -83,7 +84,9 @@ src/components/{search,product,foundations}/  Phase 2 prototype components
 src/prototype/              Phase 2 synthetic data and search (replaced by the catalog in P3/P5)
 src/modules/<name>/domain/  pure domain logic: no React, Next.js, browser, clock, or randomness (enforced)
 src/modules/<name>/index.ts the module's public API; modules import each other only through it (enforced)
-src/modules/orders/application/  persistence port interfaces (adapters arrive in Phase 4)
+src/modules/<name>/application/ persistence port interfaces
+src/platform/persistence/   IndexedDB and in-memory adapters, migrations, typed storage errors
+tests/browser/              real-browser tests (Playwright)
 src/platform/               infrastructure adapters and the Vietnamese dictionary (i18n)
 src/config/                 navigation and security headers
 tests/                      architecture and design-token tests

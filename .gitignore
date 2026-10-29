@@ -19,3 +19,7 @@ next-env.d.ts
 # Root file Next.js may generate for AI agents (generation is disabled via agentRules: false).
 # Nested AGENTS.md files stay committable.
 /AGENTS.md
+
+# Playwright
+test-results/
+playwright-report/

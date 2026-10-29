@@ -13,3 +13,5 @@ next-env.d.ts
 
 # Vendored third-party skill (see .claude/skills/ui-ux-pro-max/UPSTREAM.md)
 .claude
+test-results
+playwright-report

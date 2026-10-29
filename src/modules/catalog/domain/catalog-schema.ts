@@ -8,7 +8,7 @@ import { PERSISTENCE_POLICIES, priceObservationSchema } from "@/modules/pricing"
  * and an unknown price is `null`, never 0.
  */
 
-const slug = z.string().regex(/^[a-z0-9][a-z0-9_.:-]{0,127}$/, "lowercase slug");
+const slug = z.string().regex(/^[a-z0-9][a-z0-9_.:@-]{0,127}$/, "lowercase slug");
 const isoDate = z.iso.date();
 
 export const CATEGORIES = ["laptop", "phone", "audio"] as const;
@@ -45,6 +45,15 @@ export const isMediaPath = (value: string): boolean =>
 
 const attributeValue = z.union([z.string().min(1).max(80), z.number().finite()]);
 
+/** A curated structured fact (battery life, weight…), recorded as data in the curator's own words, never pasted marketing text. */
+export const factSchema = z.strictObject({
+  key: z.string().regex(/^[a-z0-9_]{1,40}$/),
+  labelVi: z.string().min(1).max(80),
+  value: z.union([z.string().min(1).max(120), z.number().finite()]),
+  unit: z.string().max(20).optional(),
+});
+export type Fact = z.infer<typeof factSchema>;
+
 export const productSchema = z.strictObject({
   id: slug,
   brand: z.string().min(1).max(80),
@@ -55,6 +64,7 @@ export const productSchema = z.strictObject({
   summaryVi: z.string().max(1000),
   verificationStatus: z.enum(["verified", "needs_review"]),
   createdAt: z.iso.datetime(),
+  facts: z.array(factSchema).max(40).optional(),
 });
 export type Product = z.infer<typeof productSchema>;
 

@@ -15,19 +15,19 @@ Status labels: `ENGINEERING_COMPLETE`, `VERIFIED`, `BLOCKED_EXTERNAL_DEPENDENCY`
 | 4 Persistence and import foundation | VERIFIED | #5 | `f75c612` | 463 tests; real-browser IndexedDB tests green on Chromium, Firefox and WebKit in CI |
 | 5 Catalog and discovery engine | ENGINEERING_COMPLETE; real-data acceptance `BLOCKED_EXTERNAL_DEPENDENCY` | #6 | `9834318` | real-catalog acceptance is `BLOCKED_EXTERNAL_DEPENDENCY` (human curation and image rights) |
 | 6 Production storefront | VERIFIED (on synthetic fixtures) | #7 | `42df549` | 567 unit tests; 59 storefront specs per browser, 0 axe violations at 5 widths; Chromium and WebKit never stalled in CI; see the Firefox flake below |
-| 7 Persistent cart and manual import | ENGINEERING_COMPLETE (pending merge) | see below | – | |
-| 8 Virtual checkout and orders | not started | | | |
+| 7 Persistent cart and manual import | VERIFIED (on synthetic fixtures) | #8 | `6416b97` | 618 unit tests; 13 cart/import specs per browser; CI green with Firefox retries (see Open issues) |
+| 8 Virtual checkout and orders | ENGINEERING_COMPLETE (pending merge) | see below | – | |
 | 9 Virtual shipping and My Collection | not started | | | functional MVP milestone |
 | 10 QA, security and hardening | not started | | | |
 | 11 Pilot testing and UX polish | not started | | | human pilot is `PENDING_HUMAN_VALIDATION` |
 | 12 Release readiness | not started | | | production release needs explicit owner approval |
 
-## Current phase: 7
+## Current phase: 8
 
-- Branch: `claude/phase-7-cart-import` (from `main` at `42df549`).
-- Scope: persistent cart UI on the IndexedDB repository, manual URL import (safe, unverified status), `price_changed` rule, multi-tab and stale-revision handling.
-- Delivered: `LocalDataProvider` (one persistence connection, cross-tab refresh, storage notices), add-to-cart on every cartable offer and from the summary bar, `/cart` (groups by source, quantity 1–99 with visible refusal, price-change acceptance, per-currency totals), `/import` (SafeUrl cleaning and preview, unverified items, delete with line marked unavailable), header unit count, `assessLine`/`acceptPrices` in the cart domain, `createUserProduct`. Checkout stays disabled until Phase 8.
-- Test results are in the Phase 7 pull request.
+- Branch: `claude/phase-8-checkout-orders` (from `main` at `6416b97`).
+- Delivered: `/checkout` (summary, scenario Fast/Quick/Relaxed, virtual destination, payment label, required acknowledgement, idempotent confirm), `/orders` and `/orders/[id]` from stored snapshots (image re-check, cancel by state, delete one order), `/settings` (default scenario, storage persistence request, export, import merge/replace with confirmation, reset everything), the "browser had data and is now empty" notice, order placement through the Phase 4 transaction with display-code collision retry.
+- The checkout route is `/checkout` (the roadmap named `/checkout/simulated`); every part of the page says it is simulated.
+- Test results are in the Phase 8 pull request.
 
 ## Standing blockers (carried forward)
 
@@ -40,4 +40,4 @@ Status labels: `ENGINEERING_COMPLETE`, `VERIFIED`, `BLOCKED_EXTERNAL_DEPENDENCY`
 
 ## Next action
 
-Merge the Phase 7 pull request when CI is green, then start Phase 8 (virtual checkout and orders) from the updated `main`.
+Merge the Phase 8 pull request when CI is green, then start Phase 9 (tracking timeline, Fast control, My Collection and the 21-step browser E2E) from the updated `main`.

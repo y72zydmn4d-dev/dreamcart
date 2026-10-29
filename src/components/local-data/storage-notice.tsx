@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { InfoIcon } from "@/components/ui/icons";
 import { t } from "@/platform/i18n";
 import { PageContainer } from "@/components/layout/page-container";
@@ -10,7 +11,7 @@ import { useLocalData } from "./local-data";
  * had to be set aside. Rendered once, under the header, on every page.
  */
 export function StorageNotice() {
-  const { status, failure, degraded, quarantined } = useLocalData();
+  const { status, failure, degraded, quarantined, lostData } = useLocalData();
   const messages: string[] = [];
   if (status === "failed") {
     messages.push(t(`storage.failed.${failure ?? "unknown"}`));
@@ -25,6 +26,7 @@ export function StorageNotice() {
   }
   if (quarantined.length > 0)
     messages.push(t("storage.quarantined", { count: quarantined.length }));
+  if (lostData) messages.push(t("storage.lostData"));
   if (messages.length === 0) return null;
 
   return (
@@ -33,7 +35,17 @@ export function StorageNotice() {
         {messages.map((m) => (
           <p key={m} className="flex items-start gap-2">
             <InfoIcon size={18} className="mt-0.5 shrink-0" />
-            <span>{m}</span>
+            <span>
+              {m}
+              {m === t("storage.lostData") ? (
+                <>
+                  {" "}
+                  <Link href="/settings" className="font-medium underline underline-offset-2">
+                    {t("storage.openSettings")}
+                  </Link>
+                </>
+              ) : null}
+            </span>
           </p>
         ))}
       </PageContainer>

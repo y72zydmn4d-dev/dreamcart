@@ -8,7 +8,8 @@ export const buttonVariants = cva(
   {
     variants: {
       variant: {
-        default: "bg-accent text-accent-foreground hover:opacity-90 active:opacity-80",
+        // Hover and press darken the accent instead of fading it: a faded accent under white text drops below 4.5:1.
+        default: "bg-accent text-accent-foreground hover:brightness-90 active:brightness-75",
         secondary: "bg-muted text-foreground hover:bg-border",
         outline: "border border-border-strong bg-surface text-foreground hover:bg-muted",
         ghost: "text-foreground hover:bg-muted",

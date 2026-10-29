@@ -20,7 +20,8 @@ async function axeViolations(page: Page) {
 
 for (const width of WIDTHS) {
   test.describe(`layout at ${width}px`, () => {
-    test.use({ viewport: { width, height: width < 768 ? 812 : 900 } });
+    // Reduced motion: buttons that become enabled after hydration would otherwise be measured mid-fade by axe.
+    test.use({ viewport: { width, height: width < 768 ? 812 : 900 }, reducedMotion: "reduce" });
 
     for (const path of [
       "/",
@@ -30,13 +31,17 @@ for (const width of WIDTHS) {
       "/product/fx-buds-lite",
       "/credits",
       "/design",
+      "/cart",
+      "/import",
     ]) {
       test(`${path}: no horizontal overflow, labeled, accessible`, async ({ page }) => {
         await page.goto(path);
         expect(await noHorizontalOverflow(page)).toBe(true);
         // the simulation banner is always present; synthetic data says so wherever it appears
         await expect(page.getByRole("region", { name: /mô phỏng/i }).first()).toBeVisible();
-        if (path !== "/credits") await expect(page.getByText(SYNTHETIC).first()).toBeVisible();
+        // pages that show no catalog data (credits, an empty cart, the import form) have nothing to label
+        if (!["/credits", "/cart", "/import"].includes(path))
+          await expect(page.getByText(SYNTHETIC).first()).toBeVisible();
         expect(await axeViolations(page)).toEqual([]);
       });
     }

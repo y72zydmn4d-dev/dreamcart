@@ -1,3 +1,4 @@
+import { AddToCartButton } from "@/components/cart/add-to-cart-button";
 import { Badge } from "@/components/ui/badge";
 import { formatMoney } from "@/lib/format";
 import type { VariantView } from "@/modules/discovery";
@@ -13,9 +14,12 @@ import { PriceNote } from "./price-note";
 export function VariantOffers({
   variant,
   synthetic,
+  title,
 }: {
   readonly variant: VariantView | null;
   readonly synthetic: boolean;
+  /** The product's name, used in the cart acknowledgement. */
+  readonly title: string;
 }) {
   return (
     <section aria-labelledby="offers-heading" className="flex flex-col gap-3">
@@ -63,15 +67,30 @@ export function VariantOffers({
                   ) : null}
                 </>
               ) : null}
-              <div className="flex flex-wrap items-center justify-between gap-2">
-                {evaluation.addable ? (
-                  <Badge tone="success">{t("price.addable")}</Badge>
-                ) : (
-                  <Badge tone="warning">
-                    {t(`price.cartBlock.${evaluation.reason ?? "no_price"}` as DictionaryKey)}
-                  </Badge>
-                )}
-                <OutboundLink url={offer.url} label={t("product.viewSource")} />
+              <div className="flex flex-wrap items-start justify-between gap-2">
+                <div className="flex flex-col items-start gap-2">
+                  {evaluation.addable ? (
+                    <Badge tone="success">{t("price.addable")}</Badge>
+                  ) : (
+                    <Badge tone="warning">
+                      {t(`price.cartBlock.${evaluation.reason ?? "no_price"}` as DictionaryKey)}
+                    </Badge>
+                  )}
+                  <OutboundLink url={offer.url} label={t("product.viewSource")} />
+                </div>
+                {evaluation.addable && offer.price ? (
+                  <AddToCartButton
+                    variantId={variant.variant.id}
+                    offerId={offer.id}
+                    unitPrice={{
+                      amountMinor: offer.price.amountMinor,
+                      currency: offer.price.currency,
+                    }}
+                    evaluation={evaluation}
+                    title={title}
+                    merchant={offer.merchantName}
+                  />
+                ) : null}
               </div>
             </li>
           ))}

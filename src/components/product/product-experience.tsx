@@ -109,7 +109,7 @@ function ProductExperienceInner({
           initialSelection={initialSelection}
           onChange={setSelection}
         />
-        <VariantOffers variant={resolved} synthetic={synthetic} />
+        <VariantOffers variant={resolved} synthetic={synthetic} title={product.product.titleVi} />
       </div>
     </div>
   );

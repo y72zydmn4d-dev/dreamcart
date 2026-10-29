@@ -1,5 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import type { ReactNode } from "react";
+import { LocalDataProvider } from "@/components/local-data/local-data";
+import { StorageNotice } from "@/components/local-data/storage-notice";
 import { SiteFooter } from "@/components/layout/site-footer";
 import { SiteHeader } from "@/components/layout/site-header";
 import { t } from "@/platform/i18n";
@@ -31,11 +33,14 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         >
           {t("a11y.skipToContent")}
         </a>
-        <SiteHeader />
-        <main id="main" tabIndex={-1} className="flex-1 outline-none">
-          {children}
-        </main>
-        <SiteFooter />
+        <LocalDataProvider>
+          <SiteHeader />
+          <StorageNotice />
+          <main id="main" tabIndex={-1} className="flex-1 outline-none">
+            {children}
+          </main>
+          <SiteFooter />
+        </LocalDataProvider>
       </body>
     </html>
   );

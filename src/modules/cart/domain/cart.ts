@@ -116,6 +116,30 @@ export function removeLine(cart: Cart, key: string, nextCheckoutKey: string): Ca
   };
 }
 
+/**
+ * The user accepts the current price for the given lines (keyed by `lineKey`). Lines whose price already matches
+ * are untouched; if nothing changes the same cart is returned (no new revision, no new checkout key).
+ */
+export function acceptPrices(
+  cart: Cart,
+  prices: ReadonlyMap<string, Money>,
+  nextCheckoutKey: string,
+): Cart {
+  let any = false;
+  const lines = cart.lines.map((l) => {
+    const price = prices.get(lineKey(l));
+    if (
+      !price ||
+      (price.amountMinor === l.unitPrice.amountMinor && price.currency === l.unitPrice.currency)
+    ) {
+      return l;
+    }
+    any = true;
+    return { ...l, unitPrice: { amountMinor: price.amountMinor, currency: price.currency } };
+  });
+  return any ? changed(cart, lines, nextCheckoutKey) : cart;
+}
+
 /** Integer subtotal per currency; currencies are never converted or mixed. */
 export function subtotalsByCurrency(cart: Cart): Partial<Record<CurrencyCode, number>> {
   const totals: Partial<Record<CurrencyCode, number>> = {};

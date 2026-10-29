@@ -16,12 +16,12 @@ Single index of decisions. Each ADR in `docs/decisions/` holds rationale and tra
 | [008](decisions/ADR-008-research-hypotheses.md) | Psychology claims are hypotheses; research opt-in | Accepted |
 | [009](decisions/ADR-009-no-paid-services.md) | No paid service without owner approval | Accepted |
 | [010](decisions/ADR-010-image-rights-and-provenance.md) | Image rights and provenance; visual-first | Proposed |
-| [011](decisions/ADR-011-rendering-and-csp.md) | Static prerendering and a fitted CSP | Proposed |
+| [011](decisions/ADR-011-rendering-and-csp.md) | Static prerendering and a fitted CSP | Accepted |
 | [012](decisions/ADR-012-vietnamese-first-ui.md) | Vietnamese-first UI, dictionary module | Accepted |
 | [013](decisions/ADR-013-money-currency-price-states.md) | Integer money, VND, no conversion, derived price states | Accepted |
 | [014](decisions/ADR-014-exact-variant-matching.md) | Deterministic exact-variant matching | Proposed |
 
-Per decision P-8, ADRs are promoted only when genuinely resolved. **Still Proposed, and why:** 002 (price snapshots are cleared only for private development and the pilot, not for public deployment; RT-5), 010 (image rights are not yet demonstrated for any real product; blocker B2), 011 (CSP behavior needs verification against the pinned Next.js; Phase 1), 014 (rules must be implemented and tested against the real catalog).
+Per decision P-8, ADRs are promoted only when genuinely resolved. **Still Proposed, and why:** 002 (price snapshots are cleared only for private development and the pilot, not for public deployment; RT-5), 010 (image rights are not yet demonstrated for any real product; blocker B2), 014 (rules must be implemented and tested against the real catalog).
 
 ## Owner decisions recorded
 
@@ -51,7 +51,7 @@ Per decision P-8, ADRs are promoted only when genuinely resolved. **Still Propos
 | **P-5** | **Hybrid Continuous Configurator** (final, supersedes the proposed guided wizard): all major groups on one page, collapsible sections, revisit earlier selections, quick navigation between groups, sticky summary, dependent-option validation, only genuine variants, no silent substitution, no fabricated price | PRD U5, `CATALOG_SCHEMA.md` |
 | **P-6** | Search: name, model, attributes; category filters; supported sort fields; autocomplete and suggestions; exact-variant matching; conflict and ambiguity detection; safe shorthand (`128GB`, `128G`, `1TB`, `1T`) when unambiguous; no artificial popularity, fake ratings, fake sales counts, or fabricated discounts | `SEARCH_FIXTURES.md` (fixtures F38–F42), ADR-014 (stays Proposed) |
 | **P-7** | `nextlevelbuilder/ui-ux-pro-max-skill` is evaluated and integrated in **Phase 2**, not Phase 1: inspect its actual files and license, verify Claude Code Cloud compatibility, prefer a version-controlled project-level integration, pin a reviewed commit, and treat its recommendations as subordinate to DreamCart requirements. Not installed | `ROADMAP.md` Phase 2 |
-| **P-8** | Promote ADRs only when genuinely resolved; keep Proposed where technical verification, provider licensing evidence, or owner decisions remain; no unnecessary new ADRs | ADR index above |
+| **P-8** | Promote ADRs only when genuinely resolved (ADR-011 was promoted in Phase 1 after the CSP was verified in a real browser); keep Proposed where technical verification, provider licensing evidence, or owner decisions remain; no unnecessary new ADRs | ADR index above |
 | **P-9** | Private GitHub repository; Node.js 24 LTS; npm; versions compatible with the chosen stable Next.js; committed lockfile; `npm ci` in CI; Playwright WebKit allowed in CI when relevant but avoided in Phase 1; no paid infrastructure or third-party services | ADR-005, `ROADMAP.md` Phase 1 |
 | **P-10** | Roadmap Phases 0–12 approved. Names: 1 Engineering Foundation; 2 UI/UX Design System; 3 Domain & Simulation Core; 4 Persistence & Import Foundation; 5 Real Product Catalog & Search; 6 Storefront Implementation; 7 Cart & Manual Import; 8 Virtual Checkout & Orders; 9 Virtual Tracking & My Collection; 10 Comprehensive QA, Security and Performance; 11 Pilot Testing and UX Polish; 12 Optional Public MVP Launch | `ROADMAP.md` |
 

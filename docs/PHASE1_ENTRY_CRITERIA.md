@@ -21,7 +21,7 @@
 | B2 | Image rights unresolved for every product; premium brands raise the risk | Phase 5, and visual polish in Phase 6 | RT-2: permissions, open licenses, owner photography, `brand_art`; high-quality placeholders meanwhile (P-4) |
 | B3 | Primary provider terms unread (network allowlist blocked the official hosts) | any provider integration | RT-1: allow the hosts or read manually |
 | B4 | Visual design not yet produced or approved | Phase 6 | Phase 2 deliverable |
-| B5 | Next.js CSP behavior unverified | CSP finalization | Evaluated in Phase 1 against the pinned version (ADR-011) |
+| B5 | Next.js CSP behavior unverified | CSP finalization | **Resolved in Phase 1** against Next.js 16.4.3 (ADR-011, Accepted) |
 
 B1–B3 do not block Phases 1–4: they work against synthetic fixtures that are never shipped.
 

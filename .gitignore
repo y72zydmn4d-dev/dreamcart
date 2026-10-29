@@ -12,3 +12,8 @@ coverage/
 
 *.log
 .DS_Store
+
+# Phase 1
+*.tsbuildinfo
+next-env.d.ts
+AGENTS.md

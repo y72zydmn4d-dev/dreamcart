@@ -9,7 +9,7 @@ import { fileURLToPath } from "node:url";
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const walk = (d) => readdirSync(d).flatMap((f) => {
   const p = join(d, f);
-  return [".git", "node_modules"].includes(f) ? [] : statSync(p).isDirectory() ? walk(p) : [p];
+  return [".git", "node_modules", ".next", "coverage"].includes(f) ? [] : statSync(p).isDirectory() ? walk(p) : [p];
 });
 const files = walk(root);
 const rel = (f) => f.slice(root.length + 1);

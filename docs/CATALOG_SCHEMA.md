@@ -1,6 +1,6 @@
 # Catalog, Pricing, Snapshot, and Configurator Schema
 
-**Status:** Phase 0 specification (revised after self-review). Phase 3 turns it into Zod schemas and domain code; this document is the source of truth until then. Conformance fixtures: `fixtures/pricing/`, `fixtures/configurator/`, `fixtures/search/` (`node tools/verify-fixtures.mjs`).
+**Status:** Phase 0 specification (revised after self-review). Phase 3 turned it into Zod schemas and domain code (`src/modules/*/domain`); this document stays the source of truth for the rules. Conformance fixtures: `fixtures/pricing/`, `fixtures/configurator/`, `fixtures/search/`, run by `npm test`.
 **Storage:** versioned data files in the repository, validated at build time; changes arrive by pull request. No database in the MVP; the shape maps 1:1 to future Postgres tables.
 
 Owner decisions P-1 (freshness), P-3 (manual observations), and P-5 (configurator) are recorded in `docs/DECISIONS.md` and applied below.

@@ -36,11 +36,8 @@ jobs:
       - name: Typecheck
         run: npm run typecheck
 
-      - name: Unit tests
+      - name: Unit, property and fixture-conformance tests
         run: npm test
-
-      - name: Phase 0 fixtures
-        run: npm run fixtures
 
       - name: Documentation checks
         run: npm run docs:check

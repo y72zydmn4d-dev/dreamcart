@@ -1,7 +1,7 @@
 # Search Matching Rules and Test Fixtures
 
 **Status:** Phase 0 specification (revised after self-review). Implementation is Phase 3 (domain core).
-**Files:** `fixtures/search/fixture-catalog.json` (synthetic catalog), `fixtures/search/queries.json` (fixtures with expected output). Related: `fixtures/pricing/`, `fixtures/configurator/`. Run all with `node tools/verify-fixtures.mjs`.
+**Files:** `fixtures/search/fixture-catalog.json` (synthetic catalog), `fixtures/search/queries.json` (fixtures with expected output). Related: `fixtures/pricing/`, `fixtures/configurator/`. They run as Vitest suites (`npm test`): `src/modules/search/domain/search.test.ts`, `src/modules/pricing/domain/price.test.ts`, `src/modules/cart/domain/cart.test.ts`, `src/modules/configurator/domain/configurator.test.ts`.
 
 All fixture data is **synthetic** (fictional brand "Fixturia", ids prefixed `fx-`). It tests logic only and is never real product information. A production build must fail if any `fx-` id is in the shipped catalog. The fixture catalog deliberately contains two variants that production validation would reject (a laptop variant without `storage_gb`, an audio variant without `color`), so the "unknown" behavior can be tested.
 
@@ -85,7 +85,7 @@ Expected results live in `fixtures/search/queries.json`. F31–F37 were added in
 
 ## Validation performed (what it does and does not show)
 
-- Expected results were written by hand from the rules, then checked by a dependency-free reference (`tools/verify-fixtures.mjs`, committed so the result is reproducible). Mutating an expectation in each fixture group made the checker fail, so a pass is not vacuous.
+- Expected results were written by hand from the rules, then checked by a dependency-free reference script. Phase 3 re-implemented the rules as typed domain code (`src/modules/search/domain/search.ts`), ran every fixture against it as a Vitest suite, and deleted the script. Mutating a rule in the domain code makes the suite fail, so a pass is not vacuous.
 - **The self-review found real defects the first 30 fixtures missed.** The original rules let the *last* value win for contradictory constraints (`aero 13 inch 15 inch` silently matched 15-inch variants; `buds black white` silently matched white), and treated `titan 1tb` as ambiguous. These are fixed (rules 8, 9, 11) and covered by F32, F33, F07.
 - **Not shown:** accuracy on a real catalog, real attribute vocabularies, performance, or behavior on queries nobody thought of. Phase 3 must re-implement the rules as typed domain code, run these fixtures as unit tests, and extend them with fixtures drawn from the real curated catalog.
 

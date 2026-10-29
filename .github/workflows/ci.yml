@@ -39,6 +39,12 @@ jobs:
       - name: Unit, property and fixture-conformance tests
         run: npm test
 
+      - name: Install browsers for real-engine tests
+        run: npx playwright install --with-deps chromium firefox webkit
+
+      - name: Real-browser tests (IndexedDB in Chromium, Firefox and WebKit)
+        run: npm run test:browser
+
       - name: Documentation checks
         run: npm run docs:check
 

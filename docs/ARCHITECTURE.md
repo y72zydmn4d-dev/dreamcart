@@ -83,6 +83,19 @@ The idempotency key lives on the cart record: it is generated when the cart chan
 
 Order id from `crypto.randomUUID()`; display code `DC-V-` plus 10 random base-32 characters; the unique `code` index decides collisions.
 
+### Phase 4 implementation notes
+
+What `src/platform/persistence` does where the text above leaves room. All of it is covered by the shared contract suite (run against IndexedDB and memory), IndexedDB-specific tests, and real-browser tests (`tests/browser`).
+
+- **Native IndexedDB, no wrapper.** Stores: `meta`, `cart`, `orders` (unique `idempotencyKey` and `code`, index `createdAtMs`), `userProducts`, `settings`, `quarantine`. The database is versioned (`schema.ts`); each migration step runs in the upgrade transaction and a failure aborts the whole upgrade. A database from a newer app is reported as `schema_too_new` and is never downgraded or deleted; an upgrade blocked by another tab is reported as `blocked`; an open tab closes its connection when another tab upgrades.
+- **Cart concurrency.** `save` requires the stored revision to be exactly `cart.revision - 1` (absent counts as 0), so a save built on an outdated read returns `stale_revision` with the current cart and never overwrites. `placeOrder`, import-replace and `afterOrderPlaced` each advance the revision by one, which invalidates other tabs' carts.
+- **`placeOrder` is one transaction** over `cart` and `orders`: look up the idempotency key, run the domain decision, insert the order, clear the cart and rotate the key. A unique-index violation (display code or id) rolls everything back and returns `code_collision` for the use case to retry. A corrupt record under the key aborts instead of guessing.
+- **Validation on every read.** Records that fail their Zod schema are copied to `quarantine` and removed from their store, never silently dropped. An invalid cart reads as an empty one; invalid settings read as defaults.
+- **Failures are typed.** `StorageError.kind`: `unavailable`, `quota_exceeded`, `aborted`, `schema_too_new`, `migration_failed`, `blocked`, `corrupt_data`, `unknown`. `openPersistence` falls back to memory (data lost when the page closes; the UI must say so) only for `unavailable`, `quota_exceeded` and `unknown`; version problems are never hidden behind the fallback.
+- **Backups** (`modules/data-portability`): `parseBackup` enforces a 5 MB cap, rejects `__proto__`/`constructor`/`prototype` keys and unknown fields, checks the schema, then semantic integrity (totals, unique ids/codes/keys, simulation record equals its preset, flags agree with price state) and re-validates every URL with `parseSafeUrl` (tracking parameters stripped). The device-local `checkoutKey` is never exported. **Merge** adds only non-clashing orders and reports conflicts; **replace** is only expressible with `{ confirmed: true }`, swaps everything in one transaction and advances the cart revision.
+- **Deletion** is the explicit `deleteAllData()`; `meta` keeps only the schema version.
+- **Not yet verified:** Firefox and WebKit run the same real-browser tests in CI only (those engines cannot be downloaded in the development container); real devices and storage eviction behaviour are Phase 10.
+
 ## 5. Storage eviction, recovery, and data portability
 
 Browser storage is not a database you own. Known risks (reported browser behavior; verify on real devices in Phase 10):

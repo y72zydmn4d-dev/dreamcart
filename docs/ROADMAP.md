@@ -85,6 +85,6 @@ Supabase sync, wishlist, rating survey, authorized metadata extraction, licensed
 
 ## Recommended next phase
 
-P2 is merged. **P3 Domain & Simulation Core** is implemented and awaits review (modules `pricing`, `cart`, `search`, `orders`, `catalog`; fixtures run as Vitest suites and the old verifier is removed). Next is **P4 Persistence & Import Foundation**, only on owner approval. P2's design sign-off remains the gate for P6.
+P0–P3 are merged. **P4 Persistence & Import Foundation** is implemented (see `docs/EXECUTION_STATUS.md` for the current state of every phase). The owner has authorized sequential execution of P4–P12 with a pull request, green CI and a squash merge per phase.
 
 In parallel on the owner's side: **RT-2/RT-3** (image rights and curation), still the longest-lead items.

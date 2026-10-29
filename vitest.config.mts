@@ -11,8 +11,15 @@ export default defineConfig({
     coverage: {
       provider: "v8",
       // The domain and the pure helpers are the coverage target; UI is checked in the browser.
-      include: ["src/modules/**/*.ts", "src/lib/**/*.ts"],
-      exclude: ["**/*.test.ts", "**/index.ts", "src/modules/orders/application/**"],
+      include: ["src/modules/**/*.ts", "src/lib/**/*.ts", "src/platform/persistence/**/*.ts"],
+      exclude: [
+        "**/*.test.ts",
+        "**/index.ts",
+        "**/*.contract.ts",
+        "**/test-support.ts",
+        "**/types.ts",
+        "src/modules/**/application/**",
+      ],
       reporter: ["text-summary", "text"],
     },
   },

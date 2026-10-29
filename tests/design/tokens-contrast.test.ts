@@ -43,6 +43,10 @@ const TEXT_PAIRS: [string, string][] = [
   ["accent-soft-foreground", "accent-soft"],
   ["destructive-foreground", "destructive"],
   ["simulation-foreground", "simulation"],
+  ["success-foreground", "success"],
+  ["warning-foreground", "warning"],
+  ["art-stage-foreground", "art-stage"],
+  ["muted-foreground", "art-stage"],
 ];
 
 describe("contrast helper", () => {
@@ -64,6 +68,11 @@ describe.each([
 
   it("has a focus ring with at least 3:1 contrast against the page (AA non-text)", () => {
     expect(contrast(theme["ring"]!, theme["background"]!)).toBeGreaterThanOrEqual(3);
+  });
+
+  it("has control borders (inputs, unavailable options) with at least 3:1 contrast (AA non-text)", () => {
+    expect(contrast(theme["border-strong"]!, theme["surface"]!)).toBeGreaterThanOrEqual(3);
+    expect(contrast(theme["border-strong"]!, theme["background"]!)).toBeGreaterThanOrEqual(3);
   });
 });
 

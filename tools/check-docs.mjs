@@ -18,7 +18,9 @@ const bad = (msg) => { problems++; console.log(`PROBLEM ${msg}`); };
 const read = (p) => readFileSync(join(root, p), "utf8");
 
 // 1. Relative markdown links resolve.
-for (const f of files.filter((f) => f.endsWith(".md"))) {
+// Vendored third-party skill docs are not ours to link-check (secret scan below still covers them).
+const isVendored = (f) => rel(f).startsWith(".claude/skills/ui-ux-pro-max/");
+for (const f of files.filter((f) => f.endsWith(".md") && !isVendored(f))) {
   for (const m of readFileSync(f, "utf8").matchAll(/\]\((?!https?:|#|mailto:)([^)\s]+)\)/g)) {
     if (!existsSync(resolve(dirname(f), m[1].split("#")[0]))) bad(`broken link ${rel(f)} -> ${m[1]}`);
   }

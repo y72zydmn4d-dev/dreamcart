@@ -51,5 +51,6 @@ export default defineConfig([
     "docs/**",
     "fixtures/**",
     "tools/**",
+    ".claude/**",
   ]),
 ]);

@@ -5,6 +5,8 @@ const nextConfig: NextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
   typedRoutes: true,
+  // Do not let `next dev` write an AGENTS.md; project instructions live in CLAUDE.md and docs/.
+  agentRules: false,
   async headers() {
     return [
       {

@@ -1,15 +1,28 @@
 import type { Metadata } from "next";
-import { PlaceholderPage } from "@/components/layout/placeholder-page";
+import { Suspense } from "react";
+import { PageContainer } from "@/components/layout/page-container";
+import { ResultsSkeleton } from "@/components/search/results-skeleton";
+import { SearchExperience } from "@/components/search/search-experience";
 import { t } from "@/platform/i18n";
 
 export const metadata: Metadata = { title: t("pages.search.title") };
 
+/** The page shell is prerendered; results render on the client from the URL (Suspense fallback = loading state). */
 export default function SearchPage() {
   return (
-    <PlaceholderPage
-      title={t("pages.search.title")}
-      description={t("pages.search.description")}
-      phase={t("pages.search.phase")}
-    />
+    <PageContainer className="max-w-7xl">
+      <Suspense
+        fallback={
+          <div className="py-10">
+            <h1 className="text-headline font-semibold">{t("pages.search.title")}</h1>
+            <div className="mt-8">
+              <ResultsSkeleton />
+            </div>
+          </div>
+        }
+      >
+        <SearchExperience />
+      </Suspense>
+    </PageContainer>
   );
 }

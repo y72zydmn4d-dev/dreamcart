@@ -10,3 +10,6 @@ node_modules
 coverage
 package-lock.json
 next-env.d.ts
+
+# Vendored third-party skill (see .claude/skills/ui-ux-pro-max/UPSTREAM.md)
+.claude

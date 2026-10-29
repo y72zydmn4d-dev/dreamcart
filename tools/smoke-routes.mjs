@@ -13,8 +13,11 @@ const BASE = `http://127.0.0.1:${PORT}`;
 const NOTICE = "Mô phỏng — không thanh toán, không đặt hàng, không giao hàng thật.";
 const NAV_LABEL = 'aria-label="Điều hướng chính"';
 
-const OK_ROUTES = ["/", "/search", "/product/placeholder", "/cart", "/checkout", "/orders", "/collection", "/about"];
-const NOT_FOUND_ROUTES = ["/does-not-exist", "/product/demo-product", "/product/Not%20A%20Valid%20Id", "/product/..%2Fsecret"];
+const OK_ROUTES = ["/", "/search", "/product/fx-aero", "/product/fx-nova", "/cart", "/checkout", "/orders", "/collection", "/about", "/design"];
+// Prototype routes that show synthetic data must say so.
+const FIXTURE_ROUTES = ["/", "/product/fx-aero", "/product/fx-nova", "/design"];
+const FIXTURE_LABEL = "Dữ liệu mẫu";
+const NOT_FOUND_ROUTES = ["/does-not-exist", "/product/placeholder", "/product/fx-unknown", "/product/Not%20A%20Valid%20Id", "/product/..%2Fsecret"];
 
 const failures = [];
 const check = (condition, message) => {
@@ -61,6 +64,7 @@ try {
     const html = await res.text();
     check(res.status === 200, `${route}: expected 200, got ${res.status}`);
     check(/<h1[\s>]/.test(html), `${route}: no <h1>`);
+    if (FIXTURE_ROUTES.includes(route)) check(html.includes(FIXTURE_LABEL), `${route}: synthetic data not labeled`);
     checkShell(route, res, html);
   }
   for (const route of NOT_FOUND_ROUTES) {

@@ -1,10 +1,10 @@
 @import "tailwindcss";
 
 /*
- * DreamCart design tokens (Phase 1 foundation; Phase 2 refines the visual language).
- * Semantic names only: components use `bg-surface`, `text-muted-foreground`, never raw colors.
- * Colors are hex so tests/design/tokens-contrast.test.ts can verify WCAG AA contrast pairs.
- * Light theme is the default; dark follows the system preference.
+ * DreamCart design tokens (Phase 2). Semantic names only: components use `bg-surface`,
+ * `text-muted-foreground`, `shadow-card`, never raw colors. Colors are hex so
+ * tests/design/tokens-contrast.test.ts can verify WCAG AA contrast pairs in both themes.
+ * Light-first; dark follows the system preference. Rationale: docs/UX_SPEC.md.
  */
 :root {
   --background: #fbfbfd;
@@ -13,16 +13,28 @@
   --muted: #f2f2f7;
   --muted-foreground: #5f5f66;
   --border: #d8d8de;
+  --border-strong: #8e8e96;
   --accent: #5b5bd6;
   --accent-foreground: #ffffff;
+  --accent-2: #b26ae8;
   --accent-soft: #ececfc;
   --accent-soft-foreground: #3b3ba3;
   --ring: #5b5bd6;
   --destructive: #b42318;
   --destructive-foreground: #ffffff;
+  --success: #e7f6ec;
+  --success-foreground: #1b6b3a;
+  --warning: #fff4d6;
+  --warning-foreground: #6b4a00;
   --simulation: #fff4d6;
   --simulation-foreground: #5c3d00;
   --simulation-border: #e8c875;
+  /* Brand glow: soft gradient stops for hero and placeholder art (decorative, never text). */
+  --glow-1: #dcdcff;
+  --glow-2: #f6e3ff;
+  --glow-3: #e2f4ff;
+  --art-stage: #eef0f6;
+  --art-stage-foreground: #4a4a55;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -33,16 +45,27 @@
     --muted: #1d1d25;
     --muted-foreground: #a1a1ab;
     --border: #2d2d38;
+    --border-strong: #6e6e7a;
     --accent: #8b8bf0;
     --accent-foreground: #0b0b0f;
+    --accent-2: #c79bff;
     --accent-soft: #23233f;
     --accent-soft-foreground: #c9c9fa;
     --ring: #8b8bf0;
     --destructive: #f97066;
     --destructive-foreground: #0b0b0f;
+    --success: #12301f;
+    --success-foreground: #8fe0ad;
+    --warning: #3a2a05;
+    --warning-foreground: #ffd98a;
     --simulation: #3a2a05;
     --simulation-foreground: #ffe3a3;
     --simulation-border: #7a5a14;
+    --glow-1: #22224a;
+    --glow-2: #2f1d3d;
+    --glow-3: #13293a;
+    --art-stage: #1a1a22;
+    --art-stage-foreground: #b4b4bf;
   }
 }
 
@@ -53,52 +76,107 @@
   --color-muted: var(--muted);
   --color-muted-foreground: var(--muted-foreground);
   --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
   --color-accent: var(--accent);
   --color-accent-foreground: var(--accent-foreground);
+  --color-accent-2: var(--accent-2);
   --color-accent-soft: var(--accent-soft);
   --color-accent-soft-foreground: var(--accent-soft-foreground);
   --color-ring: var(--ring);
   --color-destructive: var(--destructive);
   --color-destructive-foreground: var(--destructive-foreground);
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
   --color-simulation: var(--simulation);
   --color-simulation-foreground: var(--simulation-foreground);
   --color-simulation-border: var(--simulation-border);
+  --color-glow-1: var(--glow-1);
+  --color-glow-2: var(--glow-2);
+  --color-glow-3: var(--glow-3);
+  --color-art-stage: var(--art-stage);
+  --color-art-stage-foreground: var(--art-stage-foreground);
 
-  /* Typography: system stack only (no third-party font requests, no proprietary platform fonts). */
+  /*
+   * Typography: system stack only (SF Pro, Segoe UI, Roboto, Noto all cover Vietnamese; no
+   * third-party font requests, no proprietary font files). Display sizes keep line-height
+   * at 1.1 or more so stacked Vietnamese diacritics (ễ, ổ, Ữ) are never clipped.
+   */
   --font-sans:
     ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial,
     "Noto Sans", sans-serif;
   --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-  --text-display: clamp(2.5rem, 6vw, 4.5rem);
-  --text-display--line-height: 1.05;
+  --text-hero: clamp(2.75rem, 7.5vw, 5.75rem);
+  --text-hero--line-height: 1.1;
+  --text-hero--letter-spacing: -0.035em;
+  --text-display: clamp(2.25rem, 5.5vw, 4rem);
+  --text-display--line-height: 1.12;
   --text-display--letter-spacing: -0.03em;
   --text-headline: clamp(1.75rem, 3.5vw, 2.75rem);
-  --text-headline--line-height: 1.1;
+  --text-headline--line-height: 1.15;
   --text-headline--letter-spacing: -0.02em;
+  --text-title: clamp(1.25rem, 2vw, 1.5rem);
+  --text-title--line-height: 1.3;
+  --text-title--letter-spacing: -0.01em;
 
-  /* Radius scale for cards, controls, and large surfaces. */
+  /* Radius scale: controls, cards, large surfaces, pills. */
   --radius-sm: 0.5rem;
   --radius-md: 0.75rem;
   --radius-lg: 1rem;
   --radius-xl: 1.5rem;
+  --radius-2xl: 2rem;
 
-  /* Semantic spacing on top of Tailwind's 4px base. */
-  --spacing-section: clamp(3rem, 8vw, 7rem);
+  /* Elevation: soft, low-contrast shadows (premium surfaces rely on space, not heavy borders). */
+  --shadow-card: 0 1px 2px rgb(16 16 32 / 0.04), 0 8px 24px -12px rgb(16 16 32 / 0.12);
+  --shadow-float: 0 2px 6px rgb(16 16 32 / 0.06), 0 24px 48px -20px rgb(16 16 32 / 0.25);
+  --shadow-sheet: 0 -8px 40px -12px rgb(16 16 32 / 0.3);
+
+  /* Motion: short, purposeful; all of it is disabled under prefers-reduced-motion. */
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  --ease-emphasized: cubic-bezier(0.3, 0, 0, 1.1);
+
+  /* Semantic spacing on top of Tailwind's 4px base; page width lives in the container. */
+  --spacing-section: clamp(3.5rem, 9vw, 8rem);
   --spacing-gutter: clamp(1rem, 4vw, 2rem);
 }
 
 @layer base {
+  :root {
+    --duration-fast: 150ms;
+    --duration-base: 220ms;
+    --duration-slow: 320ms;
+  }
+
   html {
     color-scheme: light dark;
     -webkit-text-size-adjust: 100%;
+  }
+
+  /* A sticky bottom bar must never hide the control that keyboard focus scrolls into view. */
+  html:has([data-bottom-bar]) {
+    scroll-padding-bottom: 6rem;
   }
 
   body {
     background-color: var(--background);
     color: var(--foreground);
     font-family: var(--font-sans);
-    line-height: 1.5;
+    line-height: 1.55;
     -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    /* viewport-fit=cover lets the page extend under device cutouts; keep content inside them. */
+    padding-inline: env(safe-area-inset-left) env(safe-area-inset-right);
+  }
+
+  h1,
+  h2,
+  h3 {
+    text-wrap: balance;
+  }
+
+  p {
+    text-wrap: pretty;
   }
 
   /* One consistent, always-visible keyboard focus indicator. */
@@ -112,6 +190,11 @@
     color: var(--accent-soft-foreground);
   }
 
+  /* Native dialogs are used for sheets; keep their backdrop on-brand. */
+  dialog::backdrop {
+    background: rgb(10 10 20 / 0.45);
+  }
+
   @media (prefers-reduced-motion: reduce) {
     *,
     *::before,
@@ -121,5 +204,44 @@
       transition-duration: 0.01ms !important;
       scroll-behavior: auto !important;
     }
+  }
+}
+
+@layer components {
+  /* Sheet entrance (bottom sheet on phones, side panel on larger screens). */
+  @keyframes sheet-in-bottom {
+    from {
+      transform: translateY(100%);
+    }
+    to {
+      transform: translateY(0);
+    }
+  }
+  @keyframes sheet-in-right {
+    from {
+      transform: translateX(100%);
+    }
+    to {
+      transform: translateX(0);
+    }
+  }
+  @keyframes fade-up {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  .animate-sheet-bottom {
+    animation: sheet-in-bottom var(--duration-slow) var(--ease-emphasized);
+  }
+  .animate-sheet-right {
+    animation: sheet-in-right var(--duration-slow) var(--ease-emphasized);
+  }
+  .animate-fade-up {
+    animation: fade-up var(--duration-base) var(--ease-standard) both;
   }
 }

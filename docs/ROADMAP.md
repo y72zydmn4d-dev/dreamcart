@@ -85,4 +85,6 @@ Supabase sync, wishlist, rating survey, authorized metadata extraction, licensed
 
 ## Recommended next phase
 
-**P2 UI/UX Design System**, once the Phase 1 pull request is merged. In parallel on the owner's side: **RT-2/RT-3** (image rights and curation), the longest-lead items. P1 has no dependency on data or image rights, so it never waits on them. **P2 (design)** follows immediately so the owner's sign-off overlaps P3/P4.
+P2 is implemented (`docs/UX_SPEC.md`, prototype on synthetic data) and awaits owner design sign-off. Next is **P3 Domain & Simulation Core** (only on owner authorization). P3 does not wait for design sign-off; P6 does.
+
+In parallel on the owner's side: **RT-2/RT-3** (image rights and curation), still the longest-lead items.

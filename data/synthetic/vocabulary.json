@@ -2,35 +2,43 @@
   "color": {
     "graphite": {
       "labelVi": "Xám than chì",
-      "aliases": []
+      "aliases": [],
+      "swatch": "#3f4148"
     },
     "sand": {
       "labelVi": "Cát",
-      "aliases": []
+      "aliases": [],
+      "swatch": "#d9c7a7"
     },
     "black": {
       "labelVi": "Đen",
-      "aliases": ["den"]
+      "aliases": ["den"],
+      "swatch": "#26262b"
     },
     "white": {
       "labelVi": "Trắng",
-      "aliases": ["trang"]
+      "aliases": ["trang"],
+      "swatch": "#f1f1f3"
     },
     "silver": {
       "labelVi": "Bạc",
-      "aliases": ["bac"]
+      "aliases": ["bac"],
+      "swatch": "#c9cbd1"
     },
     "mint": {
       "labelVi": "Xanh bạc hà",
-      "aliases": []
+      "aliases": [],
+      "swatch": "#a9dcc9"
     },
     "midnight": {
       "labelVi": "Xanh đêm",
-      "aliases": []
+      "aliases": [],
+      "swatch": "#2c3550"
     },
     "lunar": {
       "labelVi": "Xám trăng",
-      "aliases": []
+      "aliases": [],
+      "swatch": "#b9bdd1"
     }
   },
   "chip": {

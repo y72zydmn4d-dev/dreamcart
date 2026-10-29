@@ -23,7 +23,7 @@ virtual shipping, and personal collections.
 - Next.js + React + TypeScript
 - Tailwind CSS + shadcn/ui + Zod
 - Repository-hosted catalog, IndexedDB for cart and virtual orders
-- Vercel (free tier) when deployment is authorized
+- Vercel (free tier): preview deployments of pull requests are authorized; publishing to production needs the owner's explicit approval
 - Supabase: deferred to a later phase
 
 UI language: Vietnamese-first. See `docs/decisions/ADR-005-technology-stack.md`.

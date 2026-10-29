@@ -1,6 +1,8 @@
 import { defineConfig } from "@playwright/test";
 
 const PORT = Number(process.env.E2E_PORT ?? 3100);
+/** Run the whole suite against a deployment (a preview URL) instead of a local `next start`. */
+const REMOTE_URL = process.env.E2E_BASE_URL?.replace(/\/+$/, "");
 
 /**
  * Real-browser tests: IndexedDB in real engines (Phase 4) and the storefront at representative widths (Phase 6;
@@ -21,16 +23,18 @@ export default defineConfig({
   retries: process.env.CI ? 1 : 0,
   reporter: [["list"]],
   use: {
-    baseURL: `http://127.0.0.1:${PORT}`,
+    baseURL: REMOTE_URL ?? `http://127.0.0.1:${PORT}`,
     navigationTimeout: 45_000,
     trace: "retain-on-first-failure",
   },
-  webServer: {
-    command: `npx next start -p ${PORT}`,
-    url: `http://127.0.0.1:${PORT}`,
-    reuseExistingServer: true,
-    timeout: 60_000,
-  },
+  webServer: REMOTE_URL
+    ? undefined
+    : {
+        command: `npx next start -p ${PORT}`,
+        url: `http://127.0.0.1:${PORT}`,
+        reuseExistingServer: true,
+        timeout: 60_000,
+      },
   projects: [
     { name: "chromium", use: { browserName: "chromium" } },
     { name: "firefox", use: { browserName: "firefox" } },

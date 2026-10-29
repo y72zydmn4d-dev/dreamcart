@@ -41,6 +41,13 @@ options, premium-first catalog of about 20-30 verified products.
 - Vercel
 - Supabase PostgreSQL: deferred, not part of the MVP (see docs/decisions/ADR-005)
 
+## Deployment
+
+- **Vercel Preview deployments are authorized.** The two Vercel projects connected to this repository (`dreamcart`, `dreamcart-b963`) build a preview for every pull request automatically, on the free tier. Previews run the labeled synthetic fixtures until a verified real catalog exists. This replaces the earlier "no deployment before Phase 12" rule.
+- **Anything beyond previews needs the owner's explicit approval each time:** publishing or promoting a production deployment, attaching a domain, enabling a paid plan or add-on, creating, deleting, disconnecting or re-linking a Vercel project, and setting environment variables or secrets (none are needed to build or run the app).
+- A release build sets `NEXT_PUBLIC_DREAMCART_RELEASE=1`; it refuses synthetic data by design and does not publish the `/design` gallery.
+- Verify a deployment with `SMOKE_BASE_URL=<url> npm run smoke` and `E2E_BASE_URL=<url> npx playwright test` (see docs/RUNBOOK.md and docs/RELEASE_CHECKLIST.md).
+
 Architecture: Modular Monolith. UI language: Vietnamese-first.
 Decision precedence: ADRs (docs/decisions/) > docs/PRD.md > docs/PRODUCT_BLUEPRINT.md.
 

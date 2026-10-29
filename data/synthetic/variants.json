@@ -1,0 +1,261 @@
+[
+  {
+    "id": "fx-aero:13-fx1-8-256",
+    "productId": "fx-aero",
+    "attributes": {
+      "screen_in": 13,
+      "chip": "fx1",
+      "ram_gb": 8,
+      "storage_gb": 256
+    },
+    "gtin": null,
+    "variantKey": "screen_in=13;chip=fx1;ram_gb=8;storage_gb=256"
+  },
+  {
+    "id": "fx-aero:13-fx1-16-512",
+    "productId": "fx-aero",
+    "attributes": {
+      "screen_in": 13,
+      "chip": "fx1",
+      "ram_gb": 16,
+      "storage_gb": 512
+    },
+    "gtin": null,
+    "variantKey": "screen_in=13;chip=fx1;ram_gb=16;storage_gb=512"
+  },
+  {
+    "id": "fx-aero:13-fx2-16-512",
+    "productId": "fx-aero",
+    "attributes": {
+      "screen_in": 13,
+      "chip": "fx2",
+      "ram_gb": 16,
+      "storage_gb": 512
+    },
+    "gtin": null,
+    "variantKey": "screen_in=13;chip=fx2;ram_gb=16;storage_gb=512"
+  },
+  {
+    "id": "fx-aero:15-fx2-16-512",
+    "productId": "fx-aero",
+    "attributes": {
+      "screen_in": 15,
+      "chip": "fx2",
+      "ram_gb": 16,
+      "storage_gb": 512
+    },
+    "gtin": null,
+    "variantKey": "screen_in=15;chip=fx2;ram_gb=16;storage_gb=512"
+  },
+  {
+    "id": "fx-aero:15-fx2-32-1024",
+    "productId": "fx-aero",
+    "attributes": {
+      "screen_in": 15,
+      "chip": "fx2",
+      "ram_gb": 32,
+      "storage_gb": 1024
+    },
+    "gtin": null,
+    "variantKey": "screen_in=15;chip=fx2;ram_gb=32;storage_gb=1024"
+  },
+  {
+    "id": "fx-titan:16-fx2-32-1024-midnight",
+    "productId": "fx-titan",
+    "attributes": {
+      "chip": "fx2",
+      "ram_gb": 32,
+      "storage_gb": 1024,
+      "color": "midnight",
+      "screen_in": 16
+    },
+    "gtin": null,
+    "variantKey": "screen_in=16;chip=fx2;ram_gb=32;storage_gb=1024;color=midnight"
+  },
+  {
+    "id": "fx-titan:16-fx2-64-2048-midnight",
+    "productId": "fx-titan",
+    "attributes": {
+      "chip": "fx2",
+      "ram_gb": 64,
+      "storage_gb": 2048,
+      "color": "midnight",
+      "screen_in": 16
+    },
+    "gtin": null,
+    "variantKey": "screen_in=16;chip=fx2;ram_gb=64;storage_gb=2048;color=midnight"
+  },
+  {
+    "id": "fx-titan:16-fx2-32-1024-silver",
+    "productId": "fx-titan",
+    "attributes": {
+      "chip": "fx2",
+      "ram_gb": 32,
+      "storage_gb": 1024,
+      "color": "silver",
+      "screen_in": 16
+    },
+    "gtin": null,
+    "variantKey": "screen_in=16;chip=fx2;ram_gb=32;storage_gb=1024;color=silver"
+  },
+  {
+    "id": "fx-nova:128-graphite",
+    "productId": "fx-nova",
+    "attributes": {
+      "storage_gb": 128,
+      "color": "graphite"
+    },
+    "gtin": null,
+    "variantKey": "storage_gb=128;color=graphite"
+  },
+  {
+    "id": "fx-nova:256-graphite",
+    "productId": "fx-nova",
+    "attributes": {
+      "storage_gb": 256,
+      "color": "graphite"
+    },
+    "gtin": null,
+    "variantKey": "storage_gb=256;color=graphite"
+  },
+  {
+    "id": "fx-nova:256-sand",
+    "productId": "fx-nova",
+    "attributes": {
+      "storage_gb": 256,
+      "color": "sand"
+    },
+    "gtin": null,
+    "variantKey": "storage_gb=256;color=sand"
+  },
+  {
+    "id": "fx-nova:512-graphite",
+    "productId": "fx-nova",
+    "attributes": {
+      "storage_gb": 512,
+      "color": "graphite"
+    },
+    "gtin": null,
+    "variantKey": "storage_gb=512;color=graphite"
+  },
+  {
+    "id": "fx-nova-mini:128-graphite",
+    "productId": "fx-nova-mini",
+    "attributes": {
+      "storage_gb": 128,
+      "color": "graphite"
+    },
+    "gtin": null,
+    "variantKey": "storage_gb=128;color=graphite"
+  },
+  {
+    "id": "fx-pulse:128-black",
+    "productId": "fx-pulse",
+    "attributes": {
+      "storage_gb": 128,
+      "color": "black"
+    },
+    "gtin": null,
+    "variantKey": "storage_gb=128;color=black"
+  },
+  {
+    "id": "fx-pulse:128-white",
+    "productId": "fx-pulse",
+    "attributes": {
+      "storage_gb": 128,
+      "color": "white"
+    },
+    "gtin": null,
+    "variantKey": "storage_gb=128;color=white"
+  },
+  {
+    "id": "fx-pulse:128-mint",
+    "productId": "fx-pulse",
+    "attributes": {
+      "storage_gb": 128,
+      "color": "mint"
+    },
+    "gtin": null,
+    "variantKey": "storage_gb=128;color=mint"
+  },
+  {
+    "id": "fx-pulse:256-black",
+    "productId": "fx-pulse",
+    "attributes": {
+      "storage_gb": 256,
+      "color": "black"
+    },
+    "gtin": null,
+    "variantKey": "storage_gb=256;color=black"
+  },
+  {
+    "id": "fx-pulse:256-white",
+    "productId": "fx-pulse",
+    "attributes": {
+      "storage_gb": 256,
+      "color": "white"
+    },
+    "gtin": null,
+    "variantKey": "storage_gb=256;color=white"
+  },
+  {
+    "id": "fx-pulse:256-mint",
+    "productId": "fx-pulse",
+    "attributes": {
+      "storage_gb": 256,
+      "color": "mint"
+    },
+    "gtin": null,
+    "variantKey": "storage_gb=256;color=mint"
+  },
+  {
+    "id": "fx-buds-pro:earbuds-black",
+    "productId": "fx-buds-pro",
+    "attributes": {
+      "type": "earbuds",
+      "color": "black"
+    },
+    "gtin": null,
+    "variantKey": "type=earbuds;color=black"
+  },
+  {
+    "id": "fx-buds-pro:earbuds-white",
+    "productId": "fx-buds-pro",
+    "attributes": {
+      "type": "earbuds",
+      "color": "white"
+    },
+    "gtin": null,
+    "variantKey": "type=earbuds;color=white"
+  },
+  {
+    "id": "fx-buds-lite:earbuds-black",
+    "productId": "fx-buds-lite",
+    "attributes": {
+      "type": "earbuds",
+      "color": "black"
+    },
+    "gtin": null,
+    "variantKey": "type=earbuds;color=black"
+  },
+  {
+    "id": "fx-studio:over_ear-black",
+    "productId": "fx-studio",
+    "attributes": {
+      "type": "over_ear",
+      "color": "black"
+    },
+    "gtin": null,
+    "variantKey": "type=over_ear;color=black"
+  },
+  {
+    "id": "fx-studio:over_ear-silver",
+    "productId": "fx-studio",
+    "attributes": {
+      "type": "over_ear",
+      "color": "silver"
+    },
+    "gtin": null,
+    "variantKey": "type=over_ear;color=silver"
+  }
+]

@@ -1,0 +1,56 @@
+{
+  "color": {
+    "graphite": {
+      "labelVi": "Xám than chì",
+      "aliases": []
+    },
+    "sand": {
+      "labelVi": "Cát",
+      "aliases": []
+    },
+    "black": {
+      "labelVi": "Đen",
+      "aliases": ["den"]
+    },
+    "white": {
+      "labelVi": "Trắng",
+      "aliases": ["trang"]
+    },
+    "silver": {
+      "labelVi": "Bạc",
+      "aliases": ["bac"]
+    },
+    "mint": {
+      "labelVi": "Xanh bạc hà",
+      "aliases": []
+    },
+    "midnight": {
+      "labelVi": "Xanh đêm",
+      "aliases": []
+    },
+    "lunar": {
+      "labelVi": "Xám trăng",
+      "aliases": []
+    }
+  },
+  "chip": {
+    "fx1": {
+      "labelVi": "Chip FX1 (hư cấu)",
+      "aliases": []
+    },
+    "fx2": {
+      "labelVi": "Chip FX2 (hư cấu)",
+      "aliases": []
+    }
+  },
+  "type": {
+    "earbuds": {
+      "labelVi": "Tai nghe nhét tai",
+      "aliases": []
+    },
+    "over_ear": {
+      "labelVi": "Tai nghe chụp tai",
+      "aliases": []
+    }
+  }
+}

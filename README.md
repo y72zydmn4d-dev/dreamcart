@@ -42,6 +42,7 @@ Phases 0 (specification), 1 (engineering foundation) and 2 (UI/UX design system 
 | `docs/ARCHITECTURE.md` | Layers, persistence, security headers, testing |
 | `docs/CATALOG_SCHEMA.md` | Catalog, pricing, order-snapshot, image-provenance, and configurator rules |
 | `docs/CURATION_PROCESS.md` | How the first 20–30 products are verified |
+| `docs/CATALOG_READINESS.md` | Catalog engine status, real-data blocker, and the curation-input checklist |
 | `docs/PRODUCT_SOURCE_MATRIX.md` | Provider feasibility and licensing evidence |
 | `docs/SEARCH_FIXTURES.md` | Exact-variant matching rules and search fixtures |
 | `docs/DECISIONS.md` | ADR index, final owner decisions P-1…P-10, Blueprint reconciliation |
@@ -63,6 +64,8 @@ npm run dev     # development server at http://localhost:3000
 | `npm run typecheck` | `next typegen` then `tsc --noEmit` (strict) |
 | `npm test` | Vitest: unit, property, architecture, and the `fixtures/` conformance suites (search, pricing, cart, configurator) |
 | `npm run test:browser` | Playwright real-browser tests (needs `npx playwright install chromium firefox webkit` once) |
+| `npm run catalog:check` | Validate the real and synthetic catalog data (runs automatically before `npm run build`) |
+| `npm run catalog:import -- file.csv` | Convert a curation CSV into `data/catalog/*.json` |
 | `npm run coverage` | The same tests with a V8 coverage report (`coverage/`, not committed) |
 | `npm run docs:check` | Phase 0 documentation consistency checks |
 | `npm run format:check` | Prettier (application code; Phase 0 docs are excluded) |
@@ -87,6 +90,8 @@ src/modules/<name>/index.ts the module's public API; modules import each other o
 src/modules/<name>/application/ persistence port interfaces
 src/platform/persistence/   IndexedDB and in-memory adapters, migrations, typed storage errors
 tests/browser/              real-browser tests (Playwright)
+data/catalog, data/synthetic  real (empty until verified) and synthetic catalog data
+src/modules/discovery/      search, facets, sorting and suggestions over the catalog
 src/platform/               infrastructure adapters and the Vietnamese dictionary (i18n)
 src/config/                 navigation and security headers
 tests/                      architecture and design-token tests

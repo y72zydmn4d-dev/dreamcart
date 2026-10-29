@@ -1,0 +1,38 @@
+[
+  {
+    "id": "fx-shop-a",
+    "name": "Cửa hàng Mẫu A (hư cấu)",
+    "domain": "shop-a.fixturia.test",
+    "kind": "retailer",
+    "termsReviewedAt": "2026-01-01",
+    "persistencePolicy": "snapshot_allowed",
+    "policyEvidence": "Dữ liệu mẫu: nguồn hư cấu, không có điều khoản thật."
+  },
+  {
+    "id": "fx-shop-b",
+    "name": "Cửa hàng Mẫu B (hư cấu)",
+    "domain": "shop-b.fixturia.test",
+    "kind": "retailer",
+    "termsReviewedAt": "2026-01-01",
+    "persistencePolicy": "snapshot_allowed",
+    "policyEvidence": "Dữ liệu mẫu: nguồn hư cấu, không có điều khoản thật."
+  },
+  {
+    "id": "fx-brand-store",
+    "name": "Fixturia Store (hư cấu)",
+    "domain": "store.fixturia.test",
+    "kind": "manufacturer",
+    "termsReviewedAt": "2026-01-01",
+    "persistencePolicy": "snapshot_allowed",
+    "policyEvidence": "Dữ liệu mẫu: nguồn hư cấu, không có điều khoản thật."
+  },
+  {
+    "id": "fx-ref-only",
+    "name": "Cửa hàng Mẫu C (chỉ tham khảo, hư cấu)",
+    "domain": "shop-c.fixturia.test",
+    "kind": "retailer",
+    "termsReviewedAt": "2026-01-01",
+    "persistencePolicy": "reference_only",
+    "policyEvidence": "Dữ liệu mẫu: nguồn hư cấu, không có điều khoản thật."
+  }
+]

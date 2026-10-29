@@ -6,27 +6,32 @@ import nextTs from "eslint-config-next/typescript";
 // infrastructure, no browser globals, and no hidden clock or randomness.
 const domainFiles = ["src/modules/**/domain/**/*.ts"];
 
+const uiPatterns = [
+  {
+    group: ["react", "react-dom", "react/*", "react-dom/*", "next", "next/*"],
+    message: "Domain code must not depend on React or Next.js.",
+  },
+  {
+    group: ["@/components/*", "@/app/*", "@/platform/*", "@/config/*"],
+    message: "Domain code must not depend on UI, routing, infrastructure, or config.",
+  },
+];
+
+// Modular-monolith contract (docs/ARCHITECTURE.md section 2): modules talk to each other only through
+// the other module's public index.ts, never through its internals. `shared` is the shared kernel.
+const modules = ["catalog", "cart", "configurator", "orders", "pricing", "search"];
+const boundaryPattern = (self) => ({
+  group: modules.filter((m) => m !== self).map((m) => `@/modules/${m}/*`),
+  message: "Import another module through its public index (@/modules/<name>), not its internals.",
+});
+const restrict = (patterns) => ({ "no-restricted-imports": ["error", { patterns }] });
+
 export default defineConfig([
   ...nextVitals,
   ...nextTs,
   {
     files: domainFiles,
     rules: {
-      "no-restricted-imports": [
-        "error",
-        {
-          patterns: [
-            {
-              group: ["react", "react-dom", "react/*", "react-dom/*", "next", "next/*"],
-              message: "Domain code must not depend on React or Next.js.",
-            },
-            {
-              group: ["@/components/*", "@/app/*", "@/platform/*", "@/config/*"],
-              message: "Domain code must not depend on UI, routing, infrastructure, or config.",
-            },
-          ],
-        },
-      ],
       "no-restricted-globals": [
         "error",
         "window",
@@ -43,6 +48,14 @@ export default defineConfig([
       ],
     },
   },
+  ...modules.flatMap((m) => [
+    { files: [`src/modules/${m}/**/*.ts`], rules: restrict([boundaryPattern(m)]) },
+    {
+      files: [`src/modules/${m}/domain/**/*.ts`],
+      rules: restrict([boundaryPattern(m), ...uiPatterns]),
+    },
+  ]),
+  { files: ["src/modules/shared/domain/**/*.ts"], rules: restrict(uiPatterns) },
   globalIgnores([
     ".next/**",
     "node_modules/**",

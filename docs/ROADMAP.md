@@ -85,6 +85,6 @@ Supabase sync, wishlist, rating survey, authorized metadata extraction, licensed
 
 ## Recommended next phase
 
-P2 is implemented (`docs/UX_SPEC.md`, prototype on synthetic data) and awaits owner design sign-off. Next is **P3 Domain & Simulation Core** (only on owner authorization). P3 does not wait for design sign-off; P6 does.
+P2 is merged. **P3 Domain & Simulation Core** is implemented and awaits review (modules `pricing`, `cart`, `search`, `orders`, `catalog`; fixtures run as Vitest suites and the old verifier is removed). Next is **P4 Persistence & Import Foundation**, only on owner approval. P2's design sign-off remains the gate for P6.
 
 In parallel on the owner's side: **RT-2/RT-3** (image rights and curation), still the longest-lead items.

@@ -29,7 +29,7 @@ Dependencies point inward only: `ui → application → domain`. Persistence ada
 
 Modules: `catalog`, `search`, `configurator`, `pricing`, `import`, `cart`, `orders`, `simulation`, `collection`, `data-portability`. Each exposes a public `index.ts`; cross-module imports go through it. ESLint restricted-import rules enforce boundaries, and a test fails if `domain` imports a forbidden package. That is the whole modular-monolith contract.
 
-## 3. Ports (sketch; final signatures in Phase 3/4)
+## 3. Ports (declared in Phase 3 at `modules/orders/application/ports.ts`; adapters in Phase 4)
 
 ```ts
 interface CartRepository {
@@ -53,6 +53,16 @@ interface PortabilityRepository {
 ```
 
 Repository integration tests are written against the port, not the IndexedDB class, so a future adapter can reuse them. A formal shared "contract suite" is deferred until a second adapter exists.
+
+### Phase 3 implementation notes
+
+Where the written rules left room, the domain code does the following. Each is a clarification, not a rule change; the owner can veto any of them.
+
+- **Price drift is never silent.** `placeOrder` refuses with `price_changed` when the catalog price of a cart line differs from the price the user added, instead of swapping the price. `stale_cart` is returned when the idempotency key is not the cart's current `checkoutKey` (an outdated tab). A replay for a key that already has an order returns that order even if the cart has since been emptied.
+- **Search vocabulary is injected.** `searchCatalog(products, query, vocabulary)`: category aliases, colors and per-category attributes live in `BASE_VOCABULARY`; the chip vocabulary comes from the catalog (Phase 5), so the fixtures pass their own (`fx<digit>`). Optional attributes (laptop `color`, phone `chip`, audio `type`) count as defined for their category.
+- **Snapshots are copies.** The order snapshot copies catalog data; later catalog changes cannot alter an order.
+- **Time is milliseconds.** The simulation stores `startedAtMs`, `cancelledAtMs`, and offsets in milliseconds; Quick and Relaxed offsets are computed once at order time and stored, so changing the constants later does not alter existing orders (`scenarioVersion`).
+- **Property tests** use a seeded PRNG (no new dependency) so a failing history is reproducible.
 
 ## 4. IndexedDB design
 

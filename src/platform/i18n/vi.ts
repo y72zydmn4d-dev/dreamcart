@@ -53,6 +53,7 @@ export const vi = {
     disclosure: "DreamCart là trải nghiệm mua sắm mô phỏng. Mọi giao dịch đều là giả lập.",
     status: "Bản thử nghiệm giao diện: chưa có dữ liệu sản phẩm thật.",
     credits: "Ghi công ảnh",
+    privacy: "Quyền riêng tư",
     designSystem: "Hệ thống thiết kế (bản thử)",
   },
   placeholder: {
@@ -651,6 +652,38 @@ export const vi = {
     delivered: "Đơn {code} đã được giao ảo. Món đồ đã vào Bộ sưu tập.",
     open: "Xem Bộ sưu tập",
     dismiss: "Đã hiểu",
+  },
+  privacy: {
+    title: "Quyền riêng tư và dữ liệu của bạn",
+    lead: "DreamCart không có tài khoản. Mọi thứ bạn tạo ra nằm trong trình duyệt của bạn.",
+    storedHeading: "Những gì được lưu trên thiết bị này",
+    stored: {
+      data: "Giỏ hàng, các mục bạn nhập từ liên kết, đơn mô phỏng và cài đặt, trong bộ nhớ IndexedDB của trình duyệt.",
+      marker:
+        "Một dấu nhỏ trong localStorage cho biết trình duyệt này từng có đơn hoặc mục đã nhập, để nhắc bạn khôi phục nếu dữ liệu bị xoá. Dấu này không chứa thông tin cá nhân.",
+    },
+    notHeading: "Những gì DreamCart không làm",
+    not: {
+      account: "Không có tài khoản, đăng nhập hay hồ sơ cá nhân.",
+      tracking: "Không có phân tích, cookie theo dõi hay quảng cáo.",
+      thirdParty:
+        "Không tải phông chữ, ảnh hay mã từ bên thứ ba. Các liên kết nguồn chỉ mở khi bạn đồng ý rời DreamCart.",
+      fetch:
+        "Không mở hay tải trang từ liên kết bạn nhập. Mọi thông tin của mục nhập tay do bạn gõ và luôn ghi là chưa xác minh.",
+      payment: "Không xử lý thanh toán, địa chỉ thật hay thông tin thẻ.",
+    },
+    hostHeading: "Máy chủ lưu trữ trang",
+    host: "Trang được phục vụ bởi nhà cung cấp lưu trữ, nơi có thể ghi nhật ký kỹ thuật tiêu chuẩn (ví dụ địa chỉ IP khi tải trang). DreamCart không gửi giỏ hàng hay đơn hàng của bạn tới máy chủ.",
+    controlHeading: "Quyền kiểm soát của bạn",
+    control: {
+      export: "Tải bản sao lưu bất cứ lúc nào ở Cài đặt.",
+      delete: "Xoá một đơn hoặc toàn bộ dữ liệu ở Cài đặt.",
+      clear: "Xoá dữ liệu trang trong trình duyệt cũng xoá mọi thứ của DreamCart.",
+    },
+    limitHeading: "Giới hạn cần biết",
+    limit:
+      "Không có bản sao trên máy chủ: nếu trình duyệt xoá dữ liệu hoặc bạn mất thiết bị mà chưa có bản sao lưu, dữ liệu sẽ mất. Chế độ riêng tư có thể không lưu được gì.",
+    settings: "Mở Cài đặt",
   },
   pages: {
     search: {

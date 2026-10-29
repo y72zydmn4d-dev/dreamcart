@@ -82,7 +82,11 @@ test.describe("checkout", () => {
 
     await Promise.all([
       page.getByRole("button", { name: CONFIRM }).dblclick(),
-      other.getByRole("button", { name: CONFIRM }).click(),
+      // the other tab may lose its button first (the order made here empties the cart there): that is a valid outcome
+      other
+        .getByRole("button", { name: CONFIRM })
+        .click({ timeout: 5000 })
+        .catch(() => undefined),
     ]);
     await page.waitForURL(/\/orders\//);
     await other.waitForTimeout(500);

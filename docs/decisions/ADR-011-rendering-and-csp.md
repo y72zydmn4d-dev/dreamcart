@@ -25,3 +25,13 @@ Development additionally allows `'unsafe-eval'` and websockets for hot reload. C
 ## Tradeoffs
 
 `'unsafe-inline'` weakens script injection mitigation. It is accepted because there is no user-generated HTML and no server-rendered untrusted content, React escapes output, every user-supplied link must pass `SafeUrl` (`javascript:` is rejected), and the remaining directives block framing, plugins, base-tag and form hijacking, and any third-party connection or image. Revisit if accounts or user-generated content arrive, or if a build-time hash approach (per-page headers or framework support) becomes practical.
+
+## Phase 10 revisit (2026-10-29)
+
+Re-examined as part of the hardening phase; see `docs/QA_REPORT.md` §5.
+
+- The bundled Next.js 16.4.3 guide confirms that nonce-based CSP needs dynamic rendering of every page and is incompatible with Partial Prerendering, and its non-nonce example for static pages uses `'unsafe-inline'`.
+- A build-time hash list is not workable here: routes whose inline payload depends on the request (`/orders`, `/orders/[id]`, and any route reading `searchParams`) produce unpredictable inline script content, and the experimental SRI option still did not cover the inline bootstrap scripts.
+- The only strict option left is a nonce proxy with the whole app rendered dynamically. It would cost static caching and add host function invocations for no present benefit.
+
+**Decision: the policy is unchanged.** The compensating controls are now enforced by tests rather than convention: source-hygiene guards (no raw HTML injection, no `eval`/`Function`/string timers, `javascript:` only in the URL validator, `noopener noreferrer` on every external link, no secret-looking literals, environment variables limited to the release flag), `SafeUrl` at every rendered link, hostile URL, import-file and markup-title specs, and zero cross-origin requests asserted in the journey, orders and performance specs. This remains an accepted risk that the owner confirms at release review.

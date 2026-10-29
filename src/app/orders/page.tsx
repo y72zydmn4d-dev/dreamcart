@@ -15,7 +15,7 @@ export default async function OrdersPage({
     <PageContainer className="max-w-4xl py-8 sm:py-10">
       <h1 className="text-headline font-semibold">{t("orders.title")}</h1>
       <p className="mt-2 max-w-prose text-muted-foreground">{t("orders.lead")}</p>
-      <div className="mt-8">
+      <div className="mt-8 min-h-[60dvh]">
         <OrdersExperience deleted={deleted === "1"} />
       </div>
     </PageContainer>

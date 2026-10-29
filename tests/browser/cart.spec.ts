@@ -250,6 +250,11 @@ test.describe("cart page", () => {
 });
 
 test.describe("manual import", () => {
+  // The save button is enabled only once the page has hydrated and storage is open; typing earlier would be lost.
+  const open = async (page: Page) => {
+    await page.goto("/import");
+    await expect(page.getByRole("button", { name: "Lưu mục này" })).toBeEnabled();
+  };
   const fill = async (page: Page, fields: { url?: string; title?: string; price?: string }) => {
     if (fields.url !== undefined) await page.getByLabel("Liên kết sản phẩm").fill(fields.url);
     if (fields.title !== undefined) await page.getByLabel("Tên sản phẩm").fill(fields.title);
@@ -258,7 +263,7 @@ test.describe("manual import", () => {
   };
 
   test("hostile links are refused before anything is stored", async ({ page }) => {
-    await page.goto("/import");
+    await open(page);
     for (const [url, message] of [
       ["javascript:alert(1)", /Chỉ nhận liên kết bắt đầu bằng http/],
       ["data:text/html,<script>alert(1)</script>", /Chỉ nhận liên kết bắt đầu bằng http/],
@@ -281,7 +286,7 @@ test.describe("manual import", () => {
       dialogs.push(d.message());
       void d.dismiss();
     });
-    await page.goto("/import");
+    await open(page);
     await fill(page, {
       url: "https://shop.example/p/1?utm_source=news&color=red",
       title: '<img src=x onerror="alert(1)"> Tai nghe thử',
@@ -320,7 +325,7 @@ test.describe("manual import", () => {
     expect(dialogs).toEqual([]);
 
     // deleting the imported item leaves a clearly marked line, never a silent disappearance
-    await page.goto("/import");
+    await open(page);
     await page.getByRole("button", { name: /^Xóa .*Tai nghe thử/ }).click();
     await page.getByRole("button", { name: /^Xác nhận xóa/ }).click();
     await page.goto("/cart");
@@ -335,7 +340,7 @@ test.describe("manual import", () => {
     page,
   }) => {
     await page.setViewportSize({ width: 375, height: 812 });
-    await page.goto("/import");
+    await open(page);
     await fill(page, { url: "javascript:1", title: "x" });
     await page.getByRole("button", { name: "Lưu mục này" }).click();
     await expect(page.getByRole("alert").first()).toBeVisible();

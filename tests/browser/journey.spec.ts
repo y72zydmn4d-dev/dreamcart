@@ -203,6 +203,8 @@ test("21-step journey: discover, configure, cart, import, checkout, deliver, col
 
   await test.step("19. Time passes: the simulated order is delivered", async () => {
     await page.locator("main a p.font-mono").click();
+    // let the order page finish loading before time moves (a slow engine would otherwise jump past its own timers)
+    await expect(page.getByTestId("order-state")).toHaveText("Đã xác nhận đơn mô phỏng");
     await page.clock.runFor(60_000);
     await expect(page.getByTestId("order-state")).toHaveText("Đã đóng gói (ảo)");
     await page.clock.runFor(150_000);

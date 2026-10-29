@@ -112,6 +112,14 @@ What `src/platform/persistence` does where the text above leaves room. All of it
 - **Data controls:** export builds the versioned backup (`exportAll`) and downloads it as a Blob; import runs the full `parseBackup` validation before anything is stored, then merge (default) or replace (needs its own confirmation); reset calls `deleteAllData` after an explicit checkbox. After a restore or reset the cart revision jumps, so the "cart changed in another tab" notice is suppressed for 3 s.
 - **Lost-data notice:** a localStorage marker (`dreamcart:had-data`) is set whenever orders or imported items exist and cleared only by explicit deletion; if IndexedDB is later empty while the marker is set, a notice points to Settings and the backup restore.
 
+### Phase 9 implementation notes
+
+- **State is still a pure function of the stored record and a clock.** The order page re-evaluates `computeOrderState(record, now)` every 5 s for display only (`useNow`); when the displayed state is ahead of the stored high-water mark, the page calls `recordProgress` (re-reads the orders through `observeAll`, which raises the mark with `max`). A clock set backwards therefore cannot undo what was shown, and a cancelled order stays cancelled.
+- **Timeline:** `OrderTimeline` renders the six states for the order's own scenario snapshot. Timed scenarios show the expected time of each step (`startedAtMs + offset`, labeled as expected); Fast shows none and advances only through `orders.advance` (one step per press, decided inside the storage transaction). `stateWhenCancelled` recovers the step a cancelled order had reached.
+- **My Collection** is not stored. `CollectionExperience` filters the orders whose state is `VIRTUALLY_DELIVERED` and lists every item line of those orders once, with the same image re-check as the order page. `scheduledDeliveryMs` gives a delivery time only for timed scenarios.
+- **Delivery notice:** `DeliveryNotice` (mounted under the header) announces a delivered order once; the id `delivered:<orderId>` is stored in `settings.dismissedNotices` (capped at 50, oldest dropped) when the user dismisses it or looks at the collection or that order. It is a message inside the page, not a push or system notification.
+- **Journey test:** `tests/browser/journey.spec.ts` runs the 21 steps with `page.clock`, so time-based progress is deterministic in all three engines.
+
 ## 5. Storage eviction, recovery, and data portability
 
 Browser storage is not a database you own. Known risks (reported browser behavior; verify on real devices in Phase 10):

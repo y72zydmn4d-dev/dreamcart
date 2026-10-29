@@ -301,6 +301,8 @@ test.describe("product page", () => {
         await page.goto("/product/fx-aero");
         await page.evaluate(() => window.scrollTo(0, 800));
         const bar = page.locator("[data-bottom-bar]");
+        // wait for hydration to leave exactly one bar (a transient second copy was seen once under load)
+        await expect(bar).toHaveCount(1);
         await expect(bar).toBeVisible();
         const box = await bar.boundingBox();
         expect(box!.height).toBeLessThanOrEqual(812 * 0.2);

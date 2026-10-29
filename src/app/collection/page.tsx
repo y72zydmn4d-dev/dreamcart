@@ -1,15 +1,21 @@
 import type { Metadata } from "next";
-import { PlaceholderPage } from "@/components/layout/placeholder-page";
+import { CatalogScope } from "@/components/catalog/catalog-scope";
+import { CollectionExperience } from "@/components/collection/collection-experience";
+import { PageContainer } from "@/components/layout/page-container";
 import { t } from "@/platform/i18n";
 
-export const metadata: Metadata = { title: t("pages.collection.title") };
+export const metadata: Metadata = { title: t("collection.title") };
 
 export default function CollectionPage() {
   return (
-    <PlaceholderPage
-      title={t("pages.collection.title")}
-      description={t("pages.collection.description")}
-      phase={t("pages.collection.phase")}
-    />
+    <PageContainer className="max-w-5xl py-8 sm:py-10">
+      <h1 className="text-headline font-semibold">{t("collection.title")}</h1>
+      <p className="mt-2 max-w-prose text-muted-foreground">{t("collection.lead")}</p>
+      <div className="mt-8">
+        <CatalogScope>
+          <CollectionExperience />
+        </CatalogScope>
+      </div>
+    </PageContainer>
   );
 }

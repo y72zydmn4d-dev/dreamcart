@@ -205,15 +205,16 @@ test("21-step journey: discover, configure, cart, import, checkout, deliver, col
     await page.locator("main a p.font-mono").click();
     // let the order page finish loading before time moves (a slow engine would otherwise jump past its own timers)
     await expect(page.getByTestId("order-state")).toHaveText("Đã xác nhận đơn mô phỏng");
-    await page.clock.runFor(60_000);
+    await page.clock.fastForward(60_000);
     await expect(page.getByTestId("order-state")).toHaveText("Đã đóng gói (ảo)");
-    await page.clock.runFor(150_000);
+    await page.clock.fastForward(150_000);
     await expect(page.getByTestId("order-state")).toHaveText("Đã giao ảo");
     await expect(page.getByRole("heading", { name: "Đã giao ảo" })).toBeVisible();
   });
 
   await test.step("20. My Collection shows each delivered item exactly once", async () => {
-    await page.getByRole("link", { name: "Xem Bộ sưu tập" }).click();
+    // the delivered card in the page (the header notice may still be fading out and offers the same link)
+    await page.getByRole("main").getByRole("link", { name: "Xem Bộ sưu tập" }).click();
     await expect(page).toHaveURL(/\/collection$/);
     const cards = page.locator("main li").filter({ hasText: "Giao ảo từ đơn" });
     await expect(cards).toHaveCount(2);

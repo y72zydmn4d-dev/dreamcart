@@ -13,6 +13,7 @@ export interface NavItem {
 export const NAV_ITEMS = [
   { href: "/search", labelKey: "nav.search" },
   { href: "/cart", labelKey: "nav.cart" },
+  { href: "/import", labelKey: "nav.import" },
   { href: "/orders", labelKey: "nav.orders" },
   { href: "/collection", labelKey: "nav.collection" },
   { href: "/about", labelKey: "nav.about" },

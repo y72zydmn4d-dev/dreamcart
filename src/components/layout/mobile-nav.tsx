@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
+import { CartCount } from "@/components/cart/cart-count";
 import { MenuIcon } from "@/components/ui/icons";
 import { Sheet } from "@/components/ui/sheet";
 import { NAV_ITEMS } from "@/config/site";
@@ -53,6 +54,7 @@ export function MobileNav() {
                     )}
                   >
                     {t(item.labelKey)}
+                    {item.href === "/cart" ? <CartCount /> : null}
                   </Link>
                 </li>
               );

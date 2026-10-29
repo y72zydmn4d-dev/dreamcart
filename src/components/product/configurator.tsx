@@ -1,6 +1,8 @@
 "use client";
 
 import { useId, useMemo, useState, useSyncExternalStore, type KeyboardEvent } from "react";
+import Link from "next/link";
+import { useAddOffer } from "@/components/cart/use-add-offer";
 import { Button } from "@/components/ui/button";
 import { CheckIcon, ChevronDownIcon, InfoIcon } from "@/components/ui/icons";
 import { formatVnd } from "@/lib/format";
@@ -77,7 +79,8 @@ export function Configurator({
   );
   const [collapsed, setCollapsed] = useState<ReadonlySet<string>>(new Set());
   const [conflict, setConflict] = useState<Conflict | null>(null);
-  const [notice, setNotice] = useState(false);
+  const { add, pending, ready } = useAddOffer();
+  const [notice, setNotice] = useState<{ text: string; ok: boolean } | null>(null);
   const [expanded, setExpanded] = useState(false);
   const keyboardOpen = useSyncExternalStore(subscribeKeyboard, keyboardOpenNow, () => false);
 
@@ -86,7 +89,7 @@ export function Configurator({
   const valueText = (key: string, value: AttributeValue) => formatAttribute(key, value, vocabulary);
 
   const choose = (key: string, value: AttributeValue) => {
-    setNotice(false);
+    setNotice(null);
     const result = selectOption(configVariants, selection, key, value);
     if (result.status === "ok") {
       setConflict(null);
@@ -157,11 +160,46 @@ export function Configurator({
       synthetic={synthetic}
     />
   ) : null;
-  // Stays operable when incomplete: it takes the user to the first missing group.
-  const onAddToCart = () => {
-    if (resolved) setNotice(true);
-    else if (view.missing[0]) jumpTo(view.missing[0]);
+  // Stays operable when incomplete: it takes the user to the first missing group. With a complete configuration it
+  // adds the cheapest offer that may be carted and names the merchant, so the choice is never hidden; any other
+  // offer can be added from the list below.
+  const onAddToCart = async () => {
+    if (pending) return;
+    if (!resolved) {
+      if (view.missing[0]) jumpTo(view.missing[0]);
+      return;
+    }
+    const best = resolved.offers.find((o) => o.evaluation.addable && o.offer.price);
+    if (!best?.offer.price) {
+      setNotice({ text: t("cart.noAddableOffer"), ok: false });
+      return;
+    }
+    const outcome = await add({
+      variantId: resolved.variant.id,
+      offerId: best.offer.id,
+      unitPrice: {
+        amountMinor: best.offer.price.amountMinor,
+        currency: best.offer.price.currency,
+      },
+      evaluation: best.evaluation,
+      title: product.product.titleVi,
+      merchant: best.offer.merchantName,
+    });
+    setNotice({ text: outcome.message, ok: outcome.ok });
   };
+  const noticeContent = notice ? (
+    <>
+      {notice.text}
+      {notice.ok ? (
+        <>
+          {" "}
+          <Link href="/cart" className="font-medium underline underline-offset-2">
+            {t("cart.viewCart")}
+          </Link>
+        </>
+      ) : null}
+    </>
+  ) : null;
 
   return (
     <div className="flex flex-col gap-6">
@@ -171,7 +209,7 @@ export function Configurator({
           type="button"
           onClick={() => {
             setConflict(null);
-            setNotice(false);
+            setNotice(null);
             onChange(initialSelection);
           }}
           className="min-h-11 cursor-pointer rounded-full px-3 text-sm underline underline-offset-2"
@@ -420,6 +458,7 @@ export function Configurator({
           <Button
             aria-describedby={`${uid}-cta-hint-compact`}
             onClick={onAddToCart}
+            disabled={!ready}
             className="max-w-[8.5rem] shrink-0 px-4 py-1.5 leading-tight text-balance whitespace-normal"
           >
             {t("configurator.addToCart")}
@@ -429,7 +468,7 @@ export function Configurator({
           </span>
         </div>
         <p role="status" className={cn("text-sm", notice ? "mt-2" : "sr-only")}>
-          {notice ? t("configurator.prototypeNotice") : ""}
+          {noticeContent}
         </p>
       </div>
 
@@ -460,7 +499,12 @@ export function Configurator({
           </div>
           <div className="flex flex-col gap-1 xl:items-end">
             {/* Stays operable when incomplete: it takes the user to the first missing group. */}
-            <Button size="lg" aria-describedby={`${uid}-cta-hint`} onClick={onAddToCart}>
+            <Button
+              size="lg"
+              aria-describedby={`${uid}-cta-hint`}
+              onClick={onAddToCart}
+              disabled={!ready}
+            >
               {t("configurator.addToCart")}
             </Button>
             <p
@@ -472,7 +516,7 @@ export function Configurator({
           </div>
         </div>
         <p role="status" className={cn("text-sm", notice ? "mt-3" : "sr-only")}>
-          {notice ? t("configurator.prototypeNotice") : ""}
+          {noticeContent}
         </p>
       </div>
     </div>

@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { CartCount } from "@/components/cart/cart-count";
 import { NAV_ITEMS } from "@/config/site";
 import { cn } from "@/lib/utils";
 import { t } from "@/platform/i18n";
@@ -27,6 +28,7 @@ export function MainNav() {
                 )}
               >
                 {t(item.labelKey)}
+                {item.href === "/cart" ? <CartCount /> : null}
               </Link>
             </li>
           );

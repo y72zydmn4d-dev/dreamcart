@@ -96,6 +96,14 @@ What `src/platform/persistence` does where the text above leaves room. All of it
 - **Deletion** is the explicit `deleteAllData()`; `meta` keeps only the schema version.
 - **Not yet verified:** Firefox and WebKit run the same real-browser tests in CI only (those engines cannot be downloaded in the development container); real devices and storage eviction behaviour are Phase 10.
 
+### Phase 7 implementation notes
+
+- **One owner of local data in the browser:** `components/local-data/local-data.tsx` opens persistence once per page (`openPersistence`, memory fallback with a visible notice), holds the cart, imported items and quarantine list, and refreshes them when another tab commits (BroadcastChannel). Pages never open IndexedDB themselves.
+- **Cart changes:** every action re-reads the stored cart, applies the pure domain function (`addLine`, `setQuantity`, `removeLine`, `acceptPrices`) and saves with the optimistic revision check. A lost race re-reads and retries (up to 3 times); the screen then says "the cart was changed in another tab". A rejected change (quantity over 99, not addable) leaves the cart untouched and says so in words.
+- **Cart lines vs. the catalog:** `assessLine` (cart domain) compares a line with the offer as the catalog describes it now: `ok`, `price_changed` (the user must accept the new price before checkout can succeed, mirroring `placeOrder`), `unavailable` or `ineligible` (with the cart-block reason). Totals use the price the user saw until they accept the new one.
+- **Imported items** (ADR-003): `createUserProduct` validates the draft (SafeUrl, bounded text, price parsed by currency exponent, reserved attribute names refused) and returns an `unverified` record. A cart line for an imported item uses `variantId = user-…` and `offerId = user-…@user`; its price is `USER_ENTERED` and cartable only in VND. Deleting an imported item turns its cart line into an "unavailable" line instead of removing it silently. Nothing about an imported item is fetched or rendered as an image.
+- **Cart eligibility** is evaluated by `evaluateOffer` for catalog offers and by `evaluateUserProduct` for imported items; the UI never decides it.
+
 ## 5. Storage eviction, recovery, and data portability
 
 Browser storage is not a database you own. Known risks (reported browser behavior; verify on real devices in Phase 10):

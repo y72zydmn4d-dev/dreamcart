@@ -8,20 +8,20 @@ Single index of decisions. Each ADR in `docs/decisions/` holds rationale and tra
 |---|---|---|
 | [001](decisions/ADR-001-transparent-simulation.md) | Transparent simulation only | Accepted |
 | [002](decisions/ADR-002-curated-catalog-first.md) | Repository-hosted curated catalog first | Proposed |
-| [003](decisions/ADR-003-manual-first-url-import.md) | Manual-first URL import; automated extraction stays on roadmap | Proposed |
-| [004](decisions/ADR-004-provider-research-candidates.md) | External providers are documented research candidates | Proposed |
-| [005](decisions/ADR-005-technology-stack.md) | Stack; Supabase deferred | Proposed |
-| [006](decisions/ADR-006-local-first-persistence.md) | IndexedDB persistence behind repository ports | Proposed |
-| [007](decisions/ADR-007-deterministic-simulation.md) | Deterministic, time-derived simulation | Proposed |
+| [003](decisions/ADR-003-manual-first-url-import.md) | Manual-first URL import; automated extraction stays on roadmap | Accepted |
+| [004](decisions/ADR-004-provider-research-candidates.md) | External providers are documented research candidates | Accepted |
+| [005](decisions/ADR-005-technology-stack.md) | Stack; Supabase deferred | Accepted |
+| [006](decisions/ADR-006-local-first-persistence.md) | IndexedDB persistence behind repository ports | Accepted |
+| [007](decisions/ADR-007-deterministic-simulation.md) | Deterministic, time-derived simulation | Accepted |
 | [008](decisions/ADR-008-research-hypotheses.md) | Psychology claims are hypotheses; research opt-in | Accepted |
 | [009](decisions/ADR-009-no-paid-services.md) | No paid service without owner approval | Accepted |
 | [010](decisions/ADR-010-image-rights-and-provenance.md) | Image rights and provenance; visual-first | Proposed |
 | [011](decisions/ADR-011-rendering-and-csp.md) | Static prerendering and a fitted CSP | Proposed |
-| [012](decisions/ADR-012-vietnamese-first-ui.md) | Vietnamese-first UI, dictionary module | Proposed |
-| [013](decisions/ADR-013-money-currency-price-states.md) | Integer money, VND, no conversion, derived price states | Proposed |
+| [012](decisions/ADR-012-vietnamese-first-ui.md) | Vietnamese-first UI, dictionary module | Accepted |
+| [013](decisions/ADR-013-money-currency-price-states.md) | Integer money, VND, no conversion, derived price states | Accepted |
 | [014](decisions/ADR-014-exact-variant-matching.md) | Deterministic exact-variant matching | Proposed |
 
-No Proposed ADR has been promoted. Promotion needs the owner's explicit approval.
+Per decision P-8, ADRs are promoted only when genuinely resolved. **Still Proposed, and why:** 002 (price snapshots are cleared only for private development and the pilot, not for public deployment; RT-5), 010 (image rights are not yet demonstrated for any real product; blocker B2), 011 (CSP behavior needs verification against the pinned Next.js; Phase 1), 014 (rules must be implemented and tested against the real catalog).
 
 ## Owner decisions recorded
 
@@ -40,20 +40,22 @@ No Proposed ADR has been promoted. Promotion needs the owner's explicit approval
 - Apple-inspired premium design with DreamCart identity; Apple-first editorial homepage; Shopee/Lazada-inspired search and discovery; Apple-inspired product detail pages; hybrid configurator with dependent options; premium-first catalog of about 20–30 verified products (this replaces the earlier "about 20"); fully simulated checkout, tracking, and collections.
 - `nextlevelbuilder/ui-ux-pro-max-skill` may be integrated later during UI/UX implementation. It is not installed.
 
-## Pending owner decisions (recommendations only; nothing here is promoted)
+## Final owner decisions P-1 to P-10 (recorded 2026-10-29)
 
-| ID | Decision | Original proposal | Review recommendation | Needed by |
-|---|---|---|---|---|
-| **P-1** | Price freshness | Warn after 14 days; block cart after 90 days | Warn per provenance: 14 days (curator-observed), 45 days (manufacturer list price); **no block** (label stale prices and show the date; keep an advisory refresh report). Reasons: manufacturer list prices change rarely; a block makes the catalog decay into unsellable items and adds a refresh burden; a dated, labeled price is not fabricated. If you want a hard limit, make it long (for example 180 days). All values are configuration; fixtures O01–O08 cover either choice | before Phase 3 |
-| **P-2** | Cancellation window | Allowed through `PACKED` | Keep. It matches real logistics and gives roughly 45 s in Quick and 15 min in Relaxed; Fast is user-paced. Show the action by state, never a countdown (urgency rule). Alternative: allow through `IN_TRANSIT` | before Phase 3 |
-| **P-3** | Manually observed prices as snapshots | Acceptable | Accept as the working basis for private development and the pilot, **not** as a legal conclusion. Mitigations already specified: record facts only, curator-written text, no copied images or marketing copy, private evidence, per-source policy recorded, prefer manufacturer list prices. Make public launch contingent on RT-5 (owner or counsel reads the source terms). Decision needed: whether owner-curated sources default to `snapshot_allowed` once the owner has read that source's terms | before Phase 5 |
-| **P-4** | Premium-first image plan | n/a (new risk) | Start brand-permission outreach for shortlisted brands now; use open-license sources where licenses allow; owner photography where possible; `brand_art` for editorial surfaces; treat image availability as a selection criterion. Fallback: if too few products have cleared imagery by Phase 6, narrow to brands that do rather than ship unlicensed images | at RT-2 start |
-| **P-5** | Configurator interaction | Hybrid, dependent options | Guided steps with a persistent summary (bottom sheet on mobile); disabled options carry a reason; a reset flow names the groups it will clear. Designed and approved in Phase 2 | Phase 2 |
-| **P-6** | Search scope | Shopee/Lazada-inspired | Facets (category, brand, price range, key attributes), sort (relevance, price ascending/descending), suggestions drawn from catalog titles; **no** recent-search history and no popularity signals. Vietnamese shorthand like `128G`: support only with category context, if you want it | Phase 3 (parsing), Phase 6 (UI) |
-| **P-7** | UI/UX skill adoption | Optional later | Evaluate in Phase 2 only after reading its license and every file it would load, pin a commit, confirm no runtime network or secret access, and treat it as a development-time aid. Not installed now | Phase 2 |
-| **P-8** | ADR promotions | n/a | Ready now: 003, 004, 005, 006, 012. After their pending decision: 002 (P-3), 007 (P-2), 010 (P-4), 013 (P-1). Keep Proposed until implemented against real data: 014. Keep Proposed until the Phase 1 spike: 011 | any time |
-| **P-9** | Tooling and repository | Node 22 LTS, npm | Confirm; tell me whether the repository is public (CI minutes) and whether Playwright WebKit may run in CI | before Phase 1 |
-| **P-10** | Revised roadmap | Earlier plan: spec freeze, then foundation + domain + persistence + UX in one phase | Approve `ROADMAP.md` (Phases 0–12, design phase before domain core so your sign-off overlaps engineering) | before Phase 1 |
+| ID | Decision | Applied in |
+|---|---|---|
+| **P-1** | Price freshness: warn after 14 days for curator-observed merchant prices and 45 days for manufacturer list prices; always show source and observation date; never block the cart solely because a price is old; label uncertain or outdated prices; never fabricate or silently update | `CATALOG_SCHEMA.md`, ADR-013, PRD §7 |
+| **P-2** | Cancellation through `PACKED`; afterwards the lifecycle continues logically; users can always delete orders or reset local data; no manipulative countdowns | PRD §6, ADR-007 |
+| **P-3** | Manually observed prices are acceptable for private development and pilot testing, each with provenance and a timestamp. Not legal clearance for unrestricted redistribution or public deployment | `CATALOG_SCHEMA.md`, `CURATION_PROCESS.md`, ADR-002 (stays Proposed) |
+| **P-4** | Premium-first catalog of about 20–30 verified real products in laptops/computers, smartphones, headphones/audio; correct identity and configuration; verifiable source URLs; approximate but honestly represented prices; legitimately usable images where available, high-quality placeholders otherwise; never invent metadata or claim unverified image rights; the lack of catalog entries must not block engineering foundation work | `CURATION_PROCESS.md`, ADR-010 (stays Proposed) |
+| **P-5** | **Hybrid Continuous Configurator** (final, supersedes the proposed guided wizard): all major groups on one page, collapsible sections, revisit earlier selections, quick navigation between groups, sticky summary, dependent-option validation, only genuine variants, no silent substitution, no fabricated price | PRD U5, `CATALOG_SCHEMA.md` |
+| **P-6** | Search: name, model, attributes; category filters; supported sort fields; autocomplete and suggestions; exact-variant matching; conflict and ambiguity detection; safe shorthand (`128GB`, `128G`, `1TB`, `1T`) when unambiguous; no artificial popularity, fake ratings, fake sales counts, or fabricated discounts | `SEARCH_FIXTURES.md` (fixtures F38–F42), ADR-014 (stays Proposed) |
+| **P-7** | `nextlevelbuilder/ui-ux-pro-max-skill` is evaluated and integrated in **Phase 2**, not Phase 1: inspect its actual files and license, verify Claude Code Cloud compatibility, prefer a version-controlled project-level integration, pin a reviewed commit, and treat its recommendations as subordinate to DreamCart requirements. Not installed | `ROADMAP.md` Phase 2 |
+| **P-8** | Promote ADRs only when genuinely resolved; keep Proposed where technical verification, provider licensing evidence, or owner decisions remain; no unnecessary new ADRs | ADR index above |
+| **P-9** | Private GitHub repository; Node.js 24 LTS; npm; versions compatible with the chosen stable Next.js; committed lockfile; `npm ci` in CI; Playwright WebKit allowed in CI when relevant but avoided in Phase 1; no paid infrastructure or third-party services | ADR-005, `ROADMAP.md` Phase 1 |
+| **P-10** | Roadmap Phases 0–12 approved. Names: 1 Engineering Foundation; 2 UI/UX Design System; 3 Domain & Simulation Core; 4 Persistence & Import Foundation; 5 Real Product Catalog & Search; 6 Storefront Implementation; 7 Cart & Manual Import; 8 Virtual Checkout & Orders; 9 Virtual Tracking & My Collection; 10 Comprehensive QA, Security and Performance; 11 Pilot Testing and UX Polish; 12 Optional Public MVP Launch | `ROADMAP.md` |
+
+Review policy from the owner: one concise self-review per phase; comprehensive system-wide audits are reserved for Phase 10 unless a critical security, licensing, or data-integrity issue requires immediate action.
 
 ## Reconciliation of Blueprint v1.0
 
@@ -68,7 +70,7 @@ No Proposed ADR has been promoted. Promotion needs the owner's explicit approval
 | §4 gates mixing local and cloud (RLS, server time) | Split: local gates G1–G15 in the PRD; cloud gates deferred |
 | §5 / §9 Amazon, eBay, Lazada as providers; affiliate | Research only; conflict with a no-sales simulator and noncommercial hosting (matrix) |
 | §6 visual direction ("calm premium", Shopee/Lazada cart density) and photography assumed without a rights path | Replaced by owner-confirmed U1–U7 and ADR-010 (rights-gated imagery, `brand_art`, placeholders) |
-| §8 Phase numbering (0–7) | Replaced by `ROADMAP.md` (Phases 0–12) |
+| §8 Phase numbering (0–7) | Replaced by `ROADMAP.md` (Phases 0–12, approved as P-10) |
 | §8 Phase 0 deliverables `DATA_LICENSE_REGISTER.md`, `PRODUCT_SEARCH_POC.md` | Not produced as separate files: rights live in `Source` and `MediaAsset` records (`CATALOG_SCHEMA.md`); search proof of concept is the fixtures |
 | §11 ADR register vs. previous `DECISIONS.md` lists | Merged into this index |
 | §12 Twelve suggested docs | Replaced by: `PRD`, `ROADMAP`, `ARCHITECTURE`, `CATALOG_SCHEMA`, `CURATION_PROCESS`, `SEARCH_FIXTURES`, `PRODUCT_SOURCE_MATRIX`, `PHASE1_ENTRY_CRITERIA`, ADRs; a UX specification arrives in Phase 2 |

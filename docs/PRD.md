@@ -28,7 +28,7 @@ Confirmed by the owner after Phase 0. The UX specification (Phase 2) elaborates 
 | U2 | **Apple-first editorial homepage** | Full-width editorial modules, large type, product storytelling per category, search always reachable. Content authored by the owner in the repository (validated); no claims beyond the catalog's sourced facts. Visual weight comes from `CLEARED` product images or DreamCart `brand_art`, never from fabricated product photography. |
 | U3 | **Shopee/Lazada-inspired product search and discovery** | Take the *patterns*: dense result grid, persistent search with suggestions, filter panel with counts, sort, active-filter chips, result count, clear-all. Do **not** take ratings, "sold" counts, vouchers, flash sales, "% off" badges, countdowns, or popularity labels. They are fabricated or manipulative here. |
 | U4 | **Apple-inspired product detail pages** | Large gallery, concise headline, structured specifications, sticky purchase summary, price and source provenance, image attribution when required. |
-| U5 | **Hybrid configurator with dependent options** | Options come only from real variants. Unavailable options are shown disabled with a reason, never hidden; incompatible selections require an explicit reset, never a silent change. Rules: `docs/CATALOG_SCHEMA.md` (Configurator derivation) and `fixtures/configurator/`. The exact interaction (guided steps plus a persistent summary) is designed in Phase 2. |
+| U5 | **Hybrid Continuous Configurator with dependent options** (final, decision P-5) | All major configuration groups are reachable on one product page; sections can be collapsed or expanded; earlier selections can be revisited and changed at any time; quick navigation between option groups; a sticky configuration and price summary where appropriate. It is **not** a mandatory step-by-step wizard. Options come only from real variants: unavailable options are shown disabled with a reason, never hidden; an incompatible selection requires an explicit reset, never a silent change; no price is shown for an unsupported configuration. Rules: `docs/CATALOG_SCHEMA.md` (Configurator derivation) and `fixtures/configurator/`. Visual and interaction design is Phase 2. |
 | U6 | **Premium-first initial catalog of about 20–30 verified products** | Laptops/computers, smartphones, headphones/audio; not permanent restrictions. Process: `docs/CURATION_PROCESS.md`. |
 | U7 | **Fully simulated checkout, tracking, and collections** | Sections 5–6 below. |
 
@@ -53,7 +53,7 @@ Confirmed by the owner after Phase 0. The UX specification (Phase 2) elaborates 
 
 ## 5. Journeys and acceptance criteria
 
-**J1 Discover.** Editorial home (U2) and search (U3). *Accept:* all search fixtures pass; zero-result facet values are disabled and counts are shown; no match shows an honest empty state with the import option and a clearly outbound external-search link; every card shows title, key specs, source status, and price provenance (or an explicit missing-price label); `near` and `ambiguous` results are labeled "not an exact match" with reasons.
+**J1 Discover.** Editorial home (U2) and search (U3): search by name, model, and attributes, category-specific filters, supported sort fields, autocomplete and suggestions, and shorthand such as `128GB`, `128G`, `1TB` when the meaning is unambiguous (decision P-6). *Accept:* all search fixtures pass; zero-result facet values are disabled and counts are shown; no match shows an honest empty state with the import option and a clearly outbound external-search link; every card shows title, key specs, source status, and price provenance (or an explicit missing-price label); `near` and `ambiguous` results are labeled "not an exact match" with reasons.
 
 **J2 Inspect and configure.** Product detail (U4) and configurator (U5). *Accept:* configurator fixtures pass; add-to-cart is disabled until one variant resolves; image, spec, and price change only when backed by data; a combination that does not exist is shown as unavailable and never replaced; outbound source links open a "leaving DreamCart" notice.
 
@@ -86,13 +86,13 @@ Ratios are illustrative, not transit estimates. State is a pure function evaluat
 
 The high-water state is written whenever an order is viewed or the collection is computed, so a backward clock cannot regress what the user has seen. No timers provide durability. The UI may re-render on a timer for display only.
 
-**Cancellation (PENDING P-2):** allowed while the computed state is `CONFIRMED`, `PREPARING`, or `PACKED`. The check runs inside the same transaction that records the cancellation, using the clock at that moment, so a cancel racing a state change is decided once. The UI shows the action by state, **never as a countdown**.
+**Cancellation (decided, P-2):** normal cancellation is allowed while the computed state is `CONFIRMED`, `PREPARING`, or `PACKED`; after that the simulated lifecycle continues logically to delivery, and the user can still delete the order or reset local data. The check runs inside the same transaction that records the cancellation, using the clock at that moment, so a cancel racing a state change is decided once. The UI shows the action by state, **never as a countdown**.
 
 **Data control:** the user can delete an order or reset all data at any time. "Immutable" means no editing, not no deletion.
 
 ## 7. Price and eligibility
 
-Integer minor units; original currency and provenance preserved; no exchange rates; VND checkout. States, freshness configuration (PENDING P-1), eligibility order, and the order snapshot are defined in `docs/CATALOG_SCHEMA.md`.
+Integer minor units; original currency and provenance preserved; no exchange rates; VND checkout. Decision P-1: a curator-observed price shows a freshness warning after 14 days and a manufacturer list price after 45 days; the source and observation date are always shown; an old price is labeled, **never** a reason to block the cart, and prices are never silently updated. States, freshness configuration, eligibility order, and the order snapshot are defined in `docs/CATALOG_SCHEMA.md`.
 
 ## 8. Experience requirements
 
@@ -133,6 +133,6 @@ Cloud-tier gates (user isolation, RLS, server-time orders) are deferred with Sup
 
 Typos; ambiguous, unknown, or contradictory attributes; too-specific query; invalid, oversized, or `javascript:` URL; missing, stale, expired price; broken image; non-VND offer; quantity 0, negative, or over 99; refresh during checkout; double submit; two tabs; storage unavailable, evicted, or corrupted; clock moved backward; unknown order id; repeated delivery; very long titles; offline use; catalog entry or image removed after an order referencing it.
 
-## 11. Roadmap and pending decisions
+## 11. Roadmap and decisions
 
-The phase plan is `docs/ROADMAP.md`. Decisions awaiting the owner, with recommendations, are in `docs/DECISIONS.md` ("Pending owner decisions").
+The phase plan is `docs/ROADMAP.md`. Owner decisions P-1…P-10, all resolved, are recorded in `docs/DECISIONS.md`.

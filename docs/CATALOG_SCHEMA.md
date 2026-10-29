@@ -3,7 +3,7 @@
 **Status:** Phase 0 specification (revised after self-review). Phase 3 turns it into Zod schemas and domain code; this document is the source of truth until then. Conformance fixtures: `fixtures/pricing/`, `fixtures/configurator/`, `fixtures/search/` (`node tools/verify-fixtures.mjs`).
 **Storage:** versioned data files in the repository, validated at build time; changes arrive by pull request. No database in the MVP; the shape maps 1:1 to future Postgres tables.
 
-Items marked **PENDING** are proposals awaiting owner decision (`docs/DECISIONS.md`, section "Pending owner decisions").
+Owner decisions P-1 (freshness), P-3 (manual observations), and P-5 (configurator) are recorded in `docs/DECISIONS.md` and applied below.
 
 ## Entities
 
@@ -22,7 +22,7 @@ Product (brand + family + model), Variant (a source-backed attribute combination
 | `id`, `name`, `domain` | slug; lowercase host only |
 | `kind` | `retailer` \| `manufacturer` \| `open_data` \| `owner_curated` |
 | `termsReviewedAt` | ISO date or null (null = not reviewed) |
-| `persistencePolicy` | `snapshot_allowed` \| `reference_only` \| `unknown`. **PENDING P-3:** whether the owner's manual recording of a visible price makes `snapshot_allowed` the default for curated sources. Until decided, curated sources must be set explicitly, and `unknown` blocks the cart (fixture O13) |
+| `persistencePolicy` | `snapshot_allowed` \| `reference_only` \| `unknown`. **Decision P-3:** manually observed prices are acceptable for private development and pilot testing, so a curator may set `snapshot_allowed` for a source whose terms they have read. This is not legal clearance for unrestricted redistribution or public deployment (RT-5). Each observation carries provenance and a timestamp. `unknown` blocks the cart (fixture O13) |
 | `policyEvidence` | URL or note naming the clause |
 
 ### Product
@@ -76,7 +76,7 @@ A shipped variant must carry every required attribute, because an unconfigurable
 
 ## Derived price state (computed, never stored)
 
-Configuration (a single file; **PENDING P-1**, working defaults are the recommended values):
+Configuration (a single file; values decided in P-1, other values stay possible because they are configuration):
 
 ```
 warnAfterDays: { curator_observed: 14, manufacturer_listed: 45 }
@@ -117,7 +117,7 @@ Option groups per category, in order: laptop `screen_in, chip, ram_gb, storage_g
 - Selecting an unavailable value changes nothing: the result is `needs_reset` naming the conflicting groups, and the UI offers an explicit reset of those groups. Nothing is changed silently.
 - A variant resolves only when every group is selected and exactly one variant matches. Add-to-cart is disabled until then. Image, specs, and price change only when backed by the resolved variant's data.
 
-Cases K01–K12 define the behavior; the interaction design (steps vs. a single panel, reset flow) is in the Phase 2 UX specification (**PENDING P-5**).
+Cases K01–K12 define the behavior. The presentation is the owner-approved **Hybrid Continuous Configurator** (decision P-5): every group on one page, collapsible sections, revisitable selections, quick navigation between groups, and a sticky summary; never a mandatory wizard. Visual and interaction design is the Phase 2 specification.
 
 ## Validation (build time; implemented in Phase 5)
 

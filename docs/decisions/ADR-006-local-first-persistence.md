@@ -1,6 +1,6 @@
 # ADR-006: Local-first persistence with IndexedDB and repository ports
 
-**Status:** Proposed (owner direction D1 recorded)
+**Status:** Accepted (owner decision D1; promoted per P-8; 2026-10-29)
 **Date:** 2026-10-29
 
 ## Context

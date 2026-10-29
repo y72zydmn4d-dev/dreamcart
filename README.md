@@ -30,7 +30,7 @@ UI language: Vietnamese-first. See `docs/decisions/ADR-005-technology-stack.md`.
 
 ## Project Status
 
-Phase 0 — Discovery and specification (complete pending owner review). No application code yet.
+Phase 0 (discovery and specification) is complete. Phase 1 (engineering foundation) is in progress.
 
 ## Documentation
 
@@ -43,7 +43,7 @@ Phase 0 — Discovery and specification (complete pending owner review). No appl
 | `docs/CURATION_PROCESS.md` | How the first 20–30 products are verified |
 | `docs/PRODUCT_SOURCE_MATRIX.md` | Provider feasibility and licensing evidence |
 | `docs/SEARCH_FIXTURES.md` | Exact-variant matching rules and search fixtures |
-| `docs/DECISIONS.md` | ADR index, pending owner decisions, Blueprint reconciliation |
+| `docs/DECISIONS.md` | ADR index, final owner decisions P-1…P-10, Blueprint reconciliation |
 | `docs/PHASE1_ENTRY_CRITERIA.md` | Gates, blockers, and scope for Phase 1 |
 | `docs/PRODUCT_BLUEPRINT.md` | Original v1.0 vision (amended; see banner) |
 

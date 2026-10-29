@@ -16,8 +16,8 @@ The MVP catalog is a set of validated data files in the repository, curated by a
 ## Consequences
 - (+) Lowest-risk path: avoids provider access and caching terms; free to host, fast, deterministic, easy to test.
 - (−) **Not a cleared path.** Lawfulness still depends on source terms for recording prices, image rights per asset, and original text. None has been legally reviewed or demonstrated (see `PRODUCT_SOURCE_MATRIX.md`).
-- (−) Manual effort; prices age and need manual re-verification (freshness policy pending, P-1).
+- (−) Manual effort; prices age and need manual re-verification (freshness policy decided in P-1: labeled, not blocked).
 - (−) Catalog changes need a pull request.
 
 ## Open items
-Pending decision P-3: whether a person's manual recording of a visible price is an acceptable basis for a price snapshot. Blockers B1 and B2 in `PHASE1_ENTRY_CRITERIA.md`.
+Decision P-3: manually observed prices, each with provenance and an observation timestamp, are acceptable for private development and pilot testing. That is **not** legal clearance for unrestricted redistribution or public deployment, so this ADR stays Proposed until RT-5 (source terms, image rights) is done. Blockers B1 and B2 in `PHASE1_ENTRY_CRITERIA.md`.

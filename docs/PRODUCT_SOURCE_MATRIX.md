@@ -58,4 +58,4 @@ T = technical capability. A = access and authentication. L = data licensing and 
 
 ## Verdict for the MVP
 
-The curated catalog is the **lowest-risk** path, not a cleared one. It avoids provider access and caching terms, but it still depends on (a) whether recording a visible price is acceptable under each source's terms (pending decision P-3), (b) image rights per asset (R2, R3, owner photography), and (c) the curator writing original text. None of these has been legally reviewed or demonstrated. The image outcome is tracked as blocker B2 in `docs/PHASE1_ENTRY_CRITERIA.md`.
+The curated catalog is the **lowest-risk** path, not a cleared one. It avoids provider access and caching terms, but it still depends on (a) whether recording a visible price is acceptable under each source's terms (decision P-3 accepts it for private development and the pilot only), (b) image rights per asset (R2, R3, owner photography), and (c) the curator writing original text. None of these has been legally reviewed or demonstrated. The image outcome is tracked as blocker B2 in `docs/PHASE1_ENTRY_CRITERIA.md`.

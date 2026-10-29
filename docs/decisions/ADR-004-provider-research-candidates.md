@@ -1,6 +1,6 @@
 # ADR-004: External providers are documented research candidates
 
-**Status:** Proposed (owner direction in Phase 0 authorization)
+**Status:** Accepted (owner direction in the Phase 0 authorization; promoted per P-8; 2026-10-29)
 **Date:** 2026-10-29
 
 ## Context

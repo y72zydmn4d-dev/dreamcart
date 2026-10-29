@@ -1,6 +1,6 @@
 # ADR-012: Vietnamese-first UI with a centralized dictionary
 
-**Status:** Proposed (owner direction D2 recorded)
+**Status:** Accepted (owner decision D2; promoted per P-8; 2026-10-29)
 **Date:** 2026-10-29
 
 ## Decision

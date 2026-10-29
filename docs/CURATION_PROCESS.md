@@ -28,7 +28,7 @@ Selection criteria: premium positioning; currently sold in Vietnam; at least one
 
 1. **Select** the product and the variants to include (only combinations the source shows).
 2. **Capture the offer**: URL (strip tracking parameters), merchant, availability, original price and currency exactly as displayed, date and time observed, observer handle, and a note if the price is a list price or includes a promotion.
-3. **Record the source policy** (`Source.persistencePolicy`): the clause that permits keeping a price snapshot, or `unknown`. The default basis for owner-curated sources is **pending decision P-3**; until it is decided, `unknown` offers cannot enter the cart.
+3. **Record the source policy** (`Source.persistencePolicy`): the clause that permits keeping a price snapshot, or `unknown`. Decision P-3: manually observed prices are acceptable for private development and the pilot once you have read that source's terms (set `snapshot_allowed`); this is not clearance for public deployment (RT-5). `unknown` offers cannot enter the cart.
 4. **Evidence stays private.** Keep screenshots or saved pages of the source in a private location outside the repository (they are third-party content). The repository holds only the URL, the observed fact, and the date.
 5. **Write the text yourself.** Titles and summaries are in your own words in Vietnamese. Do not copy marketing copy, review text, or spec-sheet prose; record specifications as the structured attributes in the template.
 6. **Image path**, first available wins, each recorded as a `MediaAsset.rights` record with evidence:

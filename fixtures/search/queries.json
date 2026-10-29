@@ -155,6 +155,26 @@
     { "id": "F37", "intent": "Added in review. Mixed TB and unlabeled GB: each resolvable, combination absent",
       "query": "aero 1tb 16gb",
       "expected": { "status": "results", "results": [
-        { "productId": "fx-aero", "class": "near", "variantIds": [], "reasons": ["combination_unavailable"] } ] } }
+        { "productId": "fx-aero", "class": "near", "variantIds": [], "reasons": ["combination_unavailable"] } ] } },
+    { "id": "F38", "intent": "P-6 shorthand: 256G means 256 GB when the number is a plausible memory size (same result as F11)",
+      "query": "nova 256g",
+      "expected": { "status": "results", "results": [
+        { "productId": "fx-nova", "class": "match", "variantIds": ["fx-nova:256-graphite", "fx-nova:256-sand"] },
+        { "productId": "fx-nova-mini", "class": "near", "variantIds": [], "reasons": ["constraint_unavailable:storage_gb"] } ] } },
+    { "id": "F39", "intent": "P-6 shorthand: two unlabeled shorthand tokens, smaller is RAM",
+      "query": "aero 16g 512g",
+      "expected": { "status": "results", "results": [
+        { "productId": "fx-aero", "class": "match", "variantIds": ["fx-aero:13-fx1-16-512", "fx-aero:13-fx2-16-512", "fx-aero:15-fx2-16-512"] } ] } },
+    { "id": "F40", "intent": "P-6 shorthand: 1T means 1 TB, which can only be storage",
+      "query": "titan 1t",
+      "expected": { "status": "results", "results": [
+        { "productId": "fx-titan", "class": "match", "variantIds": ["fx-titan:16-fx2-32-1024"] } ] } },
+    { "id": "F41", "intent": "P-6 safety: 4G is a network generation, not memory, so it is a text token and matches nothing",
+      "query": "nova 4g 128gb",
+      "expected": { "status": "no_match", "results": [] } },
+    { "id": "F42", "intent": "P-6 shorthand with a trailing label and a TB shorthand",
+      "query": "titan 32g ram 1t",
+      "expected": { "status": "results", "results": [
+        { "productId": "fx-titan", "class": "match", "variantIds": ["fx-titan:16-fx2-32-1024"] } ] } }
   ]
 }

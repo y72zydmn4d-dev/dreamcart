@@ -137,6 +137,6 @@ No account, no analytics, no third-party requests. Data on the device: cart, ord
 
 **Browser matrix (confirm exact versions at scaffold time):** latest two stable versions of Chrome, Edge, and Firefox on desktop; Chrome on Android; Safari 16.4 or newer on macOS and iOS. Playwright projects: Chromium, Firefox, WebKit, a Pixel-class Chromium viewport, and an iPhone-class WebKit viewport. Playwright WebKit approximates Safari; real iOS devices are checked manually in Phase 10. Minimum viewport 360 px.
 
-## 12. Tooling decisions to confirm in Phase 1
+## 12. Tooling (decision P-9)
 
-Node 22 LTS, npm, Next.js latest stable (pin after checking the registry), TypeScript strict, Tailwind CSS, shadcn/ui, Zod, Vitest, Playwright, ESLint, Prettier, GitHub Actions (lint, typecheck, unit/integration, build; Playwright on pull requests). No deployment before Phase 12.
+Private repository; Node.js 24 LTS; npm with a committed lockfile and `npm ci` in CI; Next.js stable with compatible React, Tailwind CSS, shadcn/ui, Zod, Vitest, ESLint, Prettier; TypeScript strict (held on the 6.0 line for `typescript-eslint`, ADR-005); GitHub Actions for lint, typecheck, unit/integration tests, build, and the Phase 0 spec checks. Playwright (including WebKit) is added when real user journeys exist, not in Phase 1. No deployment before Phase 12.

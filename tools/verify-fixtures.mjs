@@ -48,25 +48,30 @@ function osa(a, b) {
 const tokensOf = (s) => normalize(s).replace(/[^a-z0-9]+/g, " ").trim().split(" ").filter(Boolean);
 
 // Rule 2: memory tokens. A label before the number wins; a label after the number
-// is consumed only when no label precedes it.
+// is consumed only when no label precedes it. Shorthand `128G` / `1T` (no space) counts
+// as memory only for plausible memory sizes, so network generations (`5G`, `4G`) are not memory.
+const SHORT_GB = new Set([8, 12, 16, 24, 32, 48, 64, 96, 128, 192, 256, 512]);
+const SHORT_TB = new Set([1, 2, 4, 8]);
 function extractMemory(q) {
-  const re = /(?:\b(ram|ssd)\s+)?(\d+(?:\.\d+)?)\s*(gb|tb)\b/;
+  const re = /(?:\b(ram|ssd)\s+)?(\d+(?:\.\d+)?)(?:\s*(gb|tb)|(g|t))(?![a-z0-9])/g;
   const mem = [];
   let out = "";
-  let rest = q;
-  for (;;) {
-    const m = re.exec(rest);
-    if (!m) { out += rest; break; }
-    out += rest.slice(0, m.index) + " ";
-    rest = rest.slice(m.index + m[0].length);
+  let last = 0;
+  let m;
+  while ((m = re.exec(q))) {
+    const n = Number(m[2]);
+    const unit = (m[3] ?? m[4]).startsWith("t") ? "tb" : "gb";
+    if (m[4] && !(unit === "tb" ? SHORT_TB : SHORT_GB).has(n)) continue; // not memory: stays a text token
+    out += q.slice(last, m.index) + " ";
+    last = re.lastIndex;
     let label = m[1] ?? null;
     if (!label) {
-      const s = /^\s+(ram|ssd)\b/.exec(rest);
-      if (s) { label = s[1]; rest = rest.slice(s[0].length); }
+      const s = /^\s+(ram|ssd)\b/.exec(q.slice(last));
+      if (s) { label = s[1]; last += s[0].length; re.lastIndex = last; }
     }
-    mem.push({ gb: Number(m[2]) * (m[3] === "tb" ? 1024 : 1), unit: m[3], label });
+    mem.push({ gb: n * (unit === "tb" ? 1024 : 1), unit, label });
   }
-  return { q: out, mem };
+  return { q: out + q.slice(last), mem };
 }
 
 function parseQuery(query) {

@@ -1,6 +1,6 @@
 # ADR-003: Manual-first URL import; automated extraction stays on the roadmap
 
-**Status:** Proposed (owner direction D6 recorded)
+**Status:** Accepted (owner decision D6; promoted per P-8; 2026-10-29)
 **Date:** 2026-10-29
 
 ## Context

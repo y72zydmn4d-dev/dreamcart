@@ -13,7 +13,7 @@ DreamCart is a visual shopping experience. Product imagery also carries the high
 - Where no cleared image exists, show a designed generic placeholder labeled "Ảnh minh hoạ chưa có". Never generate fictional product photography and present it as real.
 - Editorial surfaces may use DreamCart `brand_art` (abstract, owner-created, never presented as a photograph of a product) so the Apple-inspired home does not depend on product photography it cannot lawfully show.
 - Image acquisition paths in order: open license, manufacturer permission/terms, owner photography.
-- The owner-confirmed premium-first catalog makes this the highest project risk: premium brands are the likeliest to restrict reuse. Image availability is a product-selection criterion (`CURATION_PROCESS.md`). Pending decision P-4 covers the acquisition plan.
+- The owner-confirmed premium-first catalog makes this the highest project risk: premium brands are the likeliest to restrict reuse. Image availability is a product-selection criterion (`CURATION_PROCESS.md`). Decision P-4 confirms the premium-first strategy: legitimately usable images where available, high-quality placeholders otherwise, and no invented product metadata or unverified rights claims. The ADR stays Proposed until real image rights are demonstrated (blocker B2).
 
 ## Alternatives
 - Image-optional as the design philosophy: rejected by the owner.

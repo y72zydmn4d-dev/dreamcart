@@ -12,7 +12,7 @@ Explicit attributes in a query are **hard constraints**. A variant is exact only
 ## Rules (deterministic, in order)
 
 1. **Normalize**: Unicode NFD, strip combining marks, `đ`→`d`, lowercase, curly quotes→`"`, collapse whitespace.
-2. **Memory tokens**: `<number>(gb|tb)`. A label (`ram` or `ssd`) immediately **before** the number binds to it. If there is no leading label, a label immediately **after** the number binds to it and is consumed; a trailing label is never consumed when a leading label exists (so `ssd 512gb ram 16gb` reads as SSD 512, RAM 16). `tb` = ×1024 GB. Bare numbers are text tokens. The unit `g` is not memory (`5g` is a network generation, not 5 GB).
+2. **Memory tokens**: `<number>(gb|tb)`. A label (`ram` or `ssd`) immediately **before** the number binds to it. If there is no leading label, a label immediately **after** the number binds to it and is consumed; a trailing label is never consumed when a leading label exists (so `ssd 512gb ram 16gb` reads as SSD 512, RAM 16). `tb` = ×1024 GB. Bare numbers are text tokens. **Shorthand (decision P-6):** `<number>g` and `<number>t` (no space) are memory only when the number is a plausible size: `g` for 8, 12, 16, 24, 32, 48, 64, 96, 128, 192, 256, 512; `t` for 1, 2, 4, 8. So `128G` is 128 GB and `1T` is 1 TB, while `5G` and `4G` (network generations) stay ordinary text tokens and match nothing.
 3. **Screen**: `<number>` followed by `inch`, `-inch`, `in`, or `"`.
 4. **Category aliases** (longest first, one per query): laptop → `may tinh xach tay`, `may tinh`, `laptop`, `notebook`; phone → `dien thoai`, `smartphone`, `phone`; audio → `tai nghe`, `headphones`, `headphone`, `earbuds`. A match filters by category and is removed from the text tokens.
 5. **Colors**: `black`, `white`, `silver`, `graphite`, `sand`, plus `den`→black, `trang`→white, `bac`→silver. **Chip**: token matching `fx<digit>` (fixture vocabulary; the real vocabulary comes from the catalog).
@@ -36,7 +36,7 @@ UI obligations: present `near` and `ambiguous` results as "not an exact match" w
 
 ## Fixtures
 
-Expected results live in `fixtures/search/queries.json`. F31–F37 were added in the Phase 0 self-review.
+Expected results live in `fixtures/search/queries.json`. F31–F37 were added in the Phase 0 self-review, F38–F42 for decision P-6.
 
 | ID | Query | Behavior under test |
 |---|---|---|
@@ -77,6 +77,11 @@ Expected results live in `fixtures/search/queries.json`. F31–F37 were added in
 | F35 | `titan 32gb` | single unlabeled GB on a laptop stays ambiguous |
 | F36 | `nova 5g 128gb` | `5g` is not memory; honest no-match |
 | F37 | `aero 1tb 16gb` | TB plus unlabeled GB, combination absent |
+| F38 | `nova 256g` | shorthand `G` = GB (P-6) |
+| F39 | `aero 16g 512g` | two shorthand tokens, smaller is RAM |
+| F40 | `titan 1t` | shorthand `T` = TB, storage |
+| F41 | `nova 4g 128gb` | `4G` network generation is not memory |
+| F42 | `titan 32g ram 1t` | shorthand with trailing label |
 
 ## Validation performed (what it does and does not show)
 
@@ -86,4 +91,4 @@ Expected results live in `fixtures/search/queries.json`. F31–F37 were added in
 
 ## Known limits (accepted for MVP)
 
-Only the attribute types above are parsed. Unsupported: synonyms beyond the alias lists, non-adjacent labels (`ram ... 16gb`), ranges, negations, and Vietnamese shorthand such as `128G` (a bare `g` is excluded because of `5G`; adding it needs category context and an owner decision, see pending decision P-6). A color word that is also part of a product name would be read as a color. Real categories add attributes (for example headphone type) through per-category vocabularies, never fuzzy logic.
+Only the attribute types above are parsed. Unsupported: synonyms beyond the alias lists, non-adjacent labels (`ram ... 16gb`), ranges, negations, and shorthand outside the plausible-size lists (an uncommon size such as `20G` is not memory and returns no match rather than a guess). A color word that is also part of a product name would be read as a color. Real categories add attributes (for example headphone type) through per-category vocabularies, never fuzzy logic.

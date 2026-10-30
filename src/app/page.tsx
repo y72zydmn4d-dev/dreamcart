@@ -17,6 +17,10 @@ const CATEGORY_ART: Record<Category, ArtKind> = {
   laptop: "laptop",
   desktop: "desktop",
   display: "display",
+  tablet: "tablet",
+  wearable: "watch",
+  smart_home: "tracker",
+  accessory: "accessory",
   phone: "phone",
   audio: "headphones",
 };

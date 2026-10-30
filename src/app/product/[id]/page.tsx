@@ -132,6 +132,24 @@ export default async function ProductPage({ params }: Props) {
             {t("pages.product.idLabel", { id: product.product.id })}
           </p>
         </section>
+        {(product.product.compatibleWith?.length ?? 0) > 0 ? (
+          <section aria-labelledby="compat-heading">
+            <h2 id="compat-heading" className="text-title font-semibold">
+              {t("product.compatibleHeading")}
+            </h2>
+            <ul className="mt-4 flex flex-wrap gap-2">
+              {product.product.compatibleWith!.map((c) => (
+                <li
+                  key={`${c.brand}/${c.family}`}
+                  className="rounded-full border border-border bg-surface px-4 py-1.5 text-sm"
+                >
+                  {c.brand} {c.family}
+                </li>
+              ))}
+            </ul>
+            <p className="mt-2 text-sm text-muted-foreground">{t("product.compatibleNote")}</p>
+          </section>
+        ) : null}
         <section aria-labelledby="source-heading">
           <h2 id="source-heading" className="text-title font-semibold">
             {t("product.sourceHeading")}

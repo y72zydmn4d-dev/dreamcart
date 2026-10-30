@@ -48,5 +48,6 @@ export function toSearchProducts(view: CatalogView): SearchProduct[] {
     model: p.product.model,
     category: p.product.category,
     variants: p.variants.map((v) => ({ id: v.variant.id, attributes: v.variant.attributes })),
+    ...(p.product.compatibleWith ? { compatibleWith: p.product.compatibleWith } : {}),
   }));
 }

@@ -16,7 +16,17 @@ const isoDate = z.iso.date();
  * displays in the Apple Store Vietnam program); each category has its own typed attributes below, and a category
  * never gets attributes that do not describe it (no RAM on a display).
  */
-export const CATEGORIES = ["laptop", "desktop", "display", "phone", "audio"] as const;
+export const CATEGORIES = [
+  "laptop",
+  "desktop",
+  "display",
+  "tablet",
+  "phone",
+  "wearable",
+  "audio",
+  "smart_home",
+  "accessory",
+] as const;
 export type Category = (typeof CATEGORIES)[number];
 
 export const sourceSchema = z.strictObject({
@@ -35,8 +45,12 @@ export const REQUIRED_ATTRIBUTES: Record<Category, readonly string[]> = {
   laptop: ["screen_in", "chip", "ram_gb", "storage_gb"],
   desktop: ["chip", "ram_gb", "storage_gb"],
   display: ["screen_in"],
+  tablet: ["screen_in", "storage_gb"],
   phone: ["storage_gb", "color"],
+  wearable: ["case_mm"],
   audio: ["type", "color"],
+  smart_home: ["device_type"],
+  accessory: ["accessory_type"],
 };
 /**
  * Optional attributes appear only when the source shows them. Core counts separate chip variants that share a chip
@@ -46,8 +60,23 @@ export const OPTIONAL_ATTRIBUTES: Record<Category, readonly string[]> = {
   laptop: ["color", "cpu_cores", "gpu_cores"],
   desktop: ["screen_in", "color", "cpu_cores", "gpu_cores"],
   display: ["resolution", "glass", "stand", "color"],
+  tablet: ["chip", "connectivity", "ram_gb", "color"],
   phone: ["chip"],
-  audio: [],
+  // A watch is sold as an exact case-and-band combination: each listed variant is one orderable configuration.
+  wearable: ["case_material", "connectivity", "color", "band_type", "band_size", "band_color"],
+  audio: ["noise_control", "connector"],
+  smart_home: ["color", "package_qty", "connectivity", "storage_gb"],
+  // `fits_case_mm` is how a band says which cases it fits; broader fit lives on the product (`compatibleWith`).
+  accessory: [
+    "color",
+    "size",
+    "material",
+    "connector",
+    "length_cm",
+    "power_w",
+    "package_qty",
+    "fits_case_mm",
+  ],
 };
 export const AUDIO_TYPES = ["earbuds", "over_ear", "on_ear"] as const;
 
@@ -67,6 +96,17 @@ export const factSchema = z.strictObject({
 });
 export type Fact = z.infer<typeof factSchema>;
 
+/**
+ * What a product works with: the host device family (brand and family as the source names them), and optionally the
+ * catalog product it refers to. Verified from the source, never inferred. Absent means "unknown", not "universal".
+ */
+export const compatibilitySchema = z.strictObject({
+  brand: z.string().min(1).max(80),
+  family: z.string().min(1).max(80),
+  productId: slug.optional(),
+});
+export type Compatibility = z.infer<typeof compatibilitySchema>;
+
 export const productSchema = z.strictObject({
   id: slug,
   brand: z.string().min(1).max(80),
@@ -78,6 +118,7 @@ export const productSchema = z.strictObject({
   verificationStatus: z.enum(["verified", "needs_review"]),
   createdAt: z.iso.datetime(),
   facts: z.array(factSchema).max(40).optional(),
+  compatibleWith: z.array(compatibilitySchema).max(40).optional(),
 });
 export type Product = z.infer<typeof productSchema>;
 

@@ -42,8 +42,12 @@ describe("browsing", () => {
     expect(r.status).toBe("browse");
     expect(r.items).toHaveLength(8);
     expect(r.items.every((i) => i.class === "browse")).toBe(true);
-    // categories without products (desktop, display) are counted as zero and never shown as tabs
-    expect(r.categoryCounts).toEqual({ laptop: 2, desktop: 0, display: 0, phone: 3, audio: 3 });
+    // categories without products are counted as zero and never shown as tabs
+    const fixtureCounts = { laptop: 2, phone: 3, audio: 3 };
+    expect(r.categoryCounts).toMatchObject(fixtureCounts);
+    const others = Object.entries(r.categoryCounts).filter(([c]) => !(c in fixtureCounts));
+    expect(others.length).toBeGreaterThan(0);
+    expect(others.every(([, n]) => n === 0)).toBe(true);
   });
 });
 

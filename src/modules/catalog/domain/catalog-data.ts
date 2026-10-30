@@ -29,14 +29,47 @@ import {
  * `real` rejects every fixture id and unverified product; `synthetic` accepts only `fx-` products.
  */
 
+/** Identity text folded for comparison: case, Vietnamese diacritics and punctuation do not make a different product. */
+const foldIdentity = (text: string): string =>
+  text
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/đ/gi, "d")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, " ")
+    .trim();
+
 export const NUMERIC_ATTRIBUTES = [
   "screen_in",
   "ram_gb",
   "storage_gb",
   "cpu_cores",
   "gpu_cores",
+  "case_mm",
+  "length_cm",
+  "power_w",
+  "package_qty",
+  "fits_case_mm",
 ] as const;
-export const SLUG_ATTRIBUTES = ["chip", "color", "type", "resolution", "glass", "stand"] as const;
+export const SLUG_ATTRIBUTES = [
+  "chip",
+  "color",
+  "type",
+  "resolution",
+  "glass",
+  "stand",
+  "connectivity",
+  "case_material",
+  "band_type",
+  "band_size",
+  "band_color",
+  "noise_control",
+  "connector",
+  "device_type",
+  "accessory_type",
+  "size",
+  "material",
+] as const;
 export const MAX_MEDIA_PER_PRODUCT = 6;
 export const MAX_SOURCE_IMAGE_BYTES = 1_500_000;
 const SLUG_VALUE = /^[a-z0-9]+(?:_[a-z0-9]+)*$/;
@@ -83,6 +116,7 @@ export type CatalogMode = "real" | "synthetic";
 export type IssueCode =
   | "schema"
   | "duplicate_id"
+  | "duplicate_product_identity"
   | "duplicate_variant_key"
   | "unknown_reference"
   | "unverified_product"
@@ -227,8 +261,34 @@ export function validateCatalog(input: CatalogData, options: ValidateOptions): C
 
   // 4. Products.
   const variantsByProduct = new Map<string, Variant[]>();
+  const identities = new Map<string, string>();
   products.forEach((product, i) => {
     if (!product) return;
+    // One product per manufacturer, family and model: a second record with another id is a duplicate listing.
+    const identity = [product.brand, product.family, product.model].map(foldIdentity).join("|");
+    const seen = identities.get(identity);
+    if (seen !== undefined)
+      err(
+        "duplicate_product_identity",
+        `products[${i}]`,
+        `"${product.id}" repeats the identity of "${seen}" (${product.brand} / ${product.family} / ${product.model}); one product, one record`,
+      );
+    else identities.set(identity, product.id);
+    for (const [j, compat] of (product.compatibleWith ?? []).entries()) {
+      if (compat.productId === undefined) continue;
+      if (compat.productId === product.id)
+        err(
+          "unknown_reference",
+          `products[${i}].compatibleWith[${j}].productId`,
+          "a product is not compatible with itself",
+        );
+      else if (!productById.has(compat.productId))
+        err(
+          "unknown_reference",
+          `products[${i}].compatibleWith[${j}].productId`,
+          `compatibility refers to unknown product "${compat.productId}"`,
+        );
+    }
     if (real && product.verificationStatus !== "verified") {
       err(
         "unverified_product",

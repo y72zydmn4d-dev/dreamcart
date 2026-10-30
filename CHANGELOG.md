@@ -2,6 +2,13 @@
 
 DreamCart is pre-release: nothing has been published to production, and the product still runs on labeled synthetic fixtures until a verified real catalog and image rights exist (see `docs/EXECUTION_STATUS.md`). Entries are grouped by phase; each phase was one pull request.
 
+## Apple catalog program: category schemas (no product data)
+
+- New categories `tablet`, `wearable`, `smart_home` and `accessory` with typed attributes (connectivity, case size and material, band type, size and colour, noise control, connector, device type, accessory type, length, power, package quantity, band fit) and a product-level `compatibleWith` (host brand and family, optionally a catalog product). Compatibility that is not stated stays unknown, never "universal".
+- Compatibility is a multi-valued filter, is searchable ("phoneo 2" finds the accessories that fit it), and shows on the product page. Duplicate products (same manufacturer, family and model) are refused.
+- URL state fixed: brand, family and compatibility values keep capitals and spaces, and numeric filters of the new categories parse as numbers.
+- Tested on fictional records only: tablet configurations, watch case-and-band combinations, audio variants, accessory compatibility, unknown prices and image rights.
+
 ## Apple catalog program: Batch 1 foundations (no product data)
 
 - The Apple website terms, copyright and trademark guidelines and the Rights and Permissions page were read directly; the verbatim findings are in the compliance register and `docs/APPLE_ACQUISITION_PLAN.md`. Automated collection, transcription and image reuse are recorded as restricted; no authorized feed or approved image source was found.

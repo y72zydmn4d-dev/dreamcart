@@ -73,14 +73,18 @@ for (const [group, list] of Object.entries({ records: pricing.records, offers: p
   if (new Set(ids).size !== ids.length) bad(`duplicate ids in ${group}`);
 }
 
-// 7. Curation template has unique columns.
-const header = read("docs/templates/catalog_curation_template.csv").trim().split(",");
-if (new Set(header).size !== header.length) bad("duplicate CSV columns");
+// 7. Every per-category curation template has unique columns (the importer test checks them against the code).
+let templates = 0;
+for (const name of readdirSync(join(root, "docs/templates/catalog")).filter((n) => n.endsWith(".csv"))) {
+  const header = read(`docs/templates/catalog/${name}`).trim().split(",");
+  if (new Set(header).size !== header.length) bad(`duplicate CSV columns in ${name}`);
+  templates += 1;
+}
 
 // 8. Wording guards: no unsupported licensing claim.
 for (const f of files.filter((f) => f.endsWith(".md") && !rel(f).includes("PRODUCT_BLUEPRINT"))) {
   if (/lawful by construction|licensing (is )?resolved/i.test(readFileSync(f, "utf8"))) bad(`unsupported licensing claim in ${rel(f)}`);
 }
 
-console.log(`${files.length} files scanned; ${queries.length} search fixtures; csv columns=${header.length}; problems=${problems}`);
+console.log(`${files.length} files scanned; ${queries.length} search fixtures; csv templates=${templates}; problems=${problems}`);
 process.exit(problems ? 1 : 0);

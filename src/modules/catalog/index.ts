@@ -5,3 +5,4 @@ export * from "./application/curation-csv";
 export * from "./domain/user-product";
 export * from "./domain/activation";
 export * from "./domain/inventory";
+export * from "./application/preflight";

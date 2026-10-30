@@ -1,14 +1,21 @@
 // Catalog tooling: validate the data files (the build gate) and convert curation CSV into catalog JSON.
+//   npm run catalog:preflight [-- --for staging|verified]
+//                                         the activation checklist; exits 1 while anything blocks activation (default: verified)
+//   npm run catalog:template              write one import template per category into docs/templates/catalog/
 //   npm run catalog:check                 validate data/catalog (real) and data/synthetic
 //   npm run catalog:import -- file.csv --basis <written_permission|licensed_dataset|owner_original_data> [--target staging|verified]
 //                                         convert a curation CSV into catalog JSON (needs sources.json). The basis must be
 //                                         permitted in the compliance register (ADR-015); the default target is the staged
 //                                         Apple catalog, never the verified one.
-import { existsSync, readFileSync, readdirSync, statSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, readdirSync, statSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import {
   activationSchema,
+  CATEGORIES,
+  preflight,
+  preflightPassed,
   checkImportBasis,
+  columnsFor,
   checkMediaFiles,
   complianceRegisterSchema,
   coverageReport,
@@ -152,5 +159,51 @@ function importCsv(args: string[]): number {
   return check();
 }
 
+/** The activation checklist over the staged catalog, the inventory manifest and the compliance register. */
+function runPreflight(args: string[]): number {
+  const i = args.indexOf("--for");
+  const target = i >= 0 ? args[i + 1] : "verified";
+  if (target !== "staging" && target !== "verified") {
+    console.error("usage: npm run catalog:preflight [-- --for staging|verified]");
+    return 2;
+  }
+  const checks = preflight({
+    activation: JSON.parse(readFileSync("data/catalog/activation.json", "utf8")),
+    staged: loadDir(STAGING_DIR),
+    manifest: JSON.parse(readFileSync(join(STAGING_DIR, "inventory/manifest.json"), "utf8")),
+    register: JSON.parse(readFileSync(join(STAGING_DIR, "inventory/compliance.json"), "utf8")),
+    nowMs: Date.now(),
+    target,
+  });
+  console.log(`activation checklist (target: ${target})`);
+  for (const c of checks) {
+    console.log(`  [${c.status.toUpperCase().padEnd(4)}] ${c.label}`);
+    for (const d of c.details) console.log(`         ${d}`);
+  }
+  const ok = preflightPassed(checks);
+  console.log(ok ? "preflight PASSED: nothing blocks activation (activating still needs the owner)" : "preflight BLOCKED: do not activate");
+  return ok ? 0 : 1;
+}
+
+/** One header-only CSV per category, with that category's attribute columns. Regenerated, never hand-edited. */
+function writeTemplates(): number {
+  const dir = "docs/templates/catalog";
+  mkdirSync(dir, { recursive: true });
+  for (const category of CATEGORIES) writeFileSync(join(dir, `${category}.csv`), `${columnsFor(category).join(",")}\n`);
+  console.log(`wrote ${CATEGORIES.length} templates to ${dir}/ (see docs/CATALOG_IMPORT_GUIDE.md)`);
+  return 0;
+}
+
 const [command, ...rest] = process.argv.slice(2);
-process.exit(command === "check" ? check() : command === "import" ? importCsv(rest) : (console.error("usage: catalog-cli <check|import>"), 2));
+
+process.exit(
+  command === "check"
+    ? check()
+    : command === "import"
+      ? importCsv(rest)
+      : command === "template"
+        ? writeTemplates()
+        : command === "preflight"
+          ? runPreflight(rest)
+          : (console.error("usage: catalog-cli <check|import|template|preflight>"), 2),
+);

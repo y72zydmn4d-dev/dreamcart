@@ -438,3 +438,116 @@ export function checkImportBasis(register: ComplianceRegister, basis: string): I
         : `"${basis}" has not been reviewed for ${register.source}; the owner records a decision in the register first`,
   };
 }
+
+/** The register method an image's permission basis relies on: an image is only as cleared as its basis is permitted. */
+export function imageBasisMethod(
+  basis: "open_license" | "written_permission" | "published_terms" | "own_work",
+): (typeof ACQUISITION_METHODS)[number] {
+  switch (basis) {
+    case "open_license":
+      return "open_license_images";
+    case "written_permission":
+      return "written_permission";
+    case "published_terms":
+      return "licensed_dataset";
+    case "own_work":
+      return "owner_original_data";
+  }
+}
+
+export interface ReconcileIssue {
+  readonly code:
+    | "listing_without_product"
+    | "product_without_listing"
+    | "price_status_unbacked"
+    | "image_status_unbacked";
+  readonly ref: string;
+  readonly message: string;
+}
+
+interface ReconcilableCatalog {
+  readonly products: readonly {
+    id: string;
+    brand: string;
+    family: string;
+    model: string;
+  }[];
+  readonly variants: readonly { id: string; productId: string }[];
+  readonly offers: readonly { variantId: string; price: unknown | null }[];
+  readonly media: readonly { productId?: string; rights: { status: string } }[];
+}
+
+const identityOf = (t: { brand: string; family: string; model: string | null }) =>
+  [t.brand, t.family, t.model ?? ""].map(foldText).join("|");
+function foldText(text: string): string {
+  return text
+    .normalize("NFD")
+    .replace(/[̀-ͯ]/g, "")
+    .replace(/đ/gi, "d")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, " ")
+    .trim();
+}
+
+/**
+ * The inventory manifest and the staged catalog must tell the same story. Listings marked staged or published need
+ * a product; every product needs a recorded listing; a listing's claimed price and image status must be backed by
+ * the catalog's own offers and media. The manifest never overstates what exists.
+ */
+export function reconcileInventory(
+  manifest: InventoryManifest,
+  catalog: ReconcilableCatalog,
+): ReconcileIssue[] {
+  const issues: ReconcileIssue[] = [];
+  const productsByIdentity = new Map(catalog.products.map((p) => [identityOf(p), p]));
+  const claimed = new Set<string>();
+  const pricedProducts = new Set<string>();
+  const variantProduct = new Map(catalog.variants.map((v) => [v.id, v.productId]));
+  for (const o of catalog.offers)
+    if (o.price !== null && variantProduct.has(o.variantId))
+      pricedProducts.add(variantProduct.get(o.variantId)!);
+  const clearedProducts = new Set(
+    catalog.media
+      .filter((m) => m.rights.status === "CLEARED" && m.productId)
+      .map((m) => m.productId!),
+  );
+
+  for (const l of manifest.listings) {
+    if (l.importStatus === "not_imported") continue;
+    const product = productsByIdentity.get(
+      identityOf({ brand: l.manufacturer, family: l.family, model: l.model }),
+    );
+    if (!product) {
+      issues.push({
+        code: "listing_without_product",
+        ref: l.id,
+        message: `listing "${l.id}" is marked ${l.importStatus} but no product has the identity ${l.manufacturer} / ${l.family} / ${l.model ?? "-"}`,
+      });
+      continue;
+    }
+    claimed.add(product.id);
+    if (
+      (l.priceStatus === "exact" || l.priceStatus === "starting_from") &&
+      !pricedProducts.has(product.id)
+    )
+      issues.push({
+        code: "price_status_unbacked",
+        ref: l.id,
+        message: `listing "${l.id}" says its price is ${l.priceStatus} but product "${product.id}" has no priced offer`,
+      });
+    if (l.imageStatus === "CLEARED" && !clearedProducts.has(product.id))
+      issues.push({
+        code: "image_status_unbacked",
+        ref: l.id,
+        message: `listing "${l.id}" says its image is CLEARED but product "${product.id}" has no CLEARED asset`,
+      });
+  }
+  for (const p of catalog.products)
+    if (!claimed.has(p.id))
+      issues.push({
+        code: "product_without_listing",
+        ref: p.id,
+        message: `product "${p.id}" has no staged or published listing in the inventory manifest`,
+      });
+  return issues;
+}

@@ -20,6 +20,8 @@
     "test:browser": "playwright test",
     "catalog:check": "node tools/run-ts.mjs tools/catalog-cli.ts check",
     "catalog:import": "node tools/run-ts.mjs tools/catalog-cli.ts import",
+    "catalog:preflight": "node tools/run-ts.mjs tools/catalog-cli.ts preflight",
+    "catalog:template": "node tools/run-ts.mjs tools/catalog-cli.ts template",
     "prebuild": "npm run catalog:check",
     "docs:check": "node tools/check-docs.mjs",
     "smoke": "node tools/smoke-routes.mjs",

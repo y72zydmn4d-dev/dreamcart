@@ -50,6 +50,10 @@ function good(): CatalogData {
         summaryVi: "Mô tả tự viết.",
         verificationStatus: "verified",
         createdAt: "2026-11-20T00:00:00Z",
+        specEvidence: {
+          url: "https://shop.acme.test/book-14/specs",
+          note: "specifications read on the product page",
+        },
       },
     ],
     variants: [
@@ -377,5 +381,21 @@ describe("images: budgets and attribution", () => {
       attributionText: "Ảnh a © Tác giả",
       productId: "acme-book",
     });
+  });
+});
+
+describe("verified products carry their provenance", () => {
+  it("a verified product without spec evidence is refused in the real catalog", () => {
+    const d = good() as Loose;
+    delete d.products[0].specEvidence;
+    const r = validateCatalog(d, { mode: "real", nowMs: NOW });
+    expect(r.errors.map((e) => e.code)).toContain("product_without_evidence");
+  });
+
+  it("the evidence link must be a safe http(s) URL", () => {
+    const d = good() as Loose;
+    d.products[0].specEvidence.url = "javascript:alert(1)";
+    const r = validateCatalog(d, { mode: "real", nowMs: NOW });
+    expect(r.errors.map((e) => e.code)).toContain("unsafe_url");
   });
 });

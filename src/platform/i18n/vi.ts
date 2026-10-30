@@ -9,8 +9,11 @@ export const vi = {
     tagline: "Mua sắm cảm xúc, không tiêu tiền.",
   },
   meta: {
-    title: "DreamCart — Mua sắm mô phỏng với sản phẩm thật",
-    description:
+    title: "DreamCart — Mua sắm mô phỏng",
+    // The description follows the catalog mode: it must never call fictional products real.
+    descriptionSynthetic:
+      "DreamCart là trải nghiệm mua sắm ảo. Bản trình diễn hiện dùng sản phẩm hư cấu và giá mẫu; mọi giao dịch đều là mô phỏng: không thanh toán, không đặt hàng, không giao hàng thật.",
+    descriptionReal:
       "DreamCart là trải nghiệm mua sắm ảo xoay quanh sản phẩm thật. Mọi giao dịch đều là mô phỏng: không thanh toán, không đặt hàng, không giao hàng thật.",
   },
   simulation: {
@@ -25,6 +28,9 @@ export const vi = {
       "Bản thử nghiệm giao diện: sản phẩm Fixturia là hư cấu, giá là giá mẫu. Chỉ dùng để đánh giá thiết kế.",
     priceLabel: "Giá mẫu",
     source: "Nguồn: dữ liệu mẫu, không phải cửa hàng thật",
+    viewSource: "Xem nguồn mẫu (hư cấu)",
+    leaveBody:
+      "Địa chỉ này là địa chỉ mẫu của một cửa hàng hư cấu, không phải cửa hàng thật và không thể xác minh. Bạn sẽ không mua gì thông qua DreamCart.",
     artCaption: "Ảnh minh hoạ, không phải ảnh sản phẩm thật",
   },
   art: {
@@ -51,7 +57,10 @@ export const vi = {
   },
   footer: {
     disclosure: "DreamCart là trải nghiệm mua sắm mô phỏng. Mọi giao dịch đều là giả lập.",
-    status: "Bản thử nghiệm giao diện: chưa có dữ liệu sản phẩm thật.",
+    // Follows the catalog mode (synthetic fixtures today, a verified catalog later).
+    statusSynthetic:
+      "Bản trình diễn: sản phẩm Fixturia là hư cấu, giá là giá mẫu. Danh mục sản phẩm thật chưa mở.",
+    statusReal: "Giá chỉ mang tính tham khảo, luôn kèm nguồn và ngày ghi nhận.",
     credits: "Ghi công ảnh",
     privacy: "Quyền riêng tư",
     designSystem: "Hệ thống thiết kế (bản thử)",
@@ -96,6 +105,7 @@ export const vi = {
   },
   home: {
     eyebrow: "Mua sắm mô phỏng với sản phẩm thật",
+    eyebrowSynthetic: "Bản trình diễn · Sản phẩm hư cấu, giá mẫu",
     title: "Mua sắm cảm xúc, không tiêu tiền.",
     subtitle:
       "Khám phá, cấu hình và sưu tập những món đồ bạn mơ ước. Mọi bước mua đều là mô phỏng minh bạch.",
@@ -274,6 +284,16 @@ export const vi = {
     missing: "Còn thiếu: {groups}",
     complete: "Cấu hình này có sẵn trong dữ liệu mẫu",
     addToCart: "Thêm vào giỏ mô phỏng",
+    // A complete configuration that no offer can put in the cart says so BEFORE anyone presses the button.
+    addBlocked: "Chưa thể thêm",
+    viewOffers: "Xem nơi bán đã ghi nhận",
+    blocked: {
+      no_price: "Chưa thể thêm — chưa có giá",
+      expired: "Chưa thể thêm — giá đã cũ, chưa cập nhật",
+      currency_not_supported: "Chưa thể thêm — chỉ thanh toán mô phỏng bằng VND",
+      source_reference_only: "Chưa thể thêm — nguồn chỉ để tham khảo",
+      source_policy_unknown: "Chưa thể thêm — điều khoản của nguồn chưa được xác định",
+    },
     variantId: "Mã biến thể: {id}",
   },
   priceStates: {
@@ -733,13 +753,30 @@ export const vi = {
         delivery:
           "Không có giao hàng thật. Hành trình giao hàng là một mô phỏng, không có đơn vị vận chuyển nào tham gia.",
       },
-      realHeading: "Những gì là thật",
+      offersHeading: "DreamCart hiện cung cấp gì",
+      offers: {
+        journey:
+          "Hành trình mua sắm trọn vẹn: tìm kiếm, cấu hình, giỏ hàng, thanh toán mô phỏng, theo dõi đơn và bộ sưu tập.",
+        local:
+          "Giỏ hàng, đơn hàng và bộ sưu tập lưu ngay trên trình duyệt của bạn, không cần tài khoản.",
+      },
+      demoHeading: "Dữ liệu mẫu hư cấu",
+      demo: {
+        products:
+          "Danh mục hiện tại gồm các sản phẩm Fixturia hư cấu, chỉ dùng để trình diễn thiết kế và luồng mua sắm.",
+        prices: "Giá hiển thị là giá mẫu, không phải giá của một cửa hàng thật.",
+        sources: "Các liên kết nguồn là địa chỉ mẫu của cửa hàng hư cấu và không thể xác minh.",
+      },
+      plannedHeading: "Dự kiến trong tương lai",
+      planned: {
+        catalog:
+          "Danh mục sản phẩm thật, có nguồn kiểm chứng, giá kèm ngày ghi nhận và ảnh được cấp phép, sẽ chỉ xuất hiện sau khi được biên tập và xác minh. Hiện chưa có.",
+      },
+      realHeading: "Về dữ liệu sản phẩm",
       real: {
         products: "Sản phẩm là sản phẩm thật, với nguồn có thể kiểm chứng.",
         prices: "Giá chỉ mang tính tham khảo, luôn kèm nguồn và ngày ghi nhận.",
       },
-      prototypeNote:
-        "Hiện tại DreamCart đang ở giai đoạn thử nghiệm giao diện: các sản phẩm Fixturia là hư cấu và giá là giá mẫu.",
     },
   },
   notFound: {

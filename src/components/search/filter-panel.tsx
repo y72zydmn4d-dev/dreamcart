@@ -1,5 +1,6 @@
 "use client";
 
+import { useId } from "react";
 import { attributeLabel, formatAttribute } from "@/components/product/attribute-format";
 import type { Vocabulary } from "@/modules/catalog";
 import type { Facets, FilterState, PriceBucketKey } from "@/modules/discovery";
@@ -20,6 +21,10 @@ const optionClass =
  * exists are offered, and a value that would yield zero results is disabled rather than hidden, with its count.
  */
 export function FilterPanel({ facets, filters, vocabulary, onChange }: FilterPanelProps) {
+  // The panel is mounted twice (desktop sidebar and the mobile sheet, which stays in the DOM when closed). Radios
+  // with one shared `name` form ONE group across the page, so the second copy would silently uncheck the first.
+  // A name per instance keeps each group independent; both are still derived from the same URL-backed state.
+  const priceGroup = `price-${useId()}`;
   const toggle = (key: string, value: string | number) => {
     const current = filters.selected[key] ?? [];
     const next = current.includes(value) ? current.filter((v) => v !== value) : [...current, value];
@@ -36,7 +41,7 @@ export function FilterPanel({ facets, filters, vocabulary, onChange }: FilterPan
             <label className={optionClass}>
               <input
                 type="radio"
-                name="price"
+                name={priceGroup}
                 className="size-4 accent-(--accent)"
                 checked={filters.price === null}
                 onChange={() => setPrice(null)}
@@ -47,7 +52,7 @@ export function FilterPanel({ facets, filters, vocabulary, onChange }: FilterPan
               <label key={bucket.key} className={optionClass}>
                 <input
                   type="radio"
-                  name="price"
+                  name={priceGroup}
                   className="size-4 accent-(--accent)"
                   checked={bucket.selected}
                   disabled={bucket.disabled}

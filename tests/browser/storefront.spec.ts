@@ -284,7 +284,7 @@ test.describe("product page", () => {
     for (const name of [/^128 GB/, /^Đen/])
       await pulse.getByRole("button", { name }).first().click();
     await expect(pulse.getByText("Nguồn chỉ để tham khảo, không thêm vào giỏ")).toBeVisible();
-    await pulse.getByRole("button", { name: "Xem trang nguồn" }).first().click();
+    await pulse.getByRole("button", { name: "Xem nguồn mẫu (hư cấu)" }).first().click();
     const dialog = page.getByRole("dialog");
     await expect(dialog.getByText("Bạn sắp rời DreamCart")).toBeVisible();
     const link = dialog.getByRole("link", { name: "Tiếp tục tới trang nguồn" });

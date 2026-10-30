@@ -29,6 +29,12 @@ Status labels: `ENGINEERING_COMPLETE`, `VERIFIED`, `BLOCKED_EXTERNAL_DEPENDENCY`
 - **Overall status: `READY_FOR_RELEASE_REVIEW`.** `READY_FOR_OWNER_RELEASE_APPROVAL` is not claimed: the real catalog and image rights (`BLOCKED_EXTERNAL_DEPENDENCY`), the pilot, device and screen-reader checks, deployment verification and rollback rehearsal (`PENDING_HUMAN_VALIDATION`) are open.
 - Vercel: the two projects were not touched. The environment's network policy blocks `*.vercel.app`, so no deployed URL was checked; only the bot's "Ready" build status is evidence of a successful preview build. Check whether the production branch is `main` (it may already publish the synthetic build).
 
+## Post-MVP remediation (browser acceptance findings F01–F04)
+
+Status: `ENGINEERING_COMPLETE`, one pull request (`claude/post-mvp-f01-f04`). Fixed: F01 price radios (shared radio group across the desktop panel and mobile sheet), F02 catalog-mode disclosure, F03 unpriced add-to-cart affordance, F04 dark illustration separation; details in `CHANGELOG.md`. Verified locally in Chromium (lint, types, 646 unit tests, build, smoke, 168 browser specs including the full journey); Firefox and WebKit run in CI only. Preview deployments were not fetched (network policy). Overall status is unchanged: `READY_FOR_RELEASE_REVIEW`.
+
+Acceptance checks the independent browser test did not cover, still open for the owner (not failures): backup export/import round trip on real devices, multiple tabs, Safari on real Apple hardware, Firefox, private browsing and storage failures, slow network and offline, larger cart quantities, cancellation and deletion flows, and the Relaxed simulation preset. The automated suites cover most of these in Chromium, Firefox and WebKit engines, not on devices.
+
 ## Standing blockers (carried forward)
 
 - **Real product catalog and image rights** (owner-controlled): a verified catalog of about 20–30 products with source URLs, observation dates and image-rights evidence. Until then all journeys are exercised on the synthetic "Fixturia" fixtures, which are labeled and isolated. A public real-product release is blocked on this.

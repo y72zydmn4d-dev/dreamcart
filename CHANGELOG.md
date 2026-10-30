@@ -2,6 +2,13 @@
 
 DreamCart is pre-release: nothing has been published to production, and the product still runs on labeled synthetic fixtures until a verified real catalog and image rights exist (see `docs/EXECUTION_STATUS.md`). Entries are grouped by phase; each phase was one pull request.
 
+## Post-MVP remediation — browser acceptance findings F01–F04
+
+- **F01** The search price filter reported every radio as unchecked while the URL, chip and results were right: the desktop panel and the mobile sheet (always in the DOM) shared one radio group. Each panel now has its own group; there is still one URL-backed state.
+- **F02** One content policy, driven by the catalog mode: with the fictional Fixturia fixtures the homepage, About page, footer, page description and source links say the products are fictional, prices are sample prices and a verified real catalog is planned, not available. A real catalog gets its own wording, so nothing has to be edited when it arrives.
+- **F03** A complete configuration with no addable offer (for example Buds Lite, no price) now disables the button ("Chưa thể thêm"), prints the reason beside it and links to the merchant section, instead of offering "Thêm vào giỏ mô phỏng" and explaining after the click. Incomplete and valid configurations behave as before.
+- **F04** Dark product illustrations get a neutral backlight and a light rim in the dark scheme (chosen from the body colour's luminance); the colour itself is never changed.
+
 ## Phase 12 — Release readiness
 
 - Final acceptance report and release checklist; overall status `READY_FOR_RELEASE_REVIEW` (the real catalog, pilot and device checks are still open).

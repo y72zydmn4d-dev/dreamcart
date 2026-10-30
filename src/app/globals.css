@@ -35,6 +35,13 @@
   --glow-3: #e2f4ff;
   --art-stage: #eef0f6;
   --art-stage-foreground: #4a4a55;
+  /* Product edge and backlight by body tone (see product-art.tsx). Light scheme: a pale body gets a darker edge. */
+  --art-rim-mid: rgb(20 20 30 / 0.14);
+  --art-rim-dark: rgb(20 20 30 / 0.14);
+  --art-rim-light: rgb(20 20 30 / 0.3);
+  --art-spot-mid: rgb(0 0 0 / 0);
+  --art-spot-dark: rgb(0 0 0 / 0);
+  --art-spot-light: rgb(40 40 80 / 0.1);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -66,6 +73,11 @@
     --glow-3: #13293a;
     --art-stage: #1a1a22;
     --art-stage-foreground: #b4b4bf;
+    /* Dark scheme: a dark body would merge with the dark stage, so it gets a soft neutral backlight and a light edge. */
+    --art-rim-dark: rgb(255 255 255 / 0.55);
+    --art-spot-dark: rgb(255 255 255 / 0.2);
+    --art-rim-light: rgb(20 20 30 / 0.14);
+    --art-spot-light: rgb(0 0 0 / 0);
   }
 }
 

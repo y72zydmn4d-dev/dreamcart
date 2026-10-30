@@ -15,7 +15,8 @@ import {
 } from "@/modules/configurator/domain/configurator";
 import type { Vocabulary } from "@/modules/catalog";
 import type { ProductView } from "@/modules/discovery";
-import { t } from "@/platform/i18n";
+import type { IneligibleReason } from "@/modules/pricing";
+import { t, type DictionaryKey } from "@/platform/i18n";
 import { attributeLabel, formatAttribute } from "./attribute-format";
 import { PriceNote } from "./price-note";
 
@@ -187,6 +188,24 @@ export function Configurator({
     });
     setNotice({ text: outcome.message, ok: outcome.ok });
   };
+  // A complete configuration that no offer can put in the cart (no price, expired, non-VND, reference-only source):
+  // the action is withdrawn up front and the reason is printed next to it, rather than discovered by pressing.
+  const hasAddable = resolved?.offers.some((o) => o.evaluation.addable && o.offer.price) ?? false;
+  const blockReason: IneligibleReason | null =
+    resolved && !hasAddable ? (resolved.offers[0]?.evaluation.reason ?? "no_price") : null;
+  const blockedText = blockReason
+    ? t(`configurator.blocked.${blockReason}` as DictionaryKey)
+    : null;
+  const addLabel = blockReason ? t("configurator.addBlocked") : t("configurator.addToCart");
+  const blockedReason = blockedText ? (
+    <>
+      {blockedText}
+      {" · "}
+      <a href="#offers-heading" className="font-medium underline underline-offset-2">
+        {t("configurator.viewOffers")}
+      </a>
+    </>
+  ) : null;
   const noticeContent = notice ? (
     <>
       {notice.text}
@@ -458,15 +477,20 @@ export function Configurator({
           <Button
             aria-describedby={`${uid}-cta-hint-compact`}
             onClick={onAddToCart}
-            disabled={!ready}
+            disabled={!ready || blockReason !== null}
             className="max-w-[8.5rem] shrink-0 px-4 py-1.5 leading-tight text-balance whitespace-normal"
           >
-            {t("configurator.addToCart")}
+            {addLabel}
           </Button>
           <span id={`${uid}-cta-hint-compact`} className="sr-only">
-            {hintText}
+            {blockedText ?? hintText}
           </span>
         </div>
+        {blockedReason ? (
+          <p data-testid="add-unavailable" className="mt-1 text-xs text-muted-foreground">
+            {blockedReason}
+          </p>
+        ) : null}
         <p role="status" className={cn("text-sm", notice ? "mt-2" : "sr-only")}>
           {noticeContent}
         </p>
@@ -503,16 +527,26 @@ export function Configurator({
               size="lg"
               aria-describedby={`${uid}-cta-hint`}
               onClick={onAddToCart}
-              disabled={!ready}
+              disabled={!ready || blockReason !== null}
             >
-              {t("configurator.addToCart")}
+              {addLabel}
             </Button>
-            <p
-              id={`${uid}-cta-hint`}
-              className={cn("text-xs text-muted-foreground", resolved && "font-mono")}
-            >
-              {hintText}
-            </p>
+            {blockedReason ? (
+              <p
+                id={`${uid}-cta-hint`}
+                data-testid="add-unavailable"
+                className="text-sm text-muted-foreground"
+              >
+                {blockedReason}
+              </p>
+            ) : (
+              <p
+                id={`${uid}-cta-hint`}
+                className={cn("text-xs text-muted-foreground", resolved && "font-mono")}
+              >
+                {hintText}
+              </p>
+            )}
           </div>
         </div>
         <p role="status" className={cn("text-sm", notice ? "mt-3" : "sr-only")}>

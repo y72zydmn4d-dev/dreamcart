@@ -12,6 +12,7 @@ import {
   type Variant,
 } from "../domain/catalog-schema";
 import { NUMERIC_ATTRIBUTES, SLUG_ATTRIBUTES } from "../domain/catalog-data";
+import { deriveProductId } from "../domain/product-id";
 
 /**
  * The only price a catalog offer may carry: the full public retail price shown for exactly this configuration.
@@ -21,30 +22,24 @@ import { NUMERIC_ATTRIBUTES, SLUG_ATTRIBUTES } from "../domain/catalog-data";
 export const REFERENCE_PRICE_KIND = "list_price_exact_configuration";
 
 /**
- * Curation CSV -> catalog records (docs/CURATION_PROCESS.md, `docs/templates/catalog_curation_template.csv`).
+ * Curation CSV -> catalog records (docs/CURATION_PROCESS.md, the per-category templates in `docs/templates/catalog/` (`docs/CATALOG_IMPORT_GUIDE.md`)).
  * One row per variant-offer. The converter never guesses: a malformed or missing value is an error with the row
  * and column, nothing is defaulted, and nothing is written unless every row converts. Source terms live in
  * `sources.json` (hand-maintained); each offer row must resolve to a source by its URL host.
  */
-export const CURATION_COLUMNS = [
+/**
+ * Columns every import file has, in the order templates write them. Attribute columns (below) are added per
+ * category: a file carries only the attributes its category has, so a tablet file has no `glass` column.
+ */
+export const CORE_COLUMNS = [
   "product_id",
   "brand",
   "family",
   "model",
   "category",
   "variant_key",
-  "screen_in",
-  "chip",
-  "ram_gb",
-  "storage_gb",
-  "cpu_cores",
-  "gpu_cores",
-  "type",
-  "color",
-  "resolution",
-  "glass",
-  "stand",
   "gtin",
+  "compatible_with",
   "offer_merchant",
   "offer_url",
   "offer_currency",
@@ -69,11 +64,28 @@ export const CURATION_COLUMNS = [
   "image_rights_status",
   "title_vi",
   "summary_vi",
+  "spec_evidence_url",
+  "spec_evidence_note",
   "verified_by",
   "verified_at",
   "notes",
 ] as const;
-type Column = (typeof CURATION_COLUMNS)[number];
+
+/** Every attribute a catalog variant can carry, each its own optional column. */
+export const ATTRIBUTE_COLUMNS = [...NUMERIC_ATTRIBUTES, ...SLUG_ATTRIBUTES] as const;
+
+/** All columns an import file may use. */
+export const CURATION_COLUMNS = [...CORE_COLUMNS, ...ATTRIBUTE_COLUMNS] as const;
+
+/**
+ * The columns of the template for one category: the core columns with the category's own attribute columns
+ * (required first, then optional) after `category`. This is the header a curator fills in.
+ */
+export function columnsFor(category: Category): string[] {
+  const attributes = [...REQUIRED_ATTRIBUTES[category], ...OPTIONAL_ATTRIBUTES[category]];
+  const at = CORE_COLUMNS.indexOf("category") + 1;
+  return [...CORE_COLUMNS.slice(0, at), ...attributes, ...CORE_COLUMNS.slice(at)];
+}
 
 export interface ImportError {
   /** 1-based line of the CSV (the header is line 1); 0 for file-level problems. */
@@ -142,6 +154,47 @@ const slugPart = (value: string | number) =>
     .toLowerCase()
     .replace(/[^a-z0-9.]+/g, "_");
 
+const IMAGE_BASES: readonly string[] = [
+  "open_license",
+  "written_permission",
+  "published_terms",
+  "own_work",
+];
+
+const foldIdentity = (text: string): string =>
+  text
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[đĐ]/g, "d")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, " ")
+    .trim();
+
+/**
+ * `compatible_with`: host device families separated by `;`, each `brand|family` or `brand|family|product_id`.
+ * Returns the entries, or a message describing the first problem.
+ */
+export function parseCompatibleWith(
+  cell: string,
+): { brand: string; family: string; productId?: string }[] | string {
+  if (!cell) return [];
+  const out: { brand: string; family: string; productId?: string }[] = [];
+  for (const part of cell
+    .split(";")
+    .map((p) => p.trim())
+    .filter(Boolean)) {
+    const pieces = part.split("|").map((p) => p.trim());
+    if (pieces.length < 2 || pieces.length > 3 || !pieces[0] || !pieces[1])
+      return `"${part}" must be brand|family or brand|family|product_id (entries separated by ;)`;
+    out.push({
+      brand: pieces[0],
+      family: pieces[1],
+      ...(pieces[2] ? { productId: pieces[2] } : {}),
+    });
+  }
+  return out;
+}
+
 export function importCuration(csv: string, sources: readonly Source[]): CurationImport {
   const errors: ImportError[] = [];
   const empty = (): CurationImport => ({
@@ -166,19 +219,22 @@ export function importCuration(csv: string, sources: readonly Source[]): Curatio
   const known = new Set<string>(CURATION_COLUMNS);
   for (const n of names)
     if (!known.has(n)) errors.push({ line: 1, column: n, message: `unknown column "${n}"` });
-  for (const required of CURATION_COLUMNS)
+  // Core columns are always required; attribute columns are required only for the categories that need them,
+  // which is checked per row (so a missing one is reported with the row that needs it).
+  for (const required of CORE_COLUMNS)
     if (!names.includes(required))
       errors.push({ line: 1, column: required, message: `missing column "${required}"` });
   if (new Set(names).size !== names.length)
     errors.push({ line: 1, message: "duplicate column names" });
   if (errors.length > 0) return empty();
-  const at = Object.fromEntries(names.map((n, i) => [n, i])) as Record<Column, number>;
+  const at = Object.fromEntries(names.map((n, i) => [n, i])) as Record<string, number>;
 
   const products = new Map<string, Product>();
   const variants = new Map<string, Variant>();
   const offers = new Map<string, Offer>();
   const media = new Map<string, MediaAsset>();
   const mediaCount = new Map<string, number>();
+  const identities = new Map<string, string>();
   const sourceByHost = (host: string) =>
     sources.find((s) => host === s.domain || host.endsWith(`.${s.domain}`));
 
@@ -190,14 +246,26 @@ export function importCuration(csv: string, sources: readonly Source[]): Curatio
       errors.push({ line, message: `expected ${names.length} columns but found ${cells.length}` });
       return;
     }
-    const get = (c: Column) => (cells[at[c]] ?? "").trim();
+    const get = (c: string) => (at[c] === undefined ? "" : (cells[at[c]] ?? "").trim());
 
     // Product identity (all rows of a product must agree).
-    const productId = get("product_id");
     const category = get("category") as Category;
-    if (!productId) return fail("product_id", "product_id is required");
     if (!(CATEGORIES as readonly string[]).includes(category))
       return fail("category", `category must be one of ${CATEGORIES.join(", ")}`);
+    // A stable id: the curator's, or one derived from manufacturer, family and model (never guessed from anything else).
+    let productId = get("product_id");
+    if (!productId) {
+      if (!get("brand") || !get("family") || !get("model"))
+        return fail(
+          "product_id",
+          "product_id is empty, so brand, family and model are needed to derive a stable id from them",
+        );
+      productId = deriveProductId({
+        brand: get("brand"),
+        family: get("family"),
+        model: get("model"),
+      });
+    }
     const verifiedBy = get("verified_by");
     const verifiedAt = get("verified_at");
     if (Boolean(verifiedBy) !== Boolean(verifiedAt))
@@ -211,6 +279,22 @@ export function importCuration(csv: string, sources: readonly Source[]): Curatio
       if (Number.isNaN(Date.parse(iso))) fail("verified_at", `"${verifiedAt}" is not an ISO date`);
       else createdAt = new Date(iso).toISOString();
     }
+    const compat = parseCompatibleWith(get("compatible_with"));
+    if (typeof compat === "string") fail("compatible_with", compat);
+    const evidenceUrl = get("spec_evidence_url");
+    const evidenceNote = get("spec_evidence_note");
+    if (Boolean(evidenceUrl) !== Boolean(evidenceNote))
+      fail(
+        "spec_evidence_url",
+        "spec_evidence_url and spec_evidence_note must both be filled or both empty",
+      );
+    if (evidenceUrl && !parseSafeUrl(evidenceUrl).ok)
+      fail("spec_evidence_url", "spec_evidence_url is not a safe http(s) URL");
+    if (verifiedBy && !evidenceUrl)
+      fail(
+        "spec_evidence_url",
+        "a verified product needs spec evidence: the page the specifications were checked on, and a note",
+      );
     const product: Product = {
       id: productId,
       brand: get("brand"),
@@ -221,10 +305,23 @@ export function importCuration(csv: string, sources: readonly Source[]): Curatio
       summaryVi: get("summary_vi"),
       verificationStatus: verifiedBy && verifiedAt ? "verified" : "needs_review",
       createdAt: createdAt || "1970-01-01T00:00:00.000Z",
+      ...(Array.isArray(compat) && compat.length > 0 ? { compatibleWith: compat } : {}),
+      ...(evidenceUrl && evidenceNote
+        ? { specEvidence: { url: evidenceUrl, note: evidenceNote } }
+        : {}),
     };
     const seen = products.get(productId);
-    if (!seen) products.set(productId, product);
-    else {
+    if (!seen) {
+      const identity = [product.brand, product.family, product.model].map(foldIdentity).join("|");
+      const twin = identities.get(identity);
+      if (twin !== undefined && twin !== productId)
+        fail(
+          "product_id",
+          `"${productId}" has the same manufacturer, family and model as "${twin}"; one product, one id`,
+        );
+      else identities.set(identity, productId);
+      products.set(productId, product);
+    } else {
       for (const key of [
         "brand",
         "family",
@@ -237,6 +334,13 @@ export function importCuration(csv: string, sources: readonly Source[]): Curatio
         if (seen[key] !== product[key])
           fail(key, `product "${productId}" has conflicting ${key} on different rows`);
       }
+      for (const [key, column] of [
+        ["compatibleWith", "compatible_with"],
+        ["specEvidence", "spec_evidence_url"],
+      ] as const) {
+        if (JSON.stringify(seen[key] ?? null) !== JSON.stringify(product[key] ?? null))
+          fail(column, `product "${productId}" has conflicting ${column} on different rows`);
+      }
     }
 
     // Variant attributes.
@@ -246,7 +350,7 @@ export function importCuration(csv: string, sources: readonly Source[]): Curatio
     ]);
     const attributes: Record<string, string | number> = {};
     for (const key of [...NUMERIC_ATTRIBUTES, ...SLUG_ATTRIBUTES]) {
-      const raw = get(key as Column);
+      const raw = get(key);
       if (!raw) continue;
       if (!allowed.has(key)) {
         fail(key, `"${key}" is not an attribute of ${category}; leave it empty`);
@@ -259,6 +363,15 @@ export function importCuration(csv: string, sources: readonly Source[]): Curatio
       } else if (!SLUG.test(raw))
         fail(key, `"${raw}" must be a lowercase slug such as "${suggestSlug(raw) || "value"}"`);
       else attributes[key] = raw;
+    }
+    for (const key of REQUIRED_ATTRIBUTES[category]) {
+      if (attributes[key] !== undefined) continue;
+      if (at[key] === undefined)
+        fail(
+          key,
+          `the "${key}" column is required for ${category}: add it (the ${category} template has it)`,
+        );
+      else if (!get(key)) fail(key, `"${key}" is required for ${category}`);
     }
     const keyParts = [...REQUIRED_ATTRIBUTES[category], ...OPTIONAL_ATTRIBUTES[category]]
       .map((k) => attributes[k])
@@ -359,7 +472,7 @@ export function importCuration(csv: string, sources: readonly Source[]): Curatio
     // Image (optional): rights are recorded with the file, never assumed.
     const file = get("image_file");
     if (file) {
-      const dimension = (c: Column) =>
+      const dimension = (c: string) =>
         /^\d+$/.test(get(c)) && Number(get(c)) > 0 ? Number(get(c)) : null;
       const width = dimension("image_width");
       const height = dimension("image_height");
@@ -370,6 +483,17 @@ export function importCuration(csv: string, sources: readonly Source[]): Curatio
       const status = get("image_rights_status");
       if (!["CLEARED", "PENDING", "NOT_CLEARED"].includes(status))
         fail("image_rights_status", "image_rights_status must be CLEARED, PENDING or NOT_CLEARED");
+      const basis = get("image_rights_basis");
+      if (basis && !IMAGE_BASES.includes(basis))
+        fail("image_rights_basis", `image_rights_basis must be one of ${IMAGE_BASES.join(", ")}`);
+      if (status === "CLEARED") {
+        if (!basis) fail("image_rights_basis", "a CLEARED image needs its permission basis");
+        if (!get("image_rights_evidence"))
+          fail(
+            "image_rights_evidence",
+            "a CLEARED image needs evidence of the permission (a reference, not a claim)",
+          );
+      }
       const existing = [...media.values()].find(
         (m) => m.productId === productId && m.file === file,
       );
@@ -377,7 +501,6 @@ export function importCuration(csv: string, sources: readonly Source[]): Curatio
         const n = (mediaCount.get(productId) ?? 0) + 1;
         mediaCount.set(productId, n);
         const rights: MediaAsset["rights"] = { status: status as MediaAsset["rights"]["status"] };
-        const basis = get("image_rights_basis");
         if (basis) rights.basis = basis as NonNullable<MediaAsset["rights"]["basis"]>;
         if (get("image_license_id")) rights.licenseId = get("image_license_id");
         if (get("image_license_url")) rights.licenseUrl = get("image_license_url");

@@ -107,6 +107,16 @@ export const compatibilitySchema = z.strictObject({
 });
 export type Compatibility = z.infer<typeof compatibilitySchema>;
 
+/**
+ * Where a product's identity and specifications were checked: the page and a short note in the curator's own words.
+ * A verified product in the real catalog must carry it (a claim marked verified without provenance is refused).
+ */
+export const specEvidenceSchema = z.strictObject({
+  url: z.string().min(1).max(2048),
+  note: z.string().min(1).max(500),
+});
+export type SpecEvidence = z.infer<typeof specEvidenceSchema>;
+
 export const productSchema = z.strictObject({
   id: slug,
   brand: z.string().min(1).max(80),
@@ -119,6 +129,7 @@ export const productSchema = z.strictObject({
   createdAt: z.iso.datetime(),
   facts: z.array(factSchema).max(40).optional(),
   compatibleWith: z.array(compatibilitySchema).max(40).optional(),
+  specEvidence: specEvidenceSchema.optional(),
 });
 export type Product = z.infer<typeof productSchema>;
 

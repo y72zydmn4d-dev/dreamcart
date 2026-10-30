@@ -51,7 +51,7 @@ The resume point for the Apple catalog program (ADR-015). On resume: fetch `orig
 | Workstream | Delivered | Where |
 |---|---|---|
 | A Category schemas | `tablet`, `wearable`, `smart_home`, `accessory` with typed attributes and product-level `compatibleWith`; compatibility is a filter and searchable; duplicate products refused; URL-state fix | PR #19 (merged `38d2c12`) |
-| B Import infrastructure | Header-driven per-category importer, stable ids, row-level errors, whole-file failure writes nothing, `catalog:preflight` (staging and verified readiness) and `catalog:template`, import guide | PR #20 (see its CI; merge only if green) |
+| B Import infrastructure | Header-driven per-category importer, stable ids, row-level errors, whole-file failure writes nothing, `catalog:preflight` (staging and verified readiness) and `catalog:template`, import guide | PR #20 (merged `5bdef12`) |
 | C Owner-assisted curation | One CSV template per category (`docs/templates/catalog/`), required-field docs, validation commands. Nothing is ever marked authorized by tooling | PR #20 |
 | D Source research | Nine candidates evaluated and labeled **Read** or **Lead**; nothing signed up for, accepted, purchased or collected | `docs/APPLE_DATA_SOURCES_RESEARCH.md` |
 | E Fictional tests | Tablet configurations, watch case-and-band compatibility, audio variants, accessory compatibility, missing prices, unknown image rights, filters, search accuracy, import failures, legacy Fixturia order compatibility | `tests/discovery/`, `tests/orders/`, `tests/catalog/` |

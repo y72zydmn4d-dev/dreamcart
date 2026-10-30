@@ -7,6 +7,13 @@ DreamCart is pre-release: nothing has been published to production, and the prod
 - `docs/APPLE_DATA_SOURCES_RESEARCH.md` evaluates nine possible legitimate sources of product records and imagery (Apple's partner programme and permission route, Open Icecat, Wikidata, Wikimedia Commons, paid aggregators, affiliate networks, retailer programmes, owner-original data). Each entry is labeled **Read** (primary page read) or **Lead** (unverified); nothing was signed up for, accepted, purchased or collected.
 - Tests: a historical Fixturia order still parses, keeps the item and price paid, keeps its own simulation clock and is never re-resolved or re-priced when the active catalog changes; saved cart lines become unavailable rather than guessed; and search returns exact variants of the right category on tablets, audio and displays (an attribute the category lacks is a mismatch).
 
+## Apple catalog program: import infrastructure (no product data)
+
+- The importer is header-driven: one template per category (`npm run catalog:template`, `docs/templates/catalog/`), each with that category's attribute columns; a missing required column or value is reported with its row and a fix. `docs/CATALOG_IMPORT_GUIDE.md` documents every column, and a test keeps it complete.
+- New import rules: a stable product id derived from manufacturer, family and model when left empty, duplicate products refused at the row, a `compatible_with` column, spec evidence required for a verified product (`Product.specEvidence`, also enforced by the catalog validator), and CLEARED images need their basis and evidence at the row.
+- `npm run catalog:preflight`: the activation checklist (records, manifest reconciliation, register, image-rights bases, release gate, owner authorization). It blocks today, and activating stays the owner's separate decision.
+- Manifest reconciliation: listings marked staged or published must have their product, every product must be recorded, and claimed price or image status must be backed by the catalog.
+
 ## Apple catalog program: category schemas (no product data)
 
 - New categories `tablet`, `wearable`, `smart_home` and `accessory` with typed attributes (connectivity, case size and material, band type, size and colour, noise control, connector, device type, accessory type, length, power, package quantity, band fit) and a product-level `compatibleWith` (host brand and family, optionally a catalog product). Compatibility that is not stated stays unknown, never "universal".

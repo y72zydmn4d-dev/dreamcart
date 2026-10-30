@@ -117,6 +117,7 @@ export type IssueCode =
   | "schema"
   | "duplicate_id"
   | "duplicate_product_identity"
+  | "product_without_evidence"
   | "duplicate_variant_key"
   | "unknown_reference"
   | "unverified_product"
@@ -274,6 +275,23 @@ export function validateCatalog(input: CatalogData, options: ValidateOptions): C
         `"${product.id}" repeats the identity of "${seen}" (${product.brand} / ${product.family} / ${product.model}); one product, one record`,
       );
     else identities.set(identity, product.id);
+    if (real && product.verificationStatus === "verified") {
+      if (!product.specEvidence)
+        err(
+          "product_without_evidence",
+          `products[${i}].specEvidence`,
+          `verified product "${product.id}" needs spec evidence (the page it was checked on and a note)`,
+        );
+      else {
+        const evidenceUrl = parseSafeUrl(product.specEvidence.url);
+        if (!evidenceUrl.ok)
+          err(
+            "unsafe_url",
+            `products[${i}].specEvidence.url`,
+            `evidence link is not a safe http(s) URL (${evidenceUrl.reason})`,
+          );
+      }
+    }
     for (const [j, compat] of (product.compatibleWith ?? []).entries()) {
       if (compat.productId === undefined) continue;
       if (compat.productId === product.id)

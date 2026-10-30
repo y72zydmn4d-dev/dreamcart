@@ -6,6 +6,11 @@ const LABELED = new Set([
   "chip",
   "ram_gb",
   "storage_gb",
+  "cpu_cores",
+  "gpu_cores",
+  "resolution",
+  "glass",
+  "stand",
   "color",
   "type",
   "brand",
@@ -31,6 +36,9 @@ export function formatAttribute(
       return t("units.inch", { value });
     case "ram_gb":
       return t("units.gb", { value });
+    case "cpu_cores":
+    case "gpu_cores":
+      return t("units.cores", { value });
     case "storage_gb":
       return Number(value) >= 1024 && Number(value) % 1024 === 0
         ? t("units.tb", { value: Number(value) / 1024 })

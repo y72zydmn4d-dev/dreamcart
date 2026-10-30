@@ -82,6 +82,16 @@ export const vi = {
       short: "Laptop",
       blurb: "Mỏng nhẹ hay mạnh mẽ, cấu hình đúng như bạn muốn.",
     },
+    desktop: {
+      name: "Máy tính để bàn",
+      short: "Để bàn",
+      blurb: "Sức mạnh gọn gàng cho bàn làm việc, đúng cấu hình bạn cần.",
+    },
+    display: {
+      name: "Màn hình",
+      short: "Màn hình",
+      blurb: "Kích thước, độ phân giải và chân đế theo cách bạn làm việc.",
+    },
     phone: {
       name: "Điện thoại",
       short: "Điện thoại",
@@ -98,6 +108,11 @@ export const vi = {
     chip: "Chip",
     ram_gb: "RAM",
     storage_gb: "Bộ nhớ trong",
+    cpu_cores: "Số nhân CPU",
+    gpu_cores: "Số nhân GPU",
+    resolution: "Độ phân giải",
+    glass: "Kính",
+    stand: "Chân đế",
     color: "Màu sắc",
     type: "Kiểu tai nghe",
     brand: "Thương hiệu",
@@ -106,6 +121,7 @@ export const vi = {
   units: {
     inch: "{value} inch",
     gb: "{value} GB",
+    cores: "{value} nhân",
     tb: "{value} TB",
   },
   home: {

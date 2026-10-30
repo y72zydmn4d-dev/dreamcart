@@ -24,6 +24,19 @@ export const FILTER_DEFINITIONS: Readonly<Record<Category, readonly FilterDefini
     { key: "storage_gb", kind: "variant", source: "attribute" },
     { key: "screen_in", kind: "variant", source: "attribute" },
   ],
+  desktop: [
+    { key: "brand", kind: "product", source: "brand" },
+    { key: "chip", kind: "variant", source: "attribute" },
+    { key: "ram_gb", kind: "variant", source: "attribute" },
+    { key: "storage_gb", kind: "variant", source: "attribute" },
+  ],
+  display: [
+    { key: "brand", kind: "product", source: "brand" },
+    { key: "screen_in", kind: "variant", source: "attribute" },
+    { key: "resolution", kind: "variant", source: "attribute" },
+    { key: "glass", kind: "variant", source: "attribute" },
+    { key: "stand", kind: "variant", source: "attribute" },
+  ],
   phone: [
     { key: "brand", kind: "product", source: "brand" },
     { key: "family", kind: "product", source: "family" },

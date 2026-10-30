@@ -14,6 +14,13 @@ import {
 import { NUMERIC_ATTRIBUTES, SLUG_ATTRIBUTES } from "../domain/catalog-data";
 
 /**
+ * The only price a catalog offer may carry: the full public retail price shown for exactly this configuration.
+ * Monthly installments, trade-in or education prices, promotions, bundles and "from" prices are not reference prices
+ * and cannot be assigned to a variant (a "from" price describes the cheapest configuration, never the others).
+ */
+export const REFERENCE_PRICE_KIND = "list_price_exact_configuration";
+
+/**
  * Curation CSV -> catalog records (docs/CURATION_PROCESS.md, `docs/templates/catalog_curation_template.csv`).
  * One row per variant-offer. The converter never guesses: a malformed or missing value is an error with the row
  * and column, nothing is defaulted, and nothing is written unless every row converts. Source terms live in
@@ -30,8 +37,13 @@ export const CURATION_COLUMNS = [
   "chip",
   "ram_gb",
   "storage_gb",
+  "cpu_cores",
+  "gpu_cores",
   "type",
   "color",
+  "resolution",
+  "glass",
+  "stand",
   "gtin",
   "offer_merchant",
   "offer_url",
@@ -40,6 +52,7 @@ export const CURATION_COLUMNS = [
   "price_observed_at",
   "price_observer",
   "price_provenance_type",
+  "price_kind",
   "price_evidence_note",
   "availability",
   "image_file",
@@ -309,6 +322,12 @@ export function importCuration(csv: string, sources: readonly Source[]): Curatio
             fail(
               "price_provenance_type",
               "price_provenance_type must be curator_observed or manufacturer_listed",
+            );
+          const kind = get("price_kind");
+          if (kind !== REFERENCE_PRICE_KIND)
+            fail(
+              "price_kind",
+              `price_kind must be ${REFERENCE_PRICE_KIND}: only the full public price of exactly this configuration is imported (not monthly, trade-in, education, promotional, bundle or "from" prices); leave the price empty if only another kind is known`,
             );
           const evidenceNote = get("price_evidence_note");
           price = {

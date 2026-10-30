@@ -1,10 +1,14 @@
 // Catalog tooling: validate the data files (the build gate) and convert curation CSV into catalog JSON.
 //   npm run catalog:check                 validate data/catalog (real) and data/synthetic
-//   npm run catalog:import -- file.csv    convert a curation CSV into data/catalog/*.json (needs sources.json)
+//   npm run catalog:import -- file.csv --basis <written_permission|licensed_dataset|owner_original_data> [--target staging|verified]
+//                                         convert a curation CSV into catalog JSON (needs sources.json). The basis must be
+//                                         permitted in the compliance register (ADR-015); the default target is the staged
+//                                         Apple catalog, never the verified one.
 import { existsSync, readFileSync, readdirSync, statSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import {
   activationSchema,
+  checkImportBasis,
   checkMediaFiles,
   complianceRegisterSchema,
   coverageReport,
@@ -109,13 +113,30 @@ function checkProgram(): boolean {
   return ok;
 }
 
-function importCsv(file: string | undefined): number {
-  if (!file) {
-    console.error("usage: npm run catalog:import -- <curation.csv>");
+function importCsv(args: string[]): number {
+  const flag = (name: string): string | undefined => {
+    const i = args.indexOf(name);
+    return i >= 0 ? args[i + 1] : undefined;
+  };
+  const file = args.find((a, i) => !a.startsWith("--") && !args[i - 1]?.startsWith("--"));
+  const basis = flag("--basis");
+  const target = flag("--target") ?? "staging";
+  if (!file || !basis || (target !== "staging" && target !== "verified")) {
+    console.error(
+      "usage: npm run catalog:import -- <curation.csv> --basis <written_permission|licensed_dataset|owner_original_data> [--target staging|verified]",
+    );
     return 2;
   }
-  const dir = "data/catalog";
-  const sources = (read(dir, "sources") as CatalogData["sources"]);
+  // The gate comes first: nothing is read from the file unless the register permits where its facts came from.
+  const register = complianceRegisterSchema.parse(JSON.parse(readFileSync(join(STAGING_DIR, "inventory/compliance.json"), "utf8")));
+  const gate = checkImportBasis(register, basis);
+  if (!gate.ok) {
+    console.log(`  REFUSED: ${gate.reason}`);
+    console.log("import REFUSED: nothing was read or written (see data/catalog-staging/apple-vn/inventory/compliance.json)");
+    return 1;
+  }
+  const dir = target === "staging" ? STAGING_DIR : "data/catalog";
+  const sources = read(dir, "sources") as CatalogData["sources"];
   const result = importCuration(readFileSync(file, "utf8"), sources);
   if (!result.ok) {
     for (const e of result.errors) console.log(`  ERROR line ${e.line}${e.column ? ` column ${e.column}` : ""}: ${e.message}`);
@@ -127,9 +148,9 @@ function importCsv(file: string | undefined): number {
   write("variants", result.variants);
   write("offers", result.offers);
   write("media", result.media);
-  console.log(`imported ${result.products.length} products, ${result.variants.length} variants, ${result.offers.length} offers, ${result.media.length} images`);
+  console.log(`imported ${result.products.length} products, ${result.variants.length} variants, ${result.offers.length} offers, ${result.media.length} images into ${dir} (basis ${basis})`);
   return check();
 }
 
-const [command, arg] = process.argv.slice(2);
-process.exit(command === "check" ? check() : command === "import" ? importCsv(arg) : (console.error("usage: catalog-cli <check|import>"), 2));
+const [command, ...rest] = process.argv.slice(2);
+process.exit(command === "check" ? check() : command === "import" ? importCsv(rest) : (console.error("usage: catalog-cli <check|import>"), 2));

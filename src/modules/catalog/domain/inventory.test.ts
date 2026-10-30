@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
 import {
   ACQUISITION_METHODS,
+  checkImportBasis,
+  IMPORT_BASES,
   canonicalKey,
   complianceRegisterSchema,
   coverageReport,
@@ -324,7 +326,7 @@ describe("source compliance register", () => {
   it("only an explicitly permitted method may be used", () => {
     const r = register([
       entry({
-        method: "owner_supplied_files",
+        method: "owner_original_data",
         status: "permitted",
         evidence: "curation process",
         reviewedAt: "2026-10-30",
@@ -337,7 +339,7 @@ describe("source compliance register", () => {
       }),
       entry({ method: "documented_structured_feed" }),
     ]).data!;
-    expect(methodPermitted(r, "owner_supplied_files")).toBe(true);
+    expect(methodPermitted(r, "owner_original_data")).toBe(true);
     expect(methodPermitted(r, "image_rehosting")).toBe(false); // restricted
     expect(methodPermitted(r, "documented_structured_feed")).toBe(false); // unreviewed
     expect(methodPermitted(r, "automated_page_collection")).toBe(false); // not listed at all
@@ -345,5 +347,43 @@ describe("source compliance register", () => {
 
   it("lists every method the program distinguishes", () => {
     expect(ACQUISITION_METHODS).toContain("image_hotlinking");
+  });
+});
+
+describe("import basis gate", () => {
+  const entry = (method: string, status: string) => ({
+    method,
+    status,
+    evidence: status === "unreviewed" ? null : "evidence",
+    reviewedAt: status === "unreviewed" ? null : "2026-10-30",
+    reviewedBy: null,
+    note: status === "restricted" ? "terms ask for written consent" : null,
+  });
+  const register = (...entries: ReturnType<typeof entry>[]) =>
+    complianceRegisterSchema.parse({ source: "example-store", entries });
+
+  it("passes only a basis the register marks permitted", () => {
+    const r = register(entry("written_permission", "permitted"));
+    expect(checkImportBasis(r, "written_permission")).toEqual({ ok: true });
+  });
+
+  it("refuses restricted, unreviewed, missing and unknown bases, each with its own reason", () => {
+    const r = register(
+      entry("licensed_dataset", "restricted"),
+      entry("owner_original_data", "unreviewed"),
+    );
+    const refused = (basis: string) => {
+      const result = checkImportBasis(r, basis);
+      expect(result.ok).toBe(false);
+      return result.ok ? "" : result.reason;
+    };
+    expect(refused("licensed_dataset")).toContain("restricted");
+    expect(refused("owner_original_data")).toContain("not been reviewed");
+    expect(refused("written_permission")).toContain("no entry");
+    expect(refused("scraped")).toContain("unknown basis");
+  });
+
+  it("every declarable basis is a register method, so it can be decided there", () => {
+    for (const basis of IMPORT_BASES) expect(ACQUISITION_METHODS).toContain(basis);
   });
 });

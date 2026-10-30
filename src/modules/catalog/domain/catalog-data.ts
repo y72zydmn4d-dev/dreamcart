@@ -29,8 +29,14 @@ import {
  * `real` rejects every fixture id and unverified product; `synthetic` accepts only `fx-` products.
  */
 
-export const NUMERIC_ATTRIBUTES = ["screen_in", "ram_gb", "storage_gb"] as const;
-export const SLUG_ATTRIBUTES = ["chip", "color", "type"] as const;
+export const NUMERIC_ATTRIBUTES = [
+  "screen_in",
+  "ram_gb",
+  "storage_gb",
+  "cpu_cores",
+  "gpu_cores",
+] as const;
+export const SLUG_ATTRIBUTES = ["chip", "color", "type", "resolution", "glass", "stand"] as const;
 export const MAX_MEDIA_PER_PRODUCT = 6;
 export const MAX_SOURCE_IMAGE_BYTES = 1_500_000;
 const SLUG_VALUE = /^[a-z0-9]+(?:_[a-z0-9]+)*$/;
@@ -569,6 +575,7 @@ export interface ReadinessReport {
 }
 
 export const MINIMUM_PRODUCTS = 20;
+const RELEASE_GATE_CATEGORIES: readonly Category[] = ["laptop", "phone", "audio"];
 
 /** Honest status of the catalog against the release gate (docs/CURATION_PROCESS.md). */
 export function readinessReport(catalog: ValidatedCatalog): ReadinessReport {
@@ -581,7 +588,9 @@ export function readinessReport(catalog: ValidatedCatalog): ReadinessReport {
   if (catalog.mode === "synthetic") shortfalls.push("synthetic fixtures only: no real products");
   if (catalog.products.length < MINIMUM_PRODUCTS)
     shortfalls.push(`${catalog.products.length} of ${MINIMUM_PRODUCTS} minimum verified products`);
-  for (const category of CATEGORIES)
+  // The original release gate: the first three categories must each have products. Categories added later
+  // (desktop, display, ...) are not required, so extending the schema never raises the release bar by itself.
+  for (const category of RELEASE_GATE_CATEGORIES)
     if (byCategory[category] === 0) shortfalls.push(`no ${category} products`);
   const cleared = catalog.media.filter((m) => m.rights.status === "CLEARED").length;
   return {

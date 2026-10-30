@@ -40,6 +40,10 @@ export const product = (
   summaryVi: "Dữ liệu thử nghiệm, không phải sản phẩm thật.",
   verificationStatus: "verified",
   createdAt: OBSERVED,
+  specEvidence: {
+    url: `https://store.example.test/p/${id}/specs`,
+    note: "test fixture, not a real source",
+  },
   ...extra,
 });
 

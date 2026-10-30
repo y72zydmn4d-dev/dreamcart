@@ -1,7 +1,16 @@
 import { describe, expect, it } from "vitest";
 import { validateCatalog } from "../domain/catalog-data";
 import type { Source } from "../domain/catalog-schema";
-import { CURATION_COLUMNS, importCuration, parseCsv, suggestSlug } from "./curation-csv";
+import { CATEGORIES } from "../domain/catalog-schema";
+import { deriveProductId } from "../domain/product-id";
+import {
+  CURATION_COLUMNS,
+  columnsFor,
+  parseCompatibleWith,
+  importCuration,
+  parseCsv,
+  suggestSlug,
+} from "./curation-csv";
 
 /** Obviously fictional rows ("Acme", .test hosts): they exercise the converter, they are not catalog data. */
 const sources: Source[] = [
@@ -33,6 +42,8 @@ const base: Record<string, string> = {
   price_provenance_type: "curator_observed",
   price_kind: "list_price_exact_configuration",
   price_evidence_note: "price shown on the product page",
+  spec_evidence_url: "https://shop.acme.test/book-14/specs",
+  spec_evidence_note: "specifications read on the product page",
   availability: "unknown",
   title_vi: "Acme Book 14",
   summary_vi: "Mô tả tự viết",
@@ -170,7 +181,7 @@ describe("rejects malformed files with the row, column and a fix", () => {
   it("wrong number of cells", () => {
     const r = importCuration(`${CURATION_COLUMNS.join(",")}\nacme-book,Acme`, sources);
     expect(r.errors[0]).toMatchObject({ line: 2 });
-    expect(r.errors[0]!.message).toMatch(/expected 45 columns/);
+    expect(r.errors[0]!.message).toMatch(new RegExp(`expected ${CURATION_COLUMNS.length} columns`));
   });
   it.each([
     [
@@ -302,12 +313,165 @@ describe("price kinds", () => {
   });
 });
 
-describe("curation template", () => {
-  it("has exactly the columns the importer expects, in order", async () => {
+describe("per-category templates and header-driven import", () => {
+  it("every category has a template with its own attribute columns after `category`", () => {
+    const laptop = columnsFor("laptop");
+    expect(laptop.slice(laptop.indexOf("category") + 1, laptop.indexOf("category") + 8)).toEqual([
+      "screen_in",
+      "chip",
+      "ram_gb",
+      "storage_gb",
+      "color",
+      "cpu_cores",
+      "gpu_cores",
+    ]);
+    expect(columnsFor("display")).toContain("glass");
+    expect(columnsFor("tablet")).not.toContain("glass");
+    expect(columnsFor("accessory")).toContain("fits_case_mm");
+    for (const category of CATEGORIES)
+      for (const column of columnsFor(category)) expect(CURATION_COLUMNS).toContain(column);
+  });
+
+  it("the committed templates are exactly the generated ones", async () => {
     const { readFileSync } = await import("node:fs");
-    const header = readFileSync("docs/templates/catalog_curation_template.csv", "utf8").split(
-      /\r?\n/,
-    )[0];
-    expect(header!.split(",")).toEqual([...CURATION_COLUMNS]);
+    for (const category of CATEGORIES) {
+      const header = readFileSync(`docs/templates/catalog/${category}.csv`, "utf8").split(
+        /\r?\n/,
+      )[0];
+      expect(header!.split(","), category).toEqual(columnsFor(category));
+    }
+  });
+
+  it("a file with only its category's columns imports, and a missing required column is reported with a fix", () => {
+    const columns = columnsFor("laptop");
+    expect(importCuration(toCsv([base], columns), sources).errors).toEqual([]);
+    const without = columns.filter((c) => c !== "chip");
+    const errors = importCuration(toCsv([base], without), sources).errors;
+    expect(errors).toHaveLength(1);
+    expect(errors[0]).toMatchObject({ line: 2, column: "chip" });
+    expect(errors[0]!.message).toMatch(/column is required for laptop/);
+  });
+
+  it("a header with an unknown column is refused naming it", () => {
+    const errors = importCuration(`${columnsFor("laptop").join(",")},bogus\n`, sources).errors;
+    expect(errors[0]).toMatchObject({ line: 1, column: "bogus" });
+  });
+});
+
+describe("derived ids, duplicates, evidence and rights", () => {
+  const rowsOf = (...rows: Record<string, string>[]) => importCuration(toCsv(rows), sources);
+
+  it("derives a stable id from manufacturer, family and model when product_id is empty", () => {
+    const a = rowsOf({ ...base, product_id: "" });
+    const b = rowsOf({ ...base, product_id: "", brand: "ACME", family: "book" });
+    expect(a.errors).toEqual([]);
+    expect(a.products[0]!.id).toBe("acme-book-14");
+    expect(b.products[0]!.id).toBe(a.products[0]!.id);
+    expect(deriveProductId({ brand: "Hãng Ví Dụ", family: "Tai nghe", model: "Pro 2" })).toBe(
+      "hang-vi-du-tai-nghe-pro-2",
+    );
+  });
+
+  it("a derived id is a valid route segment and long identities get a collision-proof suffix", () => {
+    const long = (n: string) =>
+      deriveProductId({ brand: "Maker", family: "x".repeat(70), model: n });
+    expect(long("1")).toMatch(/^[a-z0-9-]{1,64}$/);
+    expect(long("1")).not.toBe(long("2"));
+    expect(deriveProductId({ brand: "fx", family: "thing", model: "1" }).startsWith("fx-")).toBe(
+      false,
+    );
+  });
+
+  it("an empty id without brand, family and model cannot be derived", () => {
+    const r = rowsOf({ ...base, product_id: "", model: "" });
+    expect(r.errors[0]).toMatchObject({ column: "product_id" });
+  });
+
+  it("two ids for the same manufacturer, family and model are refused at the row", () => {
+    const r = rowsOf(base, {
+      ...base,
+      product_id: "acme-book-b",
+      offer_url: "https://shop.acme.test/book-14b",
+    });
+    expect(
+      r.errors.some((e) => e.column === "product_id" && /one product, one id/.test(e.message)),
+    ).toBe(true);
+  });
+
+  it("a verified row needs spec evidence, and the pair is both-or-neither", () => {
+    expect(
+      rowsOf({ ...base, spec_evidence_url: "", spec_evidence_note: "" }).errors.some(
+        (e) => e.column === "spec_evidence_url",
+      ),
+    ).toBe(true);
+    expect(
+      rowsOf({ ...base, spec_evidence_note: "" }).errors.some((e) =>
+        /both be filled/.test(e.message),
+      ),
+    ).toBe(true);
+    expect(rowsOf(base).products[0]!.specEvidence).toEqual({
+      url: "https://shop.acme.test/book-14/specs",
+      note: "specifications read on the product page",
+    });
+  });
+
+  it("compatible_with parses brand|family[|product_id] entries and rejects a malformed one", () => {
+    expect(parseCompatibleWith("Host|Phoneo 1|tm-phone; Host|Phoneo 2")).toEqual([
+      { brand: "Host", family: "Phoneo 1", productId: "tm-phone" },
+      { brand: "Host", family: "Phoneo 2" },
+    ]);
+    expect(typeof parseCompatibleWith("just-a-name")).toBe("string");
+    expect(
+      rowsOf({ ...base, compatible_with: "oops" }).errors.some(
+        (e) => e.column === "compatible_with",
+      ),
+    ).toBe(true);
+    expect(
+      rowsOf({ ...base, compatible_with: "Host|Phoneo 1" }).products[0]!.compatibleWith,
+    ).toEqual([{ brand: "Host", family: "Phoneo 1" }]);
+  });
+
+  it("rows of one product must agree on compatibility", () => {
+    const r = rowsOf(
+      { ...base, compatible_with: "Host|Phoneo 1" },
+      {
+        ...base,
+        ram_gb: "16",
+        compatible_with: "Host|Phoneo 2",
+        offer_url: "https://shop.acme.test/book-14-16",
+      },
+    );
+    expect(r.errors.some((e) => /conflicting compatible_with/.test(e.message))).toBe(true);
+  });
+
+  it("a CLEARED image needs its basis and evidence at the row, and the basis must be a known one", () => {
+    const image = {
+      image_file: "img/a.jpg",
+      image_alt_vi: "Ảnh",
+      image_width: "800",
+      image_height: "600",
+      image_rights_status: "CLEARED",
+    };
+    const cols = (extra: Record<string, string>) =>
+      rowsOf({ ...base, ...image, ...extra }).errors.map((e) => e.column);
+    expect(cols({})).toEqual(
+      expect.arrayContaining(["image_rights_basis", "image_rights_evidence"]),
+    );
+    expect(cols({ image_rights_basis: "scraped", image_rights_evidence: "x" })).toContain(
+      "image_rights_basis",
+    );
+    expect(
+      cols({ image_rights_basis: "written_permission", image_rights_evidence: "grant 1" }),
+    ).toEqual([]);
+    expect(cols({ image_rights_status: "PENDING" })).toEqual([]); // unknown rights stay unknown, and import fine
+  });
+});
+
+describe("import guide", () => {
+  it("documents every column the importer accepts", async () => {
+    const { readFileSync } = await import("node:fs");
+    const guide = readFileSync("docs/CATALOG_IMPORT_GUIDE.md", "utf8");
+    const undocumented = CURATION_COLUMNS.filter((c) => !guide.includes(`\`${c}\``));
+    expect(undocumented).toEqual([]);
   });
 });

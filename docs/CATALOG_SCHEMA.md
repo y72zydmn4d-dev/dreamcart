@@ -125,7 +125,7 @@ Zod parse; unique ids; `variantKey` unique per product; required attributes pres
 
 ## Curation input
 
-Human curators fill one row per variant-offer in `docs/templates/catalog_curation_template.csv`; a Phase 5 script converts and validates it into the data files. See `docs/CURATION_PROCESS.md`.
+Human curators fill one row per variant-offer in the per-category templates in `docs/templates/catalog/` (`docs/CATALOG_IMPORT_GUIDE.md`); a Phase 5 script converts and validates it into the data files. See `docs/CURATION_PROCESS.md`.
 
 ## Phase 5 implementation notes
 
@@ -135,3 +135,14 @@ Human curators fill one row per variant-offer in `docs/templates/catalog_curatio
 - Real mode rejects `fx-` ids, unverified products and prices without observer plus evidence; synthetic mode accepts only `fx-` ids. A real catalog with at least one verified product is used automatically; otherwise non-release builds fall back to the labeled synthetic catalog, and a release build (`NEXT_PUBLIC_DREAMCART_RELEASE=1`) refuses to start.
 - Image files: at most 6 per product, source files at most 1.5 MB, must exist when `CLEARED`. Responsive pre-generated sizes arrive with the first real images.
 - Curation CSV: the template gained `image_alt_vi`, `image_width`, `image_height`. One row per variant-offer; sources are resolved from the offer URL's host against `sources.json`.
+
+## Categories, compatibility and evidence (ADR-015)
+
+Nine categories: `laptop`, `desktop`, `display`, `tablet`, `phone`, `wearable`, `audio`, `smart_home`, `accessory`. Each has its own required and optional attributes (`REQUIRED_ATTRIBUTES` / `OPTIONAL_ATTRIBUTES` in code; the import templates list them); a category never carries attributes that do not describe it. A variant exists only if the source offers that exact combination (a watch is a list of orderable case-and-band combinations, not a cross product).
+
+- **Manufacturer and merchant** are separate: `Product.brand` is the manufacturer; the seller is the offer's `merchantName` and source.
+- **`Product.compatibleWith`**: host device families (`brand`, `family`, optionally a catalog `productId`). Validated, filterable, searchable, shown on the product page. Absent means unknown, not universal.
+- **`Product.specEvidence`**: the page identity and specifications were checked on, and a note. A verified product in the real catalog must carry it.
+- **Identity**: one product per manufacturer, family and model (case and accents ignored); a stable id can be derived from that triple.
+- **Prices** are only the full public price of exactly one configuration; an unknown price is `null`, never 0.
+- **Images** render only when CLEARED with a basis and evidence; the register must permit the basis (`catalog:preflight`).

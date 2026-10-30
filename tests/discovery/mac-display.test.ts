@@ -41,6 +41,7 @@ const product = (id: string, category: Category, family: string, model: string) 
   titleVi: `Testmark ${family} ${model}`,
   summaryVi: "Dữ liệu thử nghiệm, không phải sản phẩm thật.",
   verificationStatus: "verified" as const,
+  specEvidence: { url: `https://store.example.test/p/${id}/specs`, note: "test fixture" },
   createdAt: iso,
 });
 const offer = (v: { id: string }, amountMinor: number | null) => ({

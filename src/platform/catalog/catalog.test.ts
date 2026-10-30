@@ -199,6 +199,7 @@ describe("staged products are served only outside production", () => {
         titleVi: "Testmark View V1",
         summaryVi: "Dữ liệu thử nghiệm, không phải sản phẩm thật.",
         verificationStatus: "verified",
+        specEvidence: { url: "https://store.example.test/p/tm-view/specs", note: "test fixture" },
         createdAt: "2026-10-20T00:00:00.000Z",
       },
     ],

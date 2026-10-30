@@ -37,7 +37,7 @@ Selection criteria: premium positioning; currently sold in Vietnam; at least one
    3. the owner's own photography;
    4. none: `placeholder`, and where an editorial surface needs visual weight, DreamCart `brand_art` (abstract, never presented as a photograph of the product).
    Do not hotlink or copy a retailer's product image. Public availability is not permission.
-7. **Fill the CSV** (`docs/templates/catalog_curation_template.csv`). Leave unknown fields empty; never guess.
+7. **Fill the CSV** (the per-category templates in `docs/templates/catalog/` (`docs/CATALOG_IMPORT_GUIDE.md`)). Leave unknown fields empty; never guess.
 8. **Second check**: someone other than the curator, or the same person after 24 hours, reopens the source URL and confirms attributes and price; sets `verified_by` and `verified_at`.
 9. **Validate and merge** by pull request. The Phase 5 script rejects incomplete rows.
 

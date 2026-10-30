@@ -27,11 +27,20 @@ Status labels: `ENGINEERING_COMPLETE`, `VERIFIED`, `BLOCKED_EXTERNAL_DEPENDENCY`
 - Phase 12 was merged from `claude/phase-12-release-readiness` as `07e8657`; the autonomous plan is complete.
 - Delivered: `docs/FINAL_ACCEPTANCE_REPORT.md` (verdict, gate-by-gate evidence, what was not verified, owner decisions), `docs/RELEASE_CHECKLIST.md`, CLAUDE.md "Deployment" section recording the owner's authorization of Vercel Preview deployments (production still needs explicit approval each time; the outdated "no deployment before Phase 12" statements were corrected), `SMOKE_BASE_URL` / `SMOKE_MODE=release` for the smoke tool and `E2E_BASE_URL` for the browser suite so a deployment can be checked with one command, the `/design` gallery hidden in release builds, a takedown path in the runbook, and a demonstrated release-build refusal of synthetic data.
 - **Overall status: `READY_FOR_RELEASE_REVIEW`.** `READY_FOR_OWNER_RELEASE_APPROVAL` is not claimed: the real catalog and image rights (`BLOCKED_EXTERNAL_DEPENDENCY`), the pilot, device and screen-reader checks, deployment verification and rollback rehearsal (`PENDING_HUMAN_VALIDATION`) are open.
-- Vercel: the two projects were not touched. The environment's network policy blocks `*.vercel.app`, so no deployed URL was checked; only the bot's "Ready" build status is evidence of a successful preview build. Check whether the production branch is `main` (it may already publish the synthetic build).
+- Vercel: the two projects were not touched. The environment's network policy blocks `*.vercel.app`, so no deployed URL was checked; only the bot's "Ready" build status is evidence of a successful preview build. The owner has since confirmed that the production branch is `main`: every merge to `main` publishes to production, so a merge is a production release. The F01–F04 release was authorized explicitly.
 
 ## Post-MVP remediation (browser acceptance findings F01–F04)
 
-Status: `ENGINEERING_COMPLETE`, one pull request (`claude/post-mvp-f01-f04`). Fixed: F01 price radios (shared radio group across the desktop panel and mobile sheet), F02 catalog-mode disclosure, F03 unpriced add-to-cart affordance, F04 dark illustration separation; details in `CHANGELOG.md`. Verified locally in Chromium (lint, types, 646 unit tests, build, smoke, 168 browser specs including the full journey); Firefox and WebKit run in CI only. Preview deployments were not fetched (network policy). Overall status is unchanged: `READY_FOR_RELEASE_REVIEW`.
+Status: **CLOSED** (`VERIFIED` by automated browser specs; the production deployment is owner-accepted). One pull request, #15, squash-merged as `e043de3`. The owner confirmed that the primary Vercel project `dreamcart` deployed `e043de3` from `main` to Production with status Ready, and accepted that deployment.
+
+| Finding | Fix | Evidence |
+|---|---|---|
+| F01 price radios all unchecked | one radio group per filter panel (the desktop panel and the always-mounted mobile sheet shared one group) | `filters.spec.ts` reads the real `checked` state, URL, chip and results, including reload, history, clear, keyboard and a viewport change; 7 of 7 failed on the old code |
+| F02 contradictory real vs synthetic claims | copy follows the catalog mode (`active.mode`); fictional source links say they are samples | `disclosure.spec.ts` |
+| F03 add-to-cart offered for an unpriced product | the action is disabled up front and the reason printed beside it | `add-to-cart-state.spec.ts` (desktop and mobile, axe) |
+| F04 dark illustrations merge with the stage | luminance-based backlight and rim token in the dark scheme; the colour is never changed | `art-separation.spec.ts`, `art-tone.test.ts`, screenshots at 325 to 1440 px |
+
+Verification boundaries, stated plainly: CI (Quality, Chromium, Firefox, WebKit) was green on the merged head `7165487`. The Firefox engine did not apply the dark colour scheme to the loaded page in two CI runs, so the dark-only art specs are skipped where an engine cannot apply it (the rim and backlight are then verified in Chromium). No one re-ran the four findings by hand on the production URL from the authoring environment (its network policy blocks `*.vercel.app`); production correctness rests on the CI results and the owner's acceptance of the deployment. Overall status is unchanged: `READY_FOR_RELEASE_REVIEW`.
 
 Acceptance checks the independent browser test did not cover, still open for the owner (not failures): backup export/import round trip on real devices, multiple tabs, Safari on real Apple hardware, Firefox, private browsing and storage failures, slow network and offline, larger cart quantities, cancellation and deletion flows, and the Relaxed simulation preset. The automated suites cover most of these in Chromium, Firefox and WebKit engines, not on devices.
 
@@ -46,6 +55,10 @@ Acceptance checks the independent browser test did not cover, still open for the
 
 - **Offline use.** My Collection and all orders are read from IndexedDB with no network call, but there is no service worker, so a closed browser cannot open the app offline. The PRD acceptance ("works offline") is met for data, not for the app shell. Decide in Phase 10/11 whether a minimal offline shell is in the MVP (it would be a new, small scope item for the owner).
 
+## Next approved program
+
+**Apple Store Vietnam Complete Catalog Integration** (owner-approved after the F01–F04 release). Constraints from the owner: keep the existing architecture, preserve historical Fixturia orders, ingest the catalog in sequential batches, and never publish unverified product data or uncleared images to production. Not started: it waits for the owner's detailed master prompt.
+
 ## Next action
 
-The autonomous plan is complete. The next steps belong to the owner (see `docs/FINAL_ACCEPTANCE_REPORT.md` and `docs/RELEASE_CHECKLIST.md`): supply the verified catalog and image rights, run the pilot and the device and screen-reader checks, check the Vercel production-branch setting and run the deployment checks, then decide on launch. Engineering follow-ups available on request: read the Firefox traces for the page-load stalls, a phone-width run of the full journey, and an optional offline shell.
+The autonomous plan is complete. The next steps belong to the owner (see `docs/FINAL_ACCEPTANCE_REPORT.md` and `docs/RELEASE_CHECKLIST.md`): supply the verified catalog and image rights, run the pilot and the device and screen-reader checks, run the deployment checks (the owner confirmed that the Vercel production branch of `dreamcart` is `main`, so every merge to `main` publishes to production), then decide on launch. Engineering follow-ups available on request: read the Firefox traces for the page-load stalls, a phone-width run of the full journey, and an optional offline shell.

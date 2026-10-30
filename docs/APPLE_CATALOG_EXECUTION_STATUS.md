@@ -17,12 +17,12 @@ The resume point for the Apple catalog program (ADR-015). On resume: fetch `orig
 |---|---|---|
 | 0 Source, licensing, inventory foundation | ENGINEERING_COMPLETE (merged `3767b17`, PR #17) | activation gate, staging, manifest, register |
 | 1 Mac and displays | **PARTIALLY_COMPLETE: engineering foundations done; verified records 0; `BLOCKED_EXTERNAL_DEPENDENCY` on a permission basis** | terms read; compliant plan in `docs/APPLE_ACQUISITION_PLAN.md`; not complete |
-| 2 iPhone | not started | |
-| 3 iPad | not started | |
-| 4 Apple Watch | not started | |
-| 5 AirPods, Beats, AirTag, Home | not started | |
-| 6 Apple accessories | not started | |
-| 7 Third-party accessories | not started | |
+| 2 iPhone | not started (schema exists; no records) | `BLOCKED_EXTERNAL_DEPENDENCY` on B-A1 |
+| 3 iPad | schema ready (`tablet`); no records | `BLOCKED_EXTERNAL_DEPENDENCY` on B-A1 |
+| 4 Apple Watch | schema ready (`wearable`); no records | `BLOCKED_EXTERNAL_DEPENDENCY` on B-A1 |
+| 5 AirPods, Beats, AirTag, Home | schema ready (`audio`, `smart_home`); no records | `BLOCKED_EXTERNAL_DEPENDENCY` on B-A1 |
+| 6 Apple accessories | schema ready (`accessory`, `compatibleWith`); no records | `BLOCKED_EXTERNAL_DEPENDENCY` on B-A1 |
+| 7 Third-party accessories | schema ready (manufacturer and merchant are separate); no records | `BLOCKED_EXTERNAL_DEPENDENCY` on B-A1 |
 | 8 Reconciliation | not started | |
 | 9 Storefront integration | not started | |
 | 10 Validation and readiness | not started | |
@@ -46,6 +46,18 @@ The resume point for the Apple catalog program (ADR-015). On resume: fetch `orig
 - **Staged activation tested**: a staged catalog is served in a Preview and never in production.
 - **Not done, not claimed**: no Apple product, price, configuration or image has been recorded. Batch 1 is not complete.
 
+## Independent engineering while rights are pending (owner-authorized)
+
+| Workstream | Delivered | Where |
+|---|---|---|
+| A Category schemas | `tablet`, `wearable`, `smart_home`, `accessory` with typed attributes and product-level `compatibleWith`; compatibility is a filter and searchable; duplicate products refused; URL-state fix | PR #19 (merged `38d2c12`) |
+| B Import infrastructure | Header-driven per-category importer, stable ids, row-level errors, whole-file failure writes nothing, `catalog:preflight` (staging and verified readiness) and `catalog:template`, import guide | PR #20 (see its CI; merge only if green) |
+| C Owner-assisted curation | One CSV template per category (`docs/templates/catalog/`), required-field docs, validation commands. Nothing is ever marked authorized by tooling | PR #20 |
+| D Source research | Nine candidates evaluated and labeled **Read** or **Lead**; nothing signed up for, accepted, purchased or collected | `docs/APPLE_DATA_SOURCES_RESEARCH.md` |
+| E Fictional tests | Tablet configurations, watch case-and-band compatibility, audio variants, accessory compatibility, missing prices, unknown image rights, filters, search accuracy, import failures, legacy Fixturia order compatibility | `tests/discovery/`, `tests/orders/`, `tests/catalog/` |
+
+None of this changes what production serves: `data/catalog/activation.json` is `SYNTHETIC_DEMO` and no record exists to publish.
+
 ## Counts (all from the manifest; zero means nothing has been recorded, not that the store is empty)
 
 | Measure | Value |
@@ -64,8 +76,8 @@ The resume point for the Apple catalog program (ADR-015). On resume: fetch `orig
 1. **B-A1 Permission basis (owner action).** No path currently permits importing Apple product data or images. The owner chooses a path from `docs/APPLE_ACQUISITION_PLAN.md` (written permission from Apple, a licensed dataset, owner-original data) and records it in the register. A draft permission request is in the plan. Network access is no longer a blocker.
 2. **B-A2 Legal question (owner/counsel).** Whether bare product facts fall outside Apple's protected "Content" is not decided by this repository; until settled, nothing transcribed from `apple.com` is imported.
 3. **B-A3 Image rights.** No Apple image has a recorded permission basis; nothing is cleared (ADR-010). Real products show the labeled placeholder.
-4. **B-A4 Categories.** `desktop` and `display` exist; tablets, watches and accessories are added in their own batches with their first verified records.
+4. **B-A4 Categories.** Resolved as engineering: all nine categories now have schemas and tests. Records are still zero.
 
 ## Next action
 
-Owner: choose and record an acquisition basis (see the plan; A and C can run together). Then Claude imports owner-supplied rows through the gated pipeline into staging, validates, previews, and reports counts for Batch 1. In the meantime the remaining batches' category schemas (iPad, Watch, audio, accessories) can be prepared the same way, without any data. Nothing from this program is published to production without the owner's explicit authorization.
+Owner: choose and record an acquisition basis (see the plan; A and C can run together). Then Claude imports owner-supplied rows through the gated pipeline into staging, validates, previews, and reports counts for Batch 1. Independent engineering is done as far as it can go without a permission basis (see the table above). The cheapest unblocking steps are the Rights and Permissions request (acquisition plan §4) and owner-original pilot data; the research document lists what else could be examined, and the owner decides which, if any. Nothing from this program is published to production without the owner's explicit authorization.

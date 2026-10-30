@@ -2,6 +2,11 @@
 
 DreamCart is pre-release: nothing has been published to production, and the product still runs on labeled synthetic fixtures until a verified real catalog and image rights exist (see `docs/EXECUTION_STATUS.md`). Entries are grouped by phase; each phase was one pull request.
 
+## Apple catalog program: data-source research and compatibility tests (no product data)
+
+- `docs/APPLE_DATA_SOURCES_RESEARCH.md` evaluates nine possible legitimate sources of product records and imagery (Apple's partner programme and permission route, Open Icecat, Wikidata, Wikimedia Commons, paid aggregators, affiliate networks, retailer programmes, owner-original data). Each entry is labeled **Read** (primary page read) or **Lead** (unverified); nothing was signed up for, accepted, purchased or collected.
+- Tests: a historical Fixturia order still parses, keeps the item and price paid, keeps its own simulation clock and is never re-resolved or re-priced when the active catalog changes; saved cart lines become unavailable rather than guessed; and search returns exact variants of the right category on tablets, audio and displays (an attribute the category lacks is a mismatch).
+
 ## Apple catalog program: category schemas (no product data)
 
 - New categories `tablet`, `wearable`, `smart_home` and `accessory` with typed attributes (connectivity, case size and material, band type, size and colour, noise control, connector, device type, accessory type, length, power, package quantity, band fit) and a product-level `compatibleWith` (host brand and family, optionally a catalog product). Compatibility that is not stated stays unknown, never "universal".

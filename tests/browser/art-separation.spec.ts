@@ -35,6 +35,17 @@ const channels = (color: string) => {
   return { r, g, b, a };
 };
 
+/**
+ * Emulate the dark scheme explicitly and confirm the engine applied it. On the CI Firefox the context-level option
+ * did not take effect (the page kept reading the light-scheme tokens), so the dark-only checks are skipped, and
+ * reported as skipped, on an engine that cannot emulate it instead of failing on the wrong scheme.
+ */
+async function useDarkScheme(page: Page) {
+  await page.emulateMedia({ colorScheme: "dark" });
+  const dark = await page.evaluate(() => matchMedia("(prefers-color-scheme: dark)").matches);
+  test.skip(!dark, "this engine did not apply the dark colour-scheme emulation");
+}
+
 for (const width of [325, 390, 768, 1440]) {
   test.describe(`dark scheme at ${width}px`, () => {
     test.use({
@@ -46,8 +57,11 @@ for (const width of [325, 390, 768, 1440]) {
     test("a dark product (Buds Lite) gets a light rim and a backlight, without a new body color", async ({
       page,
     }) => {
+      await useDarkScheme(page);
       await page.goto("/product/fx-buds-lite");
       await expect(stage(page)).toBeVisible();
+      // The art is first drawn in the neutral default colour and re-tinted when the only colour is selected.
+      await expect(stage(page)).toHaveAccessibleName(/màu/);
       const { stroke, fill } = await rimOf(page);
       const rim = channels(stroke);
       expect([rim.r, rim.g, rim.b]).toEqual([255, 255, 255]);

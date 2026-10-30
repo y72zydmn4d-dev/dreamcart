@@ -353,9 +353,19 @@ export const ACQUISITION_METHODS = [
   "manual_reading_of_public_pages",
   "automated_page_collection",
   "documented_structured_feed",
-  "owner_supplied_files",
+  /**
+   * Facts the owner obtained without copying the source's Content (products they own, their own measurements,
+   * their own photographs). The owner attests to this; the register cannot verify it.
+   */
+  "owner_original_data",
+  /** Written consent from the rights holder for a stated use (the basis the source's terms ask for). */
+  "written_permission",
+  /** A dataset obtained under a licence that allows this use. Paid datasets need owner approval first. */
+  "licensed_dataset",
   "image_rehosting",
   "image_hotlinking",
+  /** Images under an open licence (per file), or the owner's own photography. */
+  "open_license_images",
 ] as const;
 
 export const complianceRegisterSchema = z.strictObject({
@@ -367,10 +377,10 @@ export const complianceRegisterSchema = z.strictObject({
           method: z.enum(ACQUISITION_METHODS),
           status: z.enum(["permitted", "restricted", "unreviewed"]),
           /** What was read (a URL and its date) or the project decision that settles it. Required unless unreviewed. */
-          evidence: z.string().max(1000).nullable(),
+          evidence: z.string().max(4000).nullable(),
           reviewedAt: z.iso.date().nullable(),
-          reviewedBy: z.string().max(80).nullable(),
-          note: z.string().max(500).nullable(),
+          reviewedBy: z.string().max(120).nullable(),
+          note: z.string().max(1500).nullable(),
         })
         .superRefine((e, ctx) => {
           if (e.status !== "unreviewed" && (!e.evidence || !e.reviewedAt)) {
@@ -382,7 +392,7 @@ export const complianceRegisterSchema = z.strictObject({
           }
         }),
     )
-    .max(20),
+    .max(30),
 });
 export type ComplianceRegister = z.infer<typeof complianceRegisterSchema>;
 
@@ -392,4 +402,39 @@ export function methodPermitted(
   method: (typeof ACQUISITION_METHODS)[number],
 ): boolean {
   return register.entries.some((e) => e.method === method && e.status === "permitted");
+}
+
+/** What an import declares about where its facts came from. Each maps to the register method of the same name. */
+export const IMPORT_BASES = [
+  "written_permission",
+  "licensed_dataset",
+  "owner_original_data",
+] as const;
+export type ImportBasis = (typeof IMPORT_BASES)[number];
+
+export type ImportBasisCheck =
+  { readonly ok: true } | { readonly ok: false; readonly reason: string };
+
+/**
+ * An import may proceed only on a basis the compliance register permits. Staging is not an exemption: staged
+ * records are still copies, so the same gate applies to `staging` and `verified` targets.
+ */
+export function checkImportBasis(register: ComplianceRegister, basis: string): ImportBasisCheck {
+  if (!(IMPORT_BASES as readonly string[]).includes(basis)) {
+    return { ok: false, reason: `unknown basis "${basis}"; use one of ${IMPORT_BASES.join(", ")}` };
+  }
+  const entry = register.entries.find((e) => e.method === basis);
+  if (!entry)
+    return {
+      ok: false,
+      reason: `the register has no entry for "${basis}"; record a decision first`,
+    };
+  if (entry.status === "permitted") return { ok: true };
+  return {
+    ok: false,
+    reason:
+      entry.status === "restricted"
+        ? `"${basis}" is restricted for ${register.source}: ${entry.note ?? "see the register"}`
+        : `"${basis}" has not been reviewed for ${register.source}; the owner records a decision in the register first`,
+  };
 }

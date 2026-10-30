@@ -97,8 +97,14 @@ describe("staged catalog (data/catalog-staging/apple-vn)", () => {
   });
 
   it("ships its inventory manifest and compliance register in a valid shape", async () => {
-    const { validateInventory, complianceRegisterSchema, methodPermitted } =
-      await import("@/modules/catalog");
+    const {
+      validateInventory,
+      complianceRegisterSchema,
+      methodPermitted,
+      ACQUISITION_METHODS,
+      IMPORT_BASES,
+      checkImportBasis,
+    } = await import("@/modules/catalog");
     const manifest = (
       await import("../../../data/catalog-staging/apple-vn/inventory/manifest.json")
     ).default;
@@ -107,10 +113,22 @@ describe("staged catalog (data/catalog-staging/apple-vn)", () => {
     ).default;
     expect(validateInventory(manifest).errors).toEqual([]);
     const register = complianceRegisterSchema.parse(compliance);
-    // Until the terms are read and recorded, nothing automated and no image copying is permitted.
-    expect(methodPermitted(register, "automated_page_collection")).toBe(false);
-    expect(methodPermitted(register, "image_rehosting")).toBe(false);
-    expect(methodPermitted(register, "image_hotlinking")).toBe(false);
+    // The terms were read on 2026-10-30: nothing is permitted until a written grant or licence is recorded.
+    for (const entry of register.entries) expect(entry.status).not.toBe("permitted");
+    for (const method of ACQUISITION_METHODS) expect(methodPermitted(register, method)).toBe(false);
+    for (const method of [
+      "automated_page_collection",
+      "manual_reading_of_public_pages",
+      "image_rehosting",
+      "image_hotlinking",
+    ] as const) {
+      const entry = register.entries.find((e) => e.method === method)!;
+      expect(entry.status).toBe("restricted");
+      // a decision cites what was read: the page address and the date
+      expect(entry.evidence).toMatch(/https:\/\/www\.apple\.com\/.*2026-10-30/s);
+    }
+    // the import gate refuses every basis today
+    for (const basis of IMPORT_BASES) expect(checkImportBasis(register, basis).ok).toBe(false);
   });
 });
 
@@ -155,5 +173,106 @@ describe("loadActiveCatalog under each activation setting", () => {
     await expect(
       loadWith({ mode: "VERIFIED_REAL_CATALOG", ownerAuthorization: null }, undefined),
     ).rejects.toThrow(/activation\.json is invalid/);
+  });
+});
+
+describe("staged products are served only outside production", () => {
+  /** One FICTIONAL staged product (example.test), standing in for a verified batch. */
+  const STAGED = {
+    sources: [
+      {
+        id: "test-store",
+        name: "Test Store",
+        domain: "store.example.test",
+        kind: "retailer",
+        termsReviewedAt: "2026-10-01",
+        persistencePolicy: "snapshot_allowed",
+      },
+    ],
+    products: [
+      {
+        id: "tm-view",
+        brand: "Testmark",
+        family: "View",
+        model: "V1",
+        category: "display",
+        titleVi: "Testmark View V1",
+        summaryVi: "Dữ liệu thử nghiệm, không phải sản phẩm thật.",
+        verificationStatus: "verified",
+        createdAt: "2026-10-20T00:00:00.000Z",
+      },
+    ],
+    variants: [
+      {
+        id: "tm-view:27",
+        productId: "tm-view",
+        attributes: { screen_in: 27 },
+        gtin: null,
+        variantKey: "screen_in=27",
+      },
+    ],
+    offers: [
+      {
+        id: "tm-view:27@test-store",
+        variantId: "tm-view:27",
+        sourceId: "test-store",
+        url: "https://store.example.test/p/tm-view/27",
+        merchantName: "Test Store",
+        availability: "unknown",
+        price: {
+          amountMinor: 20_000_000,
+          currency: "VND",
+          observedAt: "2026-10-20T00:00:00.000Z",
+          provenanceType: "curator_observed",
+          observer: "test-curator",
+          evidenceNote: "test fixture, not a real observation",
+        },
+      },
+    ],
+    media: [],
+    vocabulary: {},
+    featured: [],
+  };
+  const staging = { mode: "REAL_CATALOG_STAGING", ownerAuthorization: null };
+
+  async function loadStaged(vercelEnv: string | undefined) {
+    vi.resetModules();
+    vi.doMock("../../../data/catalog/activation.json", () => ({ default: staging }));
+    vi.doMock("./staging", () => ({ STAGING_RAW: STAGED }));
+    vi.stubEnv("VERCEL_ENV", vercelEnv as string);
+    return (await import("./index")).loadActiveCatalog(NOW);
+  }
+  afterEach(() => {
+    vi.doUnmock("../../../data/catalog/activation.json");
+    vi.doUnmock("./staging");
+    vi.unstubAllEnvs();
+    vi.resetModules();
+  });
+
+  it("a preview serves the staged catalog, validated as real data, and says it is staging", async () => {
+    const active = await loadStaged("preview");
+    expect(active.activation).toBe("REAL_CATALOG_STAGING");
+    expect(active.mode).toBe("real");
+    expect(active.catalog.products.map((p) => p.id)).toEqual(["tm-view"]);
+    expect(active.readiness.meetsMinimum).toBe(false); // one product is far from a release
+  });
+
+  it("production never serves it: the labeled fixtures stay, with a recorded note", async () => {
+    const active = await loadStaged("production");
+    expect(active.activation).toBe("SYNTHETIC_DEMO");
+    expect(active.mode).toBe("synthetic");
+    expect(active.catalog.products.every((p) => p.id.startsWith("fx-"))).toBe(true);
+    expect(active.activationNote).toContain("production");
+  });
+
+  it("an invalid staged batch fails the load instead of being served", async () => {
+    vi.resetModules();
+    vi.doMock("../../../data/catalog/activation.json", () => ({ default: staging }));
+    vi.doMock("./staging", () => ({
+      STAGING_RAW: { ...STAGED, variants: [{ ...STAGED.variants[0], attributes: {} }] },
+    }));
+    vi.stubEnv("VERCEL_ENV", "preview");
+    const { loadActiveCatalog } = await import("./index");
+    await expect(loadActiveCatalog(NOW)).rejects.toThrow(/invalid/);
   });
 });

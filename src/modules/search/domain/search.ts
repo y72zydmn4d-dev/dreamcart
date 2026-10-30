@@ -6,7 +6,7 @@ import { normalizeText } from "@/modules/shared/domain/text";
  * silently. There is no ranking by popularity and no AI.
  */
 
-export type Category = "laptop" | "phone" | "audio";
+export type Category = "laptop" | "desktop" | "display" | "phone" | "audio";
 export type AttributeValue = string | number;
 
 export interface SearchVariant {
@@ -58,6 +58,8 @@ export interface SearchVocabulary {
 export const BASE_VOCABULARY: SearchVocabulary = {
   categoryAliases: {
     laptop: ["may tinh xach tay", "may tinh", "laptop", "notebook"],
+    desktop: ["may tinh de ban", "desktop", "all in one"],
+    display: ["man hinh", "monitor", "display"],
     phone: ["dien thoai", "smartphone", "phone"],
     audio: ["tai nghe", "headphones", "headphone", "earbuds"],
   },
@@ -72,7 +74,9 @@ export const BASE_VOCABULARY: SearchVocabulary = {
     bac: "silver",
   },
   categoryAttributes: {
-    laptop: ["screen_in", "chip", "ram_gb", "storage_gb", "color"],
+    laptop: ["screen_in", "chip", "ram_gb", "storage_gb", "color", "cpu_cores", "gpu_cores"],
+    desktop: ["screen_in", "chip", "ram_gb", "storage_gb", "color", "cpu_cores", "gpu_cores"],
+    display: ["screen_in", "resolution", "glass", "stand", "color"],
     phone: ["storage_gb", "color", "chip"],
     audio: ["type", "color"],
   },

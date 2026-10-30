@@ -15,6 +15,8 @@ import { getStorefront } from "@/platform/catalog/server";
 
 const CATEGORY_ART: Record<Category, ArtKind> = {
   laptop: "laptop",
+  desktop: "desktop",
+  display: "display",
   phone: "phone",
   audio: "headphones",
 };

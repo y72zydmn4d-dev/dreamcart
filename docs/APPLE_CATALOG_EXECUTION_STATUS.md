@@ -15,8 +15,8 @@ The resume point for the Apple catalog program (ADR-015). On resume: fetch `orig
 
 | Batch | Status | Notes |
 |---|---|---|
-| 0 Source, licensing, inventory foundation | **Foundation ENGINEERING_COMPLETE; source verification BLOCKED_EXTERNAL_DEPENDENCY** | this PR |
-| 1 Mac and displays | not started | needs source access (below) |
+| 0 Source, licensing, inventory foundation | ENGINEERING_COMPLETE (merged `3767b17`, PR #17) | activation gate, staging, manifest, register |
+| 1 Mac and displays | **PARTIALLY_COMPLETE: engineering foundations done; verified records 0; `BLOCKED_EXTERNAL_DEPENDENCY` on a permission basis** | terms read; compliant plan in `docs/APPLE_ACQUISITION_PLAN.md`; not complete |
 | 2 iPhone | not started | |
 | 3 iPad | not started | |
 | 4 Apple Watch | not started | |
@@ -35,6 +35,17 @@ The resume point for the Apple catalog program (ADR-015). On resume: fetch `orig
 - **Compliance register** (`inventory/compliance.json`): acquisition methods with status and evidence. Only owner-supplied files are permitted; automated collection and image rehosting or hotlinking are restricted by project rules; manual reading of public pages and a structured feed are unreviewed.
 - **ADR-015**, README updates, tests (inventory, activation, compliance, staging, hygiene guard for `VERCEL_ENV`).
 
+## Batch 1: what happened
+
+- **Source access works** (owner enabled `www.apple.com`, `apple.com`, `support.apple.com`; verified 2026-10-30, HTTP 200). The fetch tool still cannot resolve the host; `curl` through the proxy can.
+- **Terms read directly.** Apple prohibits automated and "similar manual" acquisition of site content and copying or republishing it (including photographs and the selection and arrangement of product information) without written consent; Apple-owned photographs need written permission. Verbatim clauses and URLs are in `inventory/compliance.json`; summary and conclusions in `docs/APPLE_ACQUISITION_PLAN.md`.
+- **Register updated**: automated collection, manual transcription for the catalog, image rehosting and hotlinking are `restricted`; written permission, a licensed dataset, owner-original data and open-licence images are `unreviewed`. No authorized feed or approved image source was found (leads only).
+- **Import gate**: `catalog:import` requires `--basis` and refuses a basis the register does not permit; target defaults to staging. All bases are refused today.
+- **Reference-price guard**: `price_kind` = `list_price_exact_configuration` is the only price kind imported.
+- **Computer and display schemas**: `desktop` and `display` categories with typed attributes (core counts; resolution, glass, stand), exact-variant compatibility, filters, labels, placeholder art; the release gate is unchanged. Tested on fictional "Testmark" data only; rendered locally in a temporary staged catalog (reverted).
+- **Staged activation tested**: a staged catalog is served in a Preview and never in production.
+- **Not done, not claimed**: no Apple product, price, configuration or image has been recorded. Batch 1 is not complete.
+
 ## Counts (all from the manifest; zero means nothing has been recorded, not that the store is empty)
 
 | Measure | Value |
@@ -50,11 +61,11 @@ The resume point for the Apple catalog program (ADR-015). On resume: fetch `orig
 
 ## Blockers
 
-1. **B-A1 Source access (owner action).** The authoring environment's network policy does not allow `www.apple.com` (DNS does not resolve), so no Apple page, `robots.txt` or terms page could be read, and no listing, configuration or price could be verified. Remedy: allow `www.apple.com` (and any host the owner wants read) under Network access in the environment settings; or supply the facts as owner-curated files (`docs/CURATION_PROCESS.md`). Reading pages is not the same as permission to collect them automatically.
-2. **B-A2 Terms not recorded.** Nobody has read and recorded Apple's terms for page reading, structured data or image reuse. The register keeps these `unreviewed`/`restricted`. This is the owner's call (ADR-003: automated extraction needs its own ADR and approved hosts).
-3. **B-A3 Image rights.** No Apple image has a recorded permission basis; nothing is cleared (ADR-010, B2). Real products will show the labeled placeholder until rights are resolved.
-4. **B-A4 Categories.** Storefront categories are `laptop`, `phone`, `audio` only; each batch extends them with typed attributes when its first verified records exist (ADR-015 item 7).
+1. **B-A1 Permission basis (owner action).** No path currently permits importing Apple product data or images. The owner chooses a path from `docs/APPLE_ACQUISITION_PLAN.md` (written permission from Apple, a licensed dataset, owner-original data) and records it in the register. A draft permission request is in the plan. Network access is no longer a blocker.
+2. **B-A2 Legal question (owner/counsel).** Whether bare product facts fall outside Apple's protected "Content" is not decided by this repository; until settled, nothing transcribed from `apple.com` is imported.
+3. **B-A3 Image rights.** No Apple image has a recorded permission basis; nothing is cleared (ADR-010). Real products show the labeled placeholder.
+4. **B-A4 Categories.** `desktop` and `display` exist; tablets, watches and accessories are added in their own batches with their first verified records.
 
 ## Next action
 
-Resolve B-A1 (allow `www.apple.com`, or supply owner-curated rows). Then start Batch 1: record the discovery pages walked and the listings found in `inventory/manifest.json`, verify configurations and prices per listing from the source, stage them in `data/catalog-staging/apple-vn/`, and open a pull request. Nothing from this program is published to production without the owner's explicit authorization.
+Owner: choose and record an acquisition basis (see the plan; A and C can run together). Then Claude imports owner-supplied rows through the gated pipeline into staging, validates, previews, and reports counts for Batch 1. In the meantime the remaining batches' category schemas (iPad, Watch, audio, accessories) can be prepared the same way, without any data. Nothing from this program is published to production without the owner's explicit authorization.

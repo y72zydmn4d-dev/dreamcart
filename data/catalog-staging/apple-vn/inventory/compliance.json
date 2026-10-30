@@ -2,20 +2,28 @@
   "source": "apple-store-vn",
   "entries": [
     {
+      "method": "automated_page_collection",
+      "status": "restricted",
+      "evidence": "Apple website terms of use (Vietnam), https://www.apple.com/vn/legal/terms/site.html, effective 16 May 2023, read 2026-10-30, section 'Khi bạn sử dụng Trang web': \"Bạn không được sử dụng bất kỳ 'liên kết sâu', 'công cụ điều chỉnh trang', 'rô bốt', 'nhện' hoặc thiết bị tự động, chương trình, thuật toán hoặc phương pháp khác hoặc bất kỳ quá trình thủ công tương tự hoặc tương đương nào, để truy cập, có được, thiết kế đối chiếu, sao chép hoặc theo dõi bất kỳ phần nào của Trang web hoặc Nội dung bất kỳ\" (no deep links, page scrapers, robots, spiders or other automatic devices, programs, algorithms or methods, or any similar or equivalent manual process, to access, acquire, copy or monitor any part of the Site or Content). The same section also bars imposing an unreasonable load. robots.txt (read 2026-10-30) is a separate, narrower signal and does not grant permission.",
+      "reviewedAt": "2026-10-30",
+      "reviewedBy": "claude-code (read the page text; owner independently reviewed the same sources)",
+      "note": "Restricted by the terms themselves and by project rule ADR-003. Network access to the host is not permission."
+    },
+    {
       "method": "manual_reading_of_public_pages",
+      "status": "restricted",
+      "evidence": "Apple website terms of use (Vietnam), https://www.apple.com/vn/legal/terms/site.html, effective 16 May 2023, read 2026-10-30, section 'Nội dung': \"không phần nào của Trang web hay bất cứ Nội dung nào có thể được sao chép, tái sản xuất, tái xuất bản, tải lên, đăng tải, hiển thị công khai, mã hóa, chuyển ngữ, truyền bá hoặc phân phối dưới bất kỳ hình thức nào (bao gồm 'mô phỏng') tới bất kỳ máy tính, máy chủ, trang web hoặc phương tiện nào khác để xuất bản hoặc phân phối hoặc tới bất kỳ doanh nghiệp thương mại nào mà không có sự đồng thuận rõ ràng bằng văn bản từ Apple\" (no part of the Site or Content may be copied, reproduced, republished, uploaded, posted, publicly displayed, encoded, translated, transmitted or distributed, including 'mirroring', to any other computer, server, website or medium for publication or distribution or to any commercial enterprise without Apple's express written consent). 'Nội dung' is defined to include text, graphics, photographs, trademarks and logos, 'including the selection, coordination and arrangement' of that content. The clause quoted for automated collection also names 'any similar or equivalent manual process'.",
+      "reviewedAt": "2026-10-30",
+      "reviewedBy": "claude-code (read the page text; owner independently reviewed the same sources)",
+      "note": "Reading a page in a browser is ordinary use and is not what is restricted. Systematically transcribing Apple's product specifications, configurations or prices into DreamCart's public catalog is copying for publication, and the terms ask for Apple's written consent. Whether product facts alone fall outside 'Content' is a legal question this register does not decide; until the owner has Apple's written consent or legal advice, treat transcription as restricted."
+    },
+    {
+      "method": "written_permission",
       "status": "unreviewed",
       "evidence": null,
       "reviewedAt": null,
       "reviewedBy": null,
-      "note": "A person reading public pages is the approved curation path (docs/CURATION_PROCESS.md); the terms for this source have not been read and recorded."
-    },
-    {
-      "method": "automated_page_collection",
-      "status": "restricted",
-      "evidence": "Project decision ADR-003 and ADR-015: no automated extraction of third-party pages without a new ADR, a reviewed permission basis and approved hosts.",
-      "reviewedAt": "2026-10-30",
-      "reviewedBy": "claude-code",
-      "note": "This is the project's own rule, not a statement about the site's terms. The authoring environment also cannot reach www.apple.com."
+      "note": "Not yet requested. Apple's route is the Rights and Permissions form (https://www.apple.com/legal/contact/rights-permissions.html, read 2026-10-30), which asks for the specific URLs, surrounding copy, publisher, how Apple's products fit the project, and a deadline. The owner must submit it; a draft is in docs/APPLE_ACQUISITION_PLAN.md. No data or image may rely on this basis until a written grant is recorded here."
     },
     {
       "method": "documented_structured_feed",
@@ -23,31 +31,47 @@
       "evidence": null,
       "reviewedAt": null,
       "reviewedBy": null,
-      "note": "No authorized product feed has been identified."
+      "note": "None identified. Searches on 2026-10-30 found no public Apple hardware product feed or API; partner and reseller programmes were not reviewed and may require an agreement. Aggregator APIs found in the same searches are not Apple-authorized and are paid (owner approval needed)."
     },
     {
-      "method": "owner_supplied_files",
-      "status": "permitted",
-      "evidence": "docs/CURATION_PROCESS.md: the owner supplies source-checked rows; Claude formats and validates them.",
-      "reviewedAt": "2026-10-30",
-      "reviewedBy": "claude-code",
-      "note": "Owner remains responsible for having read the source's terms (Source.termsReviewedAt)."
+      "method": "licensed_dataset",
+      "status": "unreviewed",
+      "evidence": null,
+      "reviewedAt": null,
+      "reviewedBy": null,
+      "note": "No dataset identified. A paid dataset needs the owner's approval before any subscription (project rule 8) and its licence must cover public display and the use of product images."
+    },
+    {
+      "method": "owner_original_data",
+      "status": "unreviewed",
+      "evidence": null,
+      "reviewedAt": null,
+      "reviewedBy": null,
+      "note": "Changed in Batch 1 from a 'permitted' channel: a file the owner supplies is only as permitted as its origin, and facts copied from apple.com fall under the terms quoted above. This basis covers only facts the owner obtained without copying Apple's Content (products they own, their own measurements or photographs). The owner records an attestation here, with a date, before any import may use it; Claude cannot verify it."
     },
     {
       "method": "image_rehosting",
       "status": "restricted",
-      "evidence": "ADR-010: only CLEARED assets with a recorded basis and evidence may be self-hosted.",
+      "evidence": "Apple Guidelines for Using Apple Trademarks and Copyrights, https://www.apple.com/legal/intellectual-property/guidelinesfor3rdparties.html, read 2026-10-30, 'Depictions of Apple Products': \"You must obtain express written permission from Apple before using any photograph owned or licensed by Apple\"; and \"Apple does not support the use of its logos, company names, product names, or images of Apple products by other parties in marketing, promotional or advertising materials as their use may create the perception that Apple endorses or sponsors the product\". Website terms: photographs are 'Nội dung' that may not be copied or republished without Apple's written consent. ADR-010: only CLEARED assets with a recorded basis may be self-hosted.",
       "reviewedAt": "2026-10-30",
-      "reviewedBy": "claude-code",
-      "note": "No Apple image has a recorded permission basis. Public availability is not permission."
+      "reviewedBy": "claude-code (read the page text; owner independently reviewed the same sources)",
+      "note": "No Apple image has permission. Product images stay placeholders until a written grant or another cleared source is recorded."
     },
     {
       "method": "image_hotlinking",
       "status": "restricted",
-      "evidence": "ADR-010: no hotlinking.",
+      "evidence": "Same restrictions as image_rehosting (displaying Apple's photographs from another site is 'hiển thị công khai', publicly displaying, under https://www.apple.com/vn/legal/terms/site.html, and needs written permission under https://www.apple.com/legal/intellectual-property/guidelinesfor3rdparties.html; both read 2026-10-30) and ADR-010: no hotlinking.",
       "reviewedAt": "2026-10-30",
       "reviewedBy": "claude-code",
       "note": null
+    },
+    {
+      "method": "open_license_images",
+      "status": "unreviewed",
+      "evidence": null,
+      "reviewedAt": null,
+      "reviewedBy": null,
+      "note": "A lead, not a finding: Wikimedia Commons hosts third-party photographs of Apple products under per-file Creative Commons licences. Such a licence covers only the photographer's copyright; Apple's trademark guidelines (no implied endorsement; the Apple logo and Apple-owned graphics need Apple's written licence; trademark attribution notices) still apply, and the image must show the exact product and colour. Each file needs its own review; nothing is cleared yet."
     }
   ]
 }

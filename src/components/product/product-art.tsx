@@ -81,6 +81,87 @@ export function ProductArt({
         </g>
       ),
     },
+    desktop: {
+      front: (
+        <g>
+          <rect x="110" y="96" width="180" height="120" rx="22" fill={color} style={rim} />
+          <rect x="110" y="96" width="180" height="22" rx="11" fill="rgb(0 0 0 / 0.1)" />
+          <circle cx="200" cy="170" r="5" fill="rgb(0 0 0 / 0.22)" />
+          <rect x="150" y="214" width="100" height="6" rx="3" fill="rgb(0 0 0 / 0.12)" />
+        </g>
+      ),
+      side: (
+        <g>
+          <rect x="150" y="96" width="100" height="120" rx="20" fill={color} style={rim} />
+          {Array.from({ length: 5 }, (_, i) => (
+            <rect
+              key={i}
+              x="216"
+              y={118 + i * 14}
+              width="22"
+              height="4"
+              rx="2"
+              fill="rgb(0 0 0 / 0.16)"
+            />
+          ))}
+        </g>
+      ),
+      detail: (
+        <g>
+          <rect x="70" y="110" width="260" height="110" rx="24" fill={color} style={rim} />
+          {Array.from({ length: 4 }, (_, i) => (
+            <rect
+              key={i}
+              x={110 + i * 46}
+              y="160"
+              width="26"
+              height="10"
+              rx="5"
+              fill="rgb(20 20 30 / 0.7)"
+            />
+          ))}
+        </g>
+      ),
+    },
+    display: {
+      front: (
+        <g>
+          <rect x="70" y="40" width="260" height="164" rx="14" fill={color} style={rim} />
+          <rect x="80" y="50" width="240" height="144" rx="6" fill={SCREEN} />
+          <rect
+            x="80"
+            y="50"
+            width="240"
+            height="144"
+            rx="6"
+            fill={`url(#${id}-screen)`}
+            opacity="0.9"
+          />
+          <path d="M184 204h32l8 48h-48z" fill={color} style={rim} />
+          <rect x="150" y="250" width="100" height="10" rx="5" fill={color} style={rim} />
+        </g>
+      ),
+      side: (
+        <g>
+          <rect x="176" y="40" width="22" height="164" rx="9" fill={color} style={rim} />
+          <path
+            d="M196 120c28 0 40 40 40 130h-80c0-10 8-18 16-18"
+            fill="none"
+            stroke={color}
+            strokeWidth="14"
+            strokeLinecap="round"
+          />
+          <rect x="140" y="250" width="110" height="10" rx="5" fill={color} style={rim} />
+        </g>
+      ),
+      detail: (
+        <g>
+          <path d="M170 90h60l14 120h-88z" fill={color} style={rim} />
+          <rect x="110" y="208" width="180" height="16" rx="8" fill={color} style={rim} />
+          <circle cx="200" cy="150" r="14" fill="rgb(0 0 0 / 0.14)" />
+        </g>
+      ),
+    },
     phone: {
       front: (
         <g>

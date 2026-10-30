@@ -2,6 +2,12 @@
 
 DreamCart is pre-release: nothing has been published to production, and the product still runs on labeled synthetic fixtures until a verified real catalog and image rights exist (see `docs/EXECUTION_STATUS.md`). Entries are grouped by phase; each phase was one pull request.
 
+## Apple catalog program: Batch 1 foundations (no product data)
+
+- The Apple website terms, copyright and trademark guidelines and the Rights and Permissions page were read directly; the verbatim findings are in the compliance register and `docs/APPLE_ACQUISITION_PLAN.md`. Automated collection, transcription and image reuse are recorded as restricted; no authorized feed or approved image source was found.
+- `catalog:import` now needs a declared basis that the register permits (it refuses today) and writes to the staged catalog by default; only the full public price of exactly one configuration is imported (`price_kind`).
+- New `desktop` and `display` categories with typed attributes (core counts, resolution, glass, stand), filters, labels and placeholder art; the release gate is unchanged.
+
 ## Post-MVP remediation — browser acceptance findings F01–F04
 
 - **F01** The search price filter reported every radio as unchecked while the URL, chip and results were right: the desktop panel and the mobile sheet (always in the DOM) shared one radio group. Each panel now has its own group; there is still one URL-backed state.

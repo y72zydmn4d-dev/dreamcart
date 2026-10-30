@@ -42,7 +42,8 @@ describe("browsing", () => {
     expect(r.status).toBe("browse");
     expect(r.items).toHaveLength(8);
     expect(r.items.every((i) => i.class === "browse")).toBe(true);
-    expect(r.categoryCounts).toEqual({ laptop: 2, phone: 3, audio: 3 });
+    // categories without products (desktop, display) are counted as zero and never shown as tabs
+    expect(r.categoryCounts).toEqual({ laptop: 2, desktop: 0, display: 0, phone: 3, audio: 3 });
   });
 });
 

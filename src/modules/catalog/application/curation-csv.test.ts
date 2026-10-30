@@ -31,6 +31,7 @@ const base: Record<string, string> = {
   price_observed_at: "2026-11-25",
   price_observer: "curator-1",
   price_provenance_type: "curator_observed",
+  price_kind: "list_price_exact_configuration",
   price_evidence_note: "price shown on the product page",
   availability: "unknown",
   title_vi: "Acme Book 14",
@@ -169,7 +170,7 @@ describe("rejects malformed files with the row, column and a fix", () => {
   it("wrong number of cells", () => {
     const r = importCuration(`${CURATION_COLUMNS.join(",")}\nacme-book,Acme`, sources);
     expect(r.errors[0]).toMatchObject({ line: 2 });
-    expect(r.errors[0]!.message).toMatch(/expected 39 columns/);
+    expect(r.errors[0]!.message).toMatch(/expected 45 columns/);
   });
   it.each([
     [
@@ -275,5 +276,38 @@ describe("suggestSlug", () => {
   it("turns Vietnamese display text into a slug", () => {
     expect(suggestSlug("Titan Tự Nhiên")).toBe("titan_tu_nhien");
     expect(suggestSlug("  Đen  ")).toBe("den");
+  });
+});
+
+describe("price kinds", () => {
+  it.each([
+    "monthly_installment",
+    "trade_in",
+    "education",
+    "promotional",
+    "bundle",
+    "starting_from",
+    "",
+  ])("refuses a %j price as a reference price", (kind) => {
+    const errors = errorsOf([{ ...base, price_kind: kind }]);
+    expect(
+      errors.some((e) =>
+        /price_kind|only the full public price of exactly this configuration/.test(e),
+      ),
+    ).toBe(true);
+  });
+
+  it("accepts the full public price of exactly this configuration", () => {
+    expect(errorsOf([base])).toEqual([]);
+  });
+});
+
+describe("curation template", () => {
+  it("has exactly the columns the importer expects, in order", async () => {
+    const { readFileSync } = await import("node:fs");
+    const header = readFileSync("docs/templates/catalog_curation_template.csv", "utf8").split(
+      /\r?\n/,
+    )[0];
+    expect(header!.split(",")).toEqual([...CURATION_COLUMNS]);
   });
 });

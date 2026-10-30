@@ -11,7 +11,12 @@ import { PERSISTENCE_POLICIES, priceObservationSchema } from "@/modules/pricing"
 const slug = z.string().regex(/^[a-z0-9][a-z0-9_.:@-]{0,127}$/, "lowercase slug");
 const isoDate = z.iso.date();
 
-export const CATEGORIES = ["laptop", "phone", "audio"] as const;
+/**
+ * Storefront product categories. `laptop`, `desktop` and `display` cover computers and screens (Mac and Apple
+ * displays in the Apple Store Vietnam program); each category has its own typed attributes below, and a category
+ * never gets attributes that do not describe it (no RAM on a display).
+ */
+export const CATEGORIES = ["laptop", "desktop", "display", "phone", "audio"] as const;
 export type Category = (typeof CATEGORIES)[number];
 
 export const sourceSchema = z.strictObject({
@@ -28,11 +33,19 @@ export type Source = z.infer<typeof sourceSchema>;
 /** Required attributes per category for a shipped variant (a variant missing one can never be matched). */
 export const REQUIRED_ATTRIBUTES: Record<Category, readonly string[]> = {
   laptop: ["screen_in", "chip", "ram_gb", "storage_gb"],
+  desktop: ["chip", "ram_gb", "storage_gb"],
+  display: ["screen_in"],
   phone: ["storage_gb", "color"],
   audio: ["type", "color"],
 };
+/**
+ * Optional attributes appear only when the source shows them. Core counts separate chip variants that share a chip
+ * name; glass and stand are the purchase options of a display. Order matters: it is the variant-key order.
+ */
 export const OPTIONAL_ATTRIBUTES: Record<Category, readonly string[]> = {
-  laptop: ["color"],
+  laptop: ["color", "cpu_cores", "gpu_cores"],
+  desktop: ["screen_in", "color", "cpu_cores", "gpu_cores"],
+  display: ["resolution", "glass", "stand", "color"],
   phone: ["chip"],
   audio: [],
 };

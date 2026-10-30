@@ -162,6 +162,123 @@ export function ProductArt({
         </g>
       ),
     },
+    tablet: {
+      front: (
+        <g>
+          <rect x="96" y="40" width="208" height="220" rx="22" fill={color} style={rim} />
+          <rect x="106" y="50" width="188" height="200" rx="14" fill={SCREEN} />
+          <rect
+            x="106"
+            y="50"
+            width="188"
+            height="200"
+            rx="14"
+            fill={`url(#${id}-screen)`}
+            opacity="0.9"
+          />
+        </g>
+      ),
+      side: (
+        <g>
+          <rect x="188" y="40" width="24" height="220" rx="10" fill={color} style={rim} />
+        </g>
+      ),
+      detail: (
+        <g>
+          <rect x="96" y="40" width="208" height="220" rx="22" fill={color} style={rim} />
+          <circle cx="200" cy="62" r="6" fill="rgb(0 0 0 / 0.2)" />
+          <rect x="112" y="92" width="176" height="140" rx="10" fill="rgb(0 0 0 / 0.1)" />
+        </g>
+      ),
+    },
+    watch: {
+      front: (
+        <g>
+          <rect
+            x="168"
+            y="20"
+            width="64"
+            height="60"
+            rx="14"
+            fill={color}
+            style={rim}
+            opacity="0.85"
+          />
+          <rect
+            x="168"
+            y="220"
+            width="64"
+            height="60"
+            rx="14"
+            fill={color}
+            style={rim}
+            opacity="0.85"
+          />
+          <rect x="140" y="76" width="120" height="148" rx="34" fill={color} style={rim} />
+          <rect x="150" y="86" width="100" height="128" rx="26" fill={SCREEN} />
+          <rect x="260" y="130" width="8" height="26" rx="4" fill="rgb(0 0 0 / 0.22)" />
+        </g>
+      ),
+      side: (
+        <g>
+          <rect x="170" y="76" width="64" height="148" rx="24" fill={color} style={rim} />
+          <rect x="234" y="130" width="10" height="26" rx="5" fill="rgb(0 0 0 / 0.22)" />
+        </g>
+      ),
+      detail: (
+        <g>
+          <rect x="130" y="60" width="140" height="180" rx="44" fill={color} style={rim} />
+          <circle cx="200" cy="150" r="38" fill="rgb(0 0 0 / 0.14)" />
+          <circle cx="200" cy="150" r="14" fill="rgb(0 0 0 / 0.2)" />
+        </g>
+      ),
+    },
+    tracker: {
+      front: (
+        <g>
+          <circle cx="200" cy="150" r="78" fill={color} style={rim} />
+          <circle cx="200" cy="150" r="42" fill="rgb(0 0 0 / 0.1)" />
+        </g>
+      ),
+      side: (
+        <g>
+          <rect x="130" y="130" width="140" height="40" rx="20" fill={color} style={rim} />
+        </g>
+      ),
+      detail: (
+        <g>
+          <circle cx="200" cy="150" r="78" fill={color} style={rim} />
+          <circle cx="200" cy="150" r="6" fill="rgb(0 0 0 / 0.25)" />
+          <path d="M150 150h100" stroke="rgb(0 0 0 / 0.12)" strokeWidth="2" />
+        </g>
+      ),
+    },
+    accessory: {
+      front: (
+        <g>
+          <rect x="120" y="70" width="160" height="160" rx="34" fill={color} style={rim} />
+          <rect x="136" y="86" width="128" height="128" rx="24" fill="rgb(0 0 0 / 0.1)" />
+        </g>
+      ),
+      side: (
+        <g>
+          <rect x="160" y="70" width="80" height="160" rx="30" fill={color} style={rim} />
+        </g>
+      ),
+      detail: (
+        <g>
+          <path
+            d="M90 220c0-80 60-80 110-80s110 0 110 80"
+            fill="none"
+            stroke={color}
+            strokeWidth="14"
+            strokeLinecap="round"
+          />
+          <rect x="70" y="214" width="40" height="26" rx="8" fill={color} style={rim} />
+          <rect x="290" y="214" width="40" height="26" rx="8" fill={color} style={rim} />
+        </g>
+      ),
+    },
     phone: {
       front: (
         <g>

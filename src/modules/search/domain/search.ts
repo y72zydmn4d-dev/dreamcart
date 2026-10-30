@@ -6,7 +6,16 @@ import { normalizeText } from "@/modules/shared/domain/text";
  * silently. There is no ranking by popularity and no AI.
  */
 
-export type Category = "laptop" | "desktop" | "display" | "phone" | "audio";
+export type Category =
+  | "laptop"
+  | "desktop"
+  | "display"
+  | "tablet"
+  | "phone"
+  | "wearable"
+  | "audio"
+  | "smart_home"
+  | "accessory";
 export type AttributeValue = string | number;
 
 export interface SearchVariant {
@@ -21,6 +30,8 @@ export interface SearchProduct {
   readonly model: string;
   readonly category: Category;
   readonly variants: readonly SearchVariant[];
+  /** Host device families this product works with (an accessory's "for iPhone"); searchable as product words. */
+  readonly compatibleWith?: readonly { readonly brand: string; readonly family: string }[];
 }
 
 export type MatchClass = "match" | "ambiguous" | "near";
@@ -60,8 +71,12 @@ export const BASE_VOCABULARY: SearchVocabulary = {
     laptop: ["may tinh xach tay", "may tinh", "laptop", "notebook"],
     desktop: ["may tinh de ban", "desktop", "all in one"],
     display: ["man hinh", "monitor", "display"],
+    tablet: ["may tinh bang", "tablet"],
     phone: ["dien thoai", "smartphone", "phone"],
+    wearable: ["dong ho thong minh", "smartwatch", "dong ho"],
     audio: ["tai nghe", "headphones", "headphone", "earbuds"],
+    smart_home: ["nha thong minh", "thiet bi theo doi", "smart home"],
+    accessory: ["phu kien", "op lung", "cap sac", "bao da", "day deo"],
   },
   colors: {
     black: "black",
@@ -77,8 +92,32 @@ export const BASE_VOCABULARY: SearchVocabulary = {
     laptop: ["screen_in", "chip", "ram_gb", "storage_gb", "color", "cpu_cores", "gpu_cores"],
     desktop: ["screen_in", "chip", "ram_gb", "storage_gb", "color", "cpu_cores", "gpu_cores"],
     display: ["screen_in", "resolution", "glass", "stand", "color"],
+    // `ram_gb` is deliberately not searchable for tablets: with it, a plain "256GB" would be ambiguous between memory
+    // and storage as it is for laptops. The attribute stays in the schema and the data.
+    tablet: ["screen_in", "storage_gb", "chip", "connectivity", "color"],
     phone: ["storage_gb", "color", "chip"],
-    audio: ["type", "color"],
+    wearable: [
+      "case_mm",
+      "case_material",
+      "connectivity",
+      "color",
+      "band_type",
+      "band_size",
+      "band_color",
+    ],
+    audio: ["type", "color", "noise_control", "connector"],
+    smart_home: ["device_type", "color", "package_qty", "connectivity", "storage_gb"],
+    accessory: [
+      "accessory_type",
+      "color",
+      "size",
+      "material",
+      "connector",
+      "length_cm",
+      "power_w",
+      "package_qty",
+      "fits_case_mm",
+    ],
   },
   isChip: () => false,
 };
@@ -261,8 +300,9 @@ export function searchCatalog(
   for (const product of products) {
     if (parsed.categoryHint && product.category !== parsed.categoryHint) continue;
 
+    const compat = (product.compatibleWith ?? []).map((c) => `${c.brand} ${c.family}`).join(" ");
     const productTokens = [
-      ...new Set(tokensOf(`${product.brand} ${product.family} ${product.model}`)),
+      ...new Set(tokensOf(`${product.brand} ${product.family} ${product.model} ${compat}`)),
     ];
     const hit = new Set<string>();
     let allText = true;

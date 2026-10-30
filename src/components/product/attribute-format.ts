@@ -11,6 +11,23 @@ const LABELED = new Set([
   "resolution",
   "glass",
   "stand",
+  "connectivity",
+  "case_mm",
+  "case_material",
+  "band_type",
+  "band_size",
+  "band_color",
+  "noise_control",
+  "connector",
+  "device_type",
+  "accessory_type",
+  "size",
+  "material",
+  "length_cm",
+  "power_w",
+  "package_qty",
+  "fits_case_mm",
+  "compatibility",
   "color",
   "type",
   "brand",
@@ -39,6 +56,15 @@ export function formatAttribute(
     case "cpu_cores":
     case "gpu_cores":
       return t("units.cores", { value });
+    case "case_mm":
+    case "fits_case_mm":
+      return t("units.mm", { value });
+    case "length_cm":
+      return t("units.cm", { value });
+    case "power_w":
+      return t("units.watt", { value });
+    case "package_qty":
+      return t("units.pieces", { value });
     case "storage_gb":
       return Number(value) >= 1024 && Number(value) % 1024 === 0
         ? t("units.tb", { value: Number(value) / 1024 })

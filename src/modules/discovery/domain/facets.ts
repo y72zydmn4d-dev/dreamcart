@@ -13,7 +13,8 @@ export interface FilterDefinition {
   readonly key: string;
   readonly kind: FilterKind;
   /** Where the value comes from. */
-  readonly source: "brand" | "family" | "attribute";
+  /** `compatibility`: a product-level, multi-valued filter over the host device families a product works with. */
+  readonly source: "brand" | "family" | "attribute" | "compatibility";
 }
 
 export const FILTER_DEFINITIONS: Readonly<Record<Category, readonly FilterDefinition[]>> = {
@@ -37,6 +38,33 @@ export const FILTER_DEFINITIONS: Readonly<Record<Category, readonly FilterDefini
     { key: "glass", kind: "variant", source: "attribute" },
     { key: "stand", kind: "variant", source: "attribute" },
   ],
+  tablet: [
+    { key: "brand", kind: "product", source: "brand" },
+    { key: "screen_in", kind: "variant", source: "attribute" },
+    { key: "storage_gb", kind: "variant", source: "attribute" },
+    { key: "connectivity", kind: "variant", source: "attribute" },
+    { key: "color", kind: "variant", source: "attribute" },
+    { key: "chip", kind: "variant", source: "attribute" },
+  ],
+  wearable: [
+    { key: "brand", kind: "product", source: "brand" },
+    { key: "case_mm", kind: "variant", source: "attribute" },
+    { key: "case_material", kind: "variant", source: "attribute" },
+    { key: "connectivity", kind: "variant", source: "attribute" },
+    { key: "band_type", kind: "variant", source: "attribute" },
+  ],
+  smart_home: [
+    { key: "brand", kind: "product", source: "brand" },
+    { key: "device_type", kind: "variant", source: "attribute" },
+    { key: "color", kind: "variant", source: "attribute" },
+  ],
+  accessory: [
+    { key: "brand", kind: "product", source: "brand" },
+    { key: "accessory_type", kind: "variant", source: "attribute" },
+    { key: "compatibility", kind: "product", source: "compatibility" },
+    { key: "color", kind: "variant", source: "attribute" },
+    { key: "connector", kind: "variant", source: "attribute" },
+  ],
   phone: [
     { key: "brand", kind: "product", source: "brand" },
     { key: "family", kind: "product", source: "family" },
@@ -48,6 +76,8 @@ export const FILTER_DEFINITIONS: Readonly<Record<Category, readonly FilterDefini
     { key: "brand", kind: "product", source: "brand" },
     { key: "type", kind: "variant", source: "attribute" },
     { key: "color", kind: "variant", source: "attribute" },
+    { key: "noise_control", kind: "variant", source: "attribute" },
+    { key: "connector", kind: "variant", source: "attribute" },
   ],
 };
 const ALL_CATEGORY_FILTERS: readonly FilterDefinition[] = [
@@ -77,12 +107,18 @@ export const EMPTY_FILTERS: FilterState = { category: null, selected: {}, price:
 
 const bucketOf = (key: PriceBucketKey) => PRICE_BUCKETS.find((b) => b.key === key)!;
 
-function productValue(p: ProductView, def: FilterDefinition): string | undefined {
-  return def.source === "brand"
-    ? p.product.brand
-    : def.source === "family"
-      ? p.product.family
-      : undefined;
+/** The values a product has for a product-level filter. Most have one; compatibility can have several. */
+function productValues(p: ProductView, def: FilterDefinition): readonly string[] {
+  switch (def.source) {
+    case "brand":
+      return [p.product.brand];
+    case "family":
+      return [p.product.family];
+    case "compatibility":
+      return [...new Set((p.product.compatibleWith ?? []).map((c) => c.family))];
+    default:
+      return [];
+  }
 }
 
 /** True if this variant satisfies every active variant-level filter and the price range. */
@@ -114,8 +150,8 @@ export function productMatches(p: ProductView, filters: FilterState, skip?: stri
     if (def.kind !== "product" || def.key === skip) continue;
     const wanted = filters.selected[def.key];
     if (!wanted || wanted.length === 0) continue;
-    const value = productValue(p, def);
-    if (value === undefined || !wanted.includes(value)) return false;
+    // Any one of the product's values may satisfy the filter (an accessory fitting several families).
+    if (!productValues(p, def).some((value) => wanted.includes(value))) return false;
   }
   return true;
 }
@@ -172,8 +208,7 @@ export function buildFacets(candidates: readonly ProductView[], filters: FilterS
     const distinct = new Set<string | number>();
     for (const p of inScope) {
       if (def.kind === "product") {
-        const v = productValue(p, def);
-        if (v !== undefined) distinct.add(v);
+        for (const v of productValues(p, def)) distinct.add(v);
       } else
         for (const v of p.variants)
           if (v.variant.attributes[def.key] !== undefined)
@@ -185,10 +220,9 @@ export function buildFacets(candidates: readonly ProductView[], filters: FilterS
     for (const p of inScope) {
       if (def.kind === "product") {
         if (!productMatches(p, filters, def.key)) continue;
-        const v = productValue(p, def);
         // other variant-level filters must still leave at least one variant
-        if (v !== undefined && matchingVariants(p, filters, def.key).length > 0)
-          counts.set(v, counts.get(v)! + 1);
+        if (matchingVariants(p, filters, def.key).length > 0)
+          for (const v of productValues(p, def)) counts.set(v, counts.get(v)! + 1);
       } else {
         const vs = matchingVariants(p, filters, def.key);
         const seen = new Set<string | number>();

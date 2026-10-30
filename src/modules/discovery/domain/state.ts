@@ -1,4 +1,4 @@
-import { CATEGORIES, type Category } from "@/modules/catalog";
+import { CATEGORIES, NUMERIC_ATTRIBUTES, type Category } from "@/modules/catalog";
 import { SORT_KEYS, type DiscoveryState, type SortKey } from "./discovery";
 import {
   EMPTY_FILTERS,
@@ -14,7 +14,13 @@ import {
  */
 export const EMPTY_DISCOVERY: DiscoveryState = { q: "", filters: EMPTY_FILTERS, sort: "relevance" };
 
+/** Coded attribute values are lowercase slugs. */
 const VALUE = /^[a-z0-9_.-]{1,40}$/;
+/**
+ * Brand, family and compatibility values are display names as the source writes them (capitals, spaces, accents).
+ * Letters, digits and a few separators only: nothing that could be markup or a script is ever accepted.
+ */
+const TEXT_VALUE = /^[\p{L}\p{N} _.+()/&-]{1,80}$/u;
 const MAX_QUERY = 80;
 const MAX_VALUES_PER_FILTER = 12;
 
@@ -37,14 +43,15 @@ export function parseDiscoveryState(params: Params): DiscoveryState {
 
   const selected: Record<string, (string | number)[]> = {};
   for (const def of filtersFor(category)) {
+    const free = def.source !== "attribute";
     const raw = params
       .getAll(def.key)
-      .filter((v) => VALUE.test(v))
+      .filter((v) => (free ? TEXT_VALUE.test(v) : VALUE.test(v)))
       .slice(0, MAX_VALUES_PER_FILTER);
     if (raw.length === 0) continue;
     // numeric attributes round-trip as numbers
     const numeric =
-      def.source === "attribute" && ["screen_in", "ram_gb", "storage_gb"].includes(def.key);
+      def.source === "attribute" && (NUMERIC_ATTRIBUTES as readonly string[]).includes(def.key);
     const values: (string | number)[] = numeric
       ? raw.filter((v) => /^\d+(\.\d+)?$/.test(v)).map(Number)
       : raw;

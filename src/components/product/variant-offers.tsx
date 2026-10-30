@@ -76,7 +76,11 @@ export function VariantOffers({
                       {t(`price.cartBlock.${evaluation.reason ?? "no_price"}` as DictionaryKey)}
                     </Badge>
                   )}
-                  <OutboundLink url={offer.url} label={t("product.viewSource")} />
+                  <OutboundLink
+                    url={offer.url}
+                    label={t(synthetic ? "fixture.viewSource" : "product.viewSource")}
+                    synthetic={synthetic}
+                  />
                 </div>
                 {evaluation.addable && offer.price ? (
                   <AddToCartButton

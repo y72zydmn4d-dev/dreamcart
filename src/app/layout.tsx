@@ -5,13 +5,19 @@ import { StorageNotice } from "@/components/local-data/storage-notice";
 import { DeliveryNotice } from "@/components/orders/delivery-notice";
 import { SiteFooter } from "@/components/layout/site-footer";
 import { SiteHeader } from "@/components/layout/site-header";
+import { getStorefront } from "@/platform/catalog/server";
 import { t } from "@/platform/i18n";
 import "./globals.css";
 
-export const metadata: Metadata = {
-  title: { default: t("meta.title"), template: `%s · ${t("brand.name")}` },
-  description: t("meta.description"),
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const { active } = await getStorefront();
+  return {
+    title: { default: t("meta.title"), template: `%s · ${t("brand.name")}` },
+    description: t(
+      active.mode === "synthetic" ? "meta.descriptionSynthetic" : "meta.descriptionReal",
+    ),
+  };
+}
 
 export const viewport: Viewport = {
   width: "device-width",
@@ -24,7 +30,8 @@ export const viewport: Viewport = {
   ],
 };
 
-export default function RootLayout({ children }: { children: ReactNode }) {
+export default async function RootLayout({ children }: { children: ReactNode }) {
+  const { active } = await getStorefront();
   return (
     <html lang="vi">
       <body className="flex min-h-dvh flex-col">
@@ -41,7 +48,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           <main id="main" tabIndex={-1} className="flex-1 outline-none">
             {children}
           </main>
-          <SiteFooter />
+          <SiteFooter synthetic={active.mode === "synthetic"} />
         </LocalDataProvider>
       </body>
     </html>

@@ -219,6 +219,8 @@ function CartLineCard({
 }) {
   const { resolved, status } = row;
   const { line } = resolved;
+  // Catalog lines in a synthetic catalog point at fictional addresses; links the user imported are their own.
+  const fictional = synthetic && resolved.origin === "catalog";
   const unit = formatMoney(line.unitPrice.amountMinor, line.unitPrice.currency);
   const lineTotal = formatMoney(
     multiplyMinor(line.unitPrice.amountMinor, line.quantity),
@@ -245,9 +247,7 @@ function CartLineCard({
             {resolved.origin === "user" ? (
               <Badge tone="warning">{t("cart.line.unverified")}</Badge>
             ) : null}
-            {synthetic && resolved.origin === "catalog" ? (
-              <Badge tone="fixture">{t("fixture.badge")}</Badge>
-            ) : null}
+            {fictional ? <Badge tone="fixture">{t("fixture.badge")}</Badge> : null}
           </div>
         </div>
         <div className="text-right">
@@ -330,7 +330,11 @@ function CartLineCard({
         <div className="flex flex-col items-end gap-1">
           <p className="font-semibold">{t("cart.line.lineTotal", { price: lineTotal })}</p>
           {resolved.sourceUrl ? (
-            <OutboundLink url={resolved.sourceUrl} label={t("product.viewSource")} />
+            <OutboundLink
+              url={resolved.sourceUrl}
+              label={t(fictional ? "fixture.viewSource" : "product.viewSource")}
+              synthetic={fictional}
+            />
           ) : null}
         </div>
       </div>

@@ -26,7 +26,7 @@ test("the leave-DreamCart dialog traps focus, closes with Escape and gives focus
   const main = page.getByRole("main");
   for (const name of [/^13 inch/, /FX1/, /^16 GB/, /^512 GB/])
     await main.getByRole("button", { name }).first().click();
-  const opener = main.getByRole("button", { name: "Xem trang nguồn" }).first();
+  const opener = main.getByRole("button", { name: "Xem nguồn mẫu (hư cấu)" }).first();
   await opener.focus();
   await page.keyboard.press("Enter");
   const dialog = page.getByRole("dialog");

@@ -48,7 +48,9 @@ export default async function HomePage() {
           className="absolute inset-0 -z-10 bg-[radial-gradient(60%_80%_at_20%_10%,var(--glow-1),transparent_70%),radial-gradient(50%_70%_at_85%_0%,var(--glow-2),transparent_70%),radial-gradient(60%_60%_at_60%_100%,var(--glow-3),transparent_70%)]"
         />
         <PageContainer className="flex flex-col items-center pt-16 pb-20 text-center sm:pt-24 sm:pb-28">
-          <p className="text-sm font-medium text-accent">{t("home.eyebrow")}</p>
+          <p className="text-sm font-medium text-accent">
+            {t(synthetic ? "home.eyebrowSynthetic" : "home.eyebrow")}
+          </p>
           <h1 className="mt-4 max-w-4xl text-hero font-semibold">{t("home.title")}</h1>
           <p className="mt-6 max-w-2xl text-lg text-muted-foreground sm:text-xl">
             {t("home.subtitle")}

@@ -10,7 +10,16 @@ import { t } from "@/platform/i18n";
  * A link to a source page outside DreamCart. The address is re-validated as a SafeUrl at render time (http or https
  * only), and following it first shows the "leaving DreamCart" notice, so nobody mistakes a merchant page for a purchase.
  */
-export function OutboundLink({ url, label }: { readonly url: string; readonly label: string }) {
+export function OutboundLink({
+  url,
+  label,
+  synthetic = false,
+}: {
+  readonly url: string;
+  readonly label: string;
+  /** A fictional fixture address: the notice says plainly that it is a sample, not a verified merchant. */
+  readonly synthetic?: boolean;
+}) {
   const [open, setOpen] = useState(false);
   const safe = parseSafeUrl(url);
   if (!safe.ok) return null;
@@ -47,7 +56,7 @@ export function OutboundLink({ url, label }: { readonly url: string; readonly la
           </div>
         }
       >
-        <p>{t("product.leaveBody")}</p>
+        <p>{t(synthetic ? "fixture.leaveBody" : "product.leaveBody")}</p>
         <p className="mt-3 text-sm break-all text-muted-foreground">{safe.url}</p>
       </Sheet>
     </>

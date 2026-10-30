@@ -41,9 +41,14 @@ const channels = (color: string) => {
  * reported as skipped, on an engine that cannot emulate it instead of failing on the wrong scheme.
  */
 async function useDarkScheme(page: Page) {
+  // Called after navigation: the check must hold for the loaded page, and the page's own stylesheet must agree.
   await page.emulateMedia({ colorScheme: "dark" });
-  const dark = await page.evaluate(() => matchMedia("(prefers-color-scheme: dark)").matches);
-  test.skip(!dark, "this engine did not apply the dark colour-scheme emulation");
+  const applied = await page.evaluate(() => {
+    const dark = matchMedia("(prefers-color-scheme: dark)").matches;
+    const stage = getComputedStyle(document.documentElement).getPropertyValue("--art-stage").trim();
+    return dark && stage.toLowerCase() === "#1a1a22";
+  });
+  test.skip(!applied, "this engine did not apply the dark colour scheme to the loaded page");
 }
 
 for (const width of [325, 390, 768, 1440]) {
@@ -57,8 +62,8 @@ for (const width of [325, 390, 768, 1440]) {
     test("a dark product (Buds Lite) gets a light rim and a backlight, without a new body color", async ({
       page,
     }) => {
-      await useDarkScheme(page);
       await page.goto("/product/fx-buds-lite");
+      await useDarkScheme(page);
       await expect(stage(page)).toBeVisible();
       // The art is first drawn in the neutral default colour and re-tinted when the only colour is selected.
       await expect(stage(page)).toHaveAccessibleName(/màu/);
@@ -73,6 +78,7 @@ for (const width of [325, 390, 768, 1440]) {
 
     test("a white variant is not recolored and gets no extra backlight", async ({ page }) => {
       await page.goto("/product/fx-buds-pro");
+      await useDarkScheme(page);
       await page
         .getByRole("main")
         .getByRole("button", { name: /^Trắng/ })

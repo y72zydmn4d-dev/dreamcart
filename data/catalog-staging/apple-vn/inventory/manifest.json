@@ -1,0 +1,11 @@
+{
+  "source": {
+    "id": "apple-store-vn",
+    "name": "Apple Store Vietnam",
+    "region": "VN",
+    "currency": "VND"
+  },
+  "coverage": { "basis": "unknown", "evidence": null, "enumeratedAt": null },
+  "pages": [],
+  "listings": []
+}

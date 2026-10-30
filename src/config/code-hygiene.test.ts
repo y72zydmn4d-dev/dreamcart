@@ -62,14 +62,20 @@ describe("code hygiene", () => {
     expect(hits).toEqual([]);
   });
 
-  it("environment variables are read only through the release flag", () => {
+  it("environment variables are read only through the release flag (and Vercel's own VERCEL_ENV, in one place)", () => {
     const hits = files
       .filter((f) =>
-        /process\.env\.(?!NODE_ENV\b|NEXT_PUBLIC_DREAMCART_RELEASE\b|NEXT_TELEMETRY_DISABLED\b)/.test(
+        /process\.env\.(?!NODE_ENV\b|NEXT_PUBLIC_DREAMCART_RELEASE\b|NEXT_TELEMETRY_DISABLED\b|VERCEL_ENV\b)/.test(
           f.text,
         ),
       )
       .map((f) => f.path);
     expect(hits).toEqual([]);
+  });
+
+  it("VERCEL_ENV (a system variable, no secret) is read only by the catalog activation gate", () => {
+    // It keeps the staged catalog out of production deployments; nothing else may branch on the deployment target.
+    const hits = files.filter((f) => /process\.env\.VERCEL_ENV\b/.test(f.text)).map((f) => f.path);
+    expect(hits.map((p) => p.replace(/\\/g, "/"))).toEqual(["platform/catalog/index.ts"]);
   });
 });

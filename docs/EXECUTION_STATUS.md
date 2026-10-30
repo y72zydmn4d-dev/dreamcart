@@ -57,7 +57,7 @@ Acceptance checks the independent browser test did not cover, still open for the
 
 ## Next approved program
 
-**Apple Store Vietnam Complete Catalog Integration** (owner-approved after the F01–F04 release). Constraints from the owner: keep the existing architecture, preserve historical Fixturia orders, ingest the catalog in sequential batches, and never publish unverified product data or uncleared images to production. Not started: it waits for the owner's detailed master prompt.
+**Apple Store Vietnam Complete Catalog Integration** (owner-approved). Constraints from the owner: keep the existing architecture, preserve historical Fixturia orders, ingest in sequential batches, and never publish unverified product data or uncleared images to production. Execution record: `docs/APPLE_CATALOG_EXECUTION_STATUS.md` (Batch 0 foundation delivered; source verification blocked on network access to `www.apple.com`).
 
 ## Next action
 

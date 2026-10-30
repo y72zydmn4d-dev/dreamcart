@@ -33,6 +33,11 @@ export const vi = {
       "Địa chỉ này là địa chỉ mẫu của một cửa hàng hư cấu, không phải cửa hàng thật và không thể xác minh. Bạn sẽ không mua gì thông qua DreamCart.",
     artCaption: "Ảnh minh hoạ, không phải ảnh sản phẩm thật",
   },
+  staging: {
+    badge: "Bản xem trước",
+    notice:
+      "Bản xem trước danh mục thật: dữ liệu đang được kiểm chứng theo từng đợt và chưa được công bố. Mọi giao dịch vẫn là mô phỏng.",
+  },
   art: {
     label: "Ảnh minh hoạ {name}, màu {color}",
     labelNoColor: "Ảnh minh hoạ {name}",

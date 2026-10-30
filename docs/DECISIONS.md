@@ -20,6 +20,7 @@ Single index of decisions. Each ADR in `docs/decisions/` holds rationale and tra
 | [012](decisions/ADR-012-vietnamese-first-ui.md) | Vietnamese-first UI, dictionary module | Accepted |
 | [013](decisions/ADR-013-money-currency-price-states.md) | Integer money, VND, no conversion, derived price states | Accepted |
 | [014](decisions/ADR-014-exact-variant-matching.md) | Deterministic exact-variant matching | Proposed |
+| [015](decisions/ADR-015-apple-store-vietnam-catalog-program.md) | Apple Store Vietnam catalog program: staged ingestion behind an explicit activation gate | Accepted |
 
 Per decision P-8, ADRs are promoted only when genuinely resolved. **Still Proposed, and why:** 002 (price snapshots are cleared only for private development and the pilot, not for public deployment; RT-5), 010 (image rights are not yet demonstrated for any real product; blocker B2), 014 (rules must be implemented and tested against the real catalog).
 

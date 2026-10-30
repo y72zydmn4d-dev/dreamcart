@@ -4,10 +4,14 @@
 import { existsSync, readFileSync, readdirSync, statSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import {
+  activationSchema,
   checkMediaFiles,
+  complianceRegisterSchema,
+  coverageReport,
   importCuration,
   readinessReport,
   validateCatalog,
+  validateInventory,
   type CatalogData,
   type CatalogIssue,
   type CatalogMode,
@@ -61,8 +65,48 @@ function check(): number {
       console.log(`  readiness: ${r.meetsMinimum ? "meets the release minimum" : "NOT ready for a real release: " + r.shortfalls.join("; ")}`);
     }
   }
+  if (!checkProgram()) failed = true;
   console.log(failed ? "catalog check FAILED" : "catalog check OK");
   return failed ? 1 : 0;
+}
+
+/** The Apple Store Vietnam program: activation setting, staged catalog, inventory manifest, compliance register. */
+const STAGING_DIR = "data/catalog-staging/apple-vn";
+function checkProgram(): boolean {
+  let ok = true;
+  const fail = (message: string) => {
+    console.log(`  ERROR ${message}`);
+    ok = false;
+  };
+
+  const activation = activationSchema.safeParse(JSON.parse(readFileSync("data/catalog/activation.json", "utf8")));
+  if (!activation.success) for (const i of activation.error.issues) fail(`activation.json ${i.path.join(".")}: ${i.message}`);
+  else console.log(`activation: ${activation.data.mode}`);
+
+  const staged = loadDir(STAGING_DIR);
+  const stagedResult = validateCatalog(staged, { mode: "real", nowMs: Date.now() });
+  console.log(`staged catalog (${STAGING_DIR}): ${staged.products.length} products, ${staged.variants.length} variants, ${staged.offers.length} offers`);
+  print("ERROR", stagedResult.errors);
+  if (!stagedResult.ok) ok = false;
+
+  const inventory = validateInventory(JSON.parse(readFileSync(join(STAGING_DIR, "inventory/manifest.json"), "utf8")));
+  for (const e of inventory.errors) fail(`inventory [${e.code}] ${e.path}: ${e.message}`);
+  if (inventory.manifest) {
+    const r = coverageReport(inventory.manifest);
+    console.log(
+      `inventory: ${r.listingsDiscovered} listings (${r.uniqueProducts} unique), ${r.verified} verified, ${r.blocked} blocked, ${r.excluded} excluded; ` +
+        `pages ${r.pagesInspected}/${r.pagesDiscovered} inspected; prices exact ${r.priceExact}, starting-from ${r.priceStartingFrom}; ` +
+        `images cleared ${r.imagesCleared}; staged ${r.staged}, published ${r.published}`,
+    );
+    console.log(`  ${r.statement}`);
+    // Records recorded as staged or published must exist in the staged catalog: the manifest never overstates.
+    const claimed = r.staged + r.published;
+    if (claimed > staged.products.length)
+      fail(`inventory claims ${claimed} staged or published listings but the staged catalog has ${staged.products.length} products`);
+  }
+  const compliance = complianceRegisterSchema.safeParse(JSON.parse(readFileSync(join(STAGING_DIR, "inventory/compliance.json"), "utf8")));
+  if (!compliance.success) for (const i of compliance.error.issues) fail(`compliance.json ${i.path.join(".")}: ${i.message}`);
+  return ok;
 }
 
 function importCsv(file: string | undefined): number {

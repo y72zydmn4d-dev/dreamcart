@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { buildCatalogView } from "@/modules/discovery";
 import { validateCatalog } from "@/modules/catalog";
 import { loadActiveCatalog, REAL_RAW } from "./index";
@@ -60,5 +60,100 @@ describe("synthetic catalog exercises every state the UI must handle", () => {
         (o) => o.source.persistencePolicy === "reference_only" && !o.evaluation.addable,
       ),
     ).toBe(true);
+  });
+});
+
+describe("activation gate", () => {
+  it("serves the labeled fixtures by default and says which mode is active", async () => {
+    const active = await loadActiveCatalog(NOW);
+    expect(active.activation).toBe("SYNTHETIC_DEMO");
+    expect(active.activationNote).toBeNull();
+  });
+
+  it("the committed setting is valid, and publishing the real catalog is never the default", async () => {
+    const { default: file } = await import("../../../data/catalog/activation.json");
+    const { activationSchema } = await import("@/modules/catalog");
+    expect(activationSchema.safeParse(file).success).toBe(true);
+    // Flip this deliberately, with the owner's authorization, in the PR that activates a verified catalog.
+    expect(file.mode).toBe("SYNTHETIC_DEMO");
+  });
+
+  it("verified records already present would not go live without the setting", () => {
+    // data/catalog is validated on every load but only served under VERIFIED_REAL_CATALOG.
+    expect(REAL_RAW.products.length).toBe(0);
+  });
+});
+
+describe("staged catalog (data/catalog-staging/apple-vn)", () => {
+  it("is valid under the real-catalog rules, so a bad batch cannot reach a Preview", async () => {
+    const { STAGING_RAW } = await import("./staging");
+    const result = validateCatalog(STAGING_RAW, { mode: "real", nowMs: NOW });
+    expect(result.errors).toEqual([]);
+  });
+
+  it("never contains fixture ids", async () => {
+    const { STAGING_RAW } = await import("./staging");
+    expect(JSON.stringify(STAGING_RAW)).not.toMatch(/"fx-/);
+  });
+
+  it("ships its inventory manifest and compliance register in a valid shape", async () => {
+    const { validateInventory, complianceRegisterSchema, methodPermitted } =
+      await import("@/modules/catalog");
+    const manifest = (
+      await import("../../../data/catalog-staging/apple-vn/inventory/manifest.json")
+    ).default;
+    const compliance = (
+      await import("../../../data/catalog-staging/apple-vn/inventory/compliance.json")
+    ).default;
+    expect(validateInventory(manifest).errors).toEqual([]);
+    const register = complianceRegisterSchema.parse(compliance);
+    // Until the terms are read and recorded, nothing automated and no image copying is permitted.
+    expect(methodPermitted(register, "automated_page_collection")).toBe(false);
+    expect(methodPermitted(register, "image_rehosting")).toBe(false);
+    expect(methodPermitted(register, "image_hotlinking")).toBe(false);
+  });
+});
+
+describe("loadActiveCatalog under each activation setting", () => {
+  /** Load the module fresh with a different committed setting and deployment target. */
+  async function loadWith(setting: unknown, vercelEnv: string | undefined) {
+    vi.resetModules();
+    vi.doMock("../../../data/catalog/activation.json", () => ({ default: setting }));
+    vi.stubEnv("VERCEL_ENV", vercelEnv as string);
+    const mod = await import("./index");
+    return mod.loadActiveCatalog(NOW);
+  }
+  afterEach(() => {
+    vi.doUnmock("../../../data/catalog/activation.json");
+    vi.unstubAllEnvs();
+    vi.resetModules();
+  });
+  const staging = { mode: "REAL_CATALOG_STAGING", ownerAuthorization: null };
+
+  it("staging in production is ignored with a recorded note, never served", async () => {
+    const active = await loadWith(staging, "production");
+    expect(active.activation).toBe("SYNTHETIC_DEMO");
+    expect(active.mode).toBe("synthetic");
+    expect(active.activationNote).toContain("production");
+  });
+
+  it("staging in a preview with no staged products yet falls back to the fixtures, and says so", async () => {
+    const active = await loadWith(staging, "preview");
+    expect(active.activation).toBe("SYNTHETIC_DEMO");
+    expect(active.activationNote).toContain("no products yet");
+  });
+
+  it("the verified mode with no verified products is an error, not a silent fallback", async () => {
+    const verified = {
+      mode: "VERIFIED_REAL_CATALOG",
+      ownerAuthorization: { reference: "test", authorizedAt: "2026-10-30" },
+    };
+    await expect(loadWith(verified, "production")).rejects.toThrow(/no verified products/);
+  });
+
+  it("an invalid activation file is an error", async () => {
+    await expect(
+      loadWith({ mode: "VERIFIED_REAL_CATALOG", ownerAuthorization: null }, undefined),
+    ).rejects.toThrow(/activation\.json is invalid/);
   });
 });

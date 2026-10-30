@@ -1,0 +1,53 @@
+{
+  "source": "apple-store-vn",
+  "entries": [
+    {
+      "method": "manual_reading_of_public_pages",
+      "status": "unreviewed",
+      "evidence": null,
+      "reviewedAt": null,
+      "reviewedBy": null,
+      "note": "A person reading public pages is the approved curation path (docs/CURATION_PROCESS.md); the terms for this source have not been read and recorded."
+    },
+    {
+      "method": "automated_page_collection",
+      "status": "restricted",
+      "evidence": "Project decision ADR-003 and ADR-015: no automated extraction of third-party pages without a new ADR, a reviewed permission basis and approved hosts.",
+      "reviewedAt": "2026-10-30",
+      "reviewedBy": "claude-code",
+      "note": "This is the project's own rule, not a statement about the site's terms. The authoring environment also cannot reach www.apple.com."
+    },
+    {
+      "method": "documented_structured_feed",
+      "status": "unreviewed",
+      "evidence": null,
+      "reviewedAt": null,
+      "reviewedBy": null,
+      "note": "No authorized product feed has been identified."
+    },
+    {
+      "method": "owner_supplied_files",
+      "status": "permitted",
+      "evidence": "docs/CURATION_PROCESS.md: the owner supplies source-checked rows; Claude formats and validates them.",
+      "reviewedAt": "2026-10-30",
+      "reviewedBy": "claude-code",
+      "note": "Owner remains responsible for having read the source's terms (Source.termsReviewedAt)."
+    },
+    {
+      "method": "image_rehosting",
+      "status": "restricted",
+      "evidence": "ADR-010: only CLEARED assets with a recorded basis and evidence may be self-hosted.",
+      "reviewedAt": "2026-10-30",
+      "reviewedBy": "claude-code",
+      "note": "No Apple image has a recorded permission basis. Public availability is not permission."
+    },
+    {
+      "method": "image_hotlinking",
+      "status": "restricted",
+      "evidence": "ADR-010: no hotlinking.",
+      "reviewedAt": "2026-10-30",
+      "reviewedBy": "claude-code",
+      "note": null
+    }
+  ]
+}

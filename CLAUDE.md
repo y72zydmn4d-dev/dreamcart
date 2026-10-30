@@ -45,6 +45,7 @@ options, premium-first catalog of about 20-30 verified products.
 
 - **Vercel Preview deployments are authorized.** The two Vercel projects connected to this repository (`dreamcart`, `dreamcart-b963`) build a preview for every pull request automatically, on the free tier. Previews run the labeled synthetic fixtures until a verified real catalog exists. This replaces the earlier "no deployment before Phase 12" rule.
 - **Anything beyond previews needs the owner's explicit approval each time:** publishing or promoting a production deployment, attaching a domain, enabling a paid plan or add-on, creating, deleting, disconnecting or re-linking a Vercel project, and setting environment variables or secrets (none are needed to build or run the app).
+- **Production follows `main`** (owner-confirmed for `dreamcart`): a merge is a release. Which catalog is served is an explicit, reviewed setting (`data/catalog/activation.json`, ADR-015): merging verified or staged real-catalog data does not publish it, the staged catalog is never served in production, and `VERIFIED_REAL_CATALOG` needs a recorded owner authorization. Do not flip it without that authorization.
 - A release build sets `NEXT_PUBLIC_DREAMCART_RELEASE=1`; it refuses synthetic data by design and does not publish the `/design` gallery.
 - Verify a deployment with `SMOKE_BASE_URL=<url> npm run smoke` and `E2E_BASE_URL=<url> npx playwright test` (see docs/RUNBOOK.md and docs/RELEASE_CHECKLIST.md).
 
